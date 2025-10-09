@@ -1,8 +1,10 @@
 import BlogSectionHome from "./BlogSectionHome";
 import BrandMarquee from "./BrandMarquee";
 import CarsWithFilter from "./carsWithFilter/CarsWithFilter";
+import Faq from "./Faq";
 import FindNearestDealers from "./FindNearestDealers";
 import Hero from "./Hero";
+import ReviewSection from "./reviewSection/ReviewSection";
 import SellQuicklyBanner from "./SellQuicklyBanner";
 
 const MainHomePage = () => {
@@ -14,6 +16,8 @@ const MainHomePage = () => {
       <BlogSectionHome />
       <SellQuicklyBanner />
       <BrandMarquee />
+      <Faq />
+      <ReviewSection />
     </div>
   );
 };

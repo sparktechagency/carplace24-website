@@ -1,5 +1,3 @@
-import Image from "next/image";
-import { Heart } from "lucide-react";
 import Container from "@/components/ui/container";
 import CarCard from "./CarCard";
 

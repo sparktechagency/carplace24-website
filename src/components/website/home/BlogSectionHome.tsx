@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Container from "@/components/ui/container";
-import Image from "next/image";
 
 // Blog data structure
 const blogPosts = [
