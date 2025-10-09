@@ -33,7 +33,7 @@ const BrandMarquee = () => {
       </Container>
       <Marquee gradient={false} speed={40} pauseOnHover={true} className="py-4">
         {brandLogos.map((logo, index) => (
-          <div key={index} className="mx-20">
+          <div key={index} className="mx-5 md:mx-20">
             <Image
               src={logo.src}
               alt={logo.alt}

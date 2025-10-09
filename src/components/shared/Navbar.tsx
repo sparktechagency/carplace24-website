@@ -10,7 +10,6 @@ import { navItems } from "./navData";
 import compareIcon from "@/assets/compareIcon.png";
 import heartIcon from "@/assets/heart.png";
 import bellIcon from "@/assets/bell.png";
-import { BellIcon, HeartIcon } from "lucide-react";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

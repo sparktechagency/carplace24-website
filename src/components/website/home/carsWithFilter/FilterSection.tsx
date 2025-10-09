@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
 
@@ -10,13 +10,13 @@ const vehicleTypes = [
   { id: "bus", label: "Bus", icon: "🚌" },
   { id: "commercial", label: "Commercial", icon: "🚐" },
   { id: "camper", label: "Camper", icon: "🚙" },
-  { id: "motorcycles", label: "motorcycles", icon: "🏍️" },
+  { id: "motorcycles", label: "Motorcycles", icon: "🏍️" },
 ];
 
 const filterOptions = [
   {
     id: "brand",
-    label: "Brande & Model",
+    label: "Brand & Model",
     options: ["All", "Toyota", "Honda", "BMW", "Mercedes", "Audi"],
   },
   {
@@ -101,40 +101,43 @@ const Dropdown = ({
 
 const FilterSection = () => {
   return (
-    <div className="w-[1400px] bg-white shadow-md rounded-md">
+    <div className="w-full lg:w-[1400px] bg-white shadow-md rounded-md">
       <Container>
         <div className="py-4">
           {/* Vehicle Type Selection */}
-          <div className="flex flex-wrap items-center gap-6 mb-4">
-            {vehicleTypes.map((type) => (
-              <button
-                key={type.id}
-                className={`flex items-center gap-2 px-2 py-1 ${
-                  type.id === "car" ? "text-primary" : "text-gray-700"
-                }`}
-              >
-                <span className="text-lg">{type.icon}</span>
-                <span>{type.label}</span>
-              </button>
-            ))}
+          <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:gap-6 mb-4">
+            <div className="flex flex-wrap items-center gap-3 lg:gap-6">
+              {vehicleTypes.map((type) => (
+                <button
+                  key={type.id}
+                  className={`flex items-center gap-2 px-2 py-1 ${
+                    type.id === "car" ? "text-primary" : "text-gray-700"
+                  }`}
+                >
+                  <span className="text-lg">{type.icon}</span>
+                  <span>{type.label}</span>
+                </button>
+              ))}
+            </div>
 
-            <div className="ml-auto flex items-center gap-5">
+            <div className="flex items-center gap-5 lg:ml-auto">
               <button className="flex items-center gap-1 text-green-600">
                 <RotateCcw className="w-4 h-4" />
               </button>
               <div className="flex items-center gap-1 text-primary cursor-pointer">
-                <Settings2 /> <span className="text-sm">Advanced search</span>
+                <Settings2 className="w-4 h-4" />{" "}
+                <span className="text-sm">Advanced search</span>
               </div>
             </div>
           </div>
 
           {/* Filter Dropdowns and Search Button in a single row */}
-          <div className="flex items-end">
-            <div className="grid grid-cols-6 gap-4 flex-1">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-4 lg:gap-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 flex-1">
               {filterOptions.map((filter, index) => (
                 <div
                   key={index}
-                  className="border-r last:border-r-0 pr-4 last:pr-0"
+                  className="lg:border-r lg:last:border-r-0 lg:pr-4 lg:last:pr-0"
                 >
                   <Dropdown
                     label={filter.label}
@@ -148,8 +151,8 @@ const FilterSection = () => {
             </div>
 
             {/* Search Button */}
-            <div className="ml-4">
-              <button className="bg-primary cursor-pointer text-white px-6 py-2 rounded-md flex items-center h-[38px] hover:bg-primary/90 hover:shadow-md">
+            <div className="w-full lg:w-auto lg:ml-4">
+              <button className="bg-primary cursor-pointer text-white px-6 py-2 rounded-md flex items-center justify-center lg:justify-start h-[38px] hover:bg-primary/90 hover:shadow-md w-full lg:w-auto">
                 <Search className="w-4 h-4 mr-2" />
                 Search result
               </button>

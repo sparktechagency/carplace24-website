@@ -19,7 +19,7 @@ const FindNearestDealers = () => {
             <Image
               src={nearestDealersArrow}
               alt="Arrow"
-              className="absolute bottom-5 -right-15 w-32 h-auto"
+              className="hidden md:block absolute bottom-5 -right-15 w-32 h-auto"
             />
           </div>
         </div>

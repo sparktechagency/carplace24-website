@@ -14,11 +14,11 @@ const Hero = () => {
       <div className="bg-black/60">
         <Container>
           <div className="flex flex-col text-white items-center justify-center h-[750px]">
-            <h1 className="text-5xl font-bold w-[40%] text-center">
+            <h1 className="text-3xl md:text-5xl font-bold md:w-[40%] text-center">
               The <span className="text-primary">best way</span> to find your
               vehicles
             </h1>
-            <p className="text-2xl mt-5 text-center">
+            <p className="text-xl md:text-2xl mt-5 text-center">
               Discover, Compare, Drive Away with{" "}
               <span className="text-green-700 font-semibold">100,500</span>{" "}
               Vehicles

@@ -125,7 +125,9 @@ const ReviewSection = () => {
     <section className="py-16 bg-gray-50">
       <Container>
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-3">What Our Customers Say</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            What Our Customers Say
+          </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Discover why thousands of car buyers and sellers trust our platform
             for their automotive needs
@@ -139,7 +141,7 @@ const ReviewSection = () => {
             }}
             pagination={{
               clickable: true,
-              el: '.custom-pagination',
+              el: ".custom-pagination",
             }}
             breakpoints={{
               640: {
@@ -171,10 +173,10 @@ const ReviewSection = () => {
             >
               <ArrowLeft />
             </div>
-            
+
             {/* Pagination dots between arrows */}
             <div className="swiper-pagination custom-pagination"></div>
-            
+
             <div
               className="cursor-pointer bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors"
               onClick={() => swiperRef.current?.slideNext()}

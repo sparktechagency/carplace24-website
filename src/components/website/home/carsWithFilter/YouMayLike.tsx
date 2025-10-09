@@ -56,7 +56,7 @@ const CARS_DATA = [
 
 const YouMayLike = () => {
   return (
-    <div className="py-8 px-4 bg-gray-50 pb-20 pt-10">
+    <div className="py-8 md:px-4 bg-gray-50 pb-20 pt-10">
       <Container>
         <h2 className="text-3xl font-semibold mb-8">You may like</h2>
 
