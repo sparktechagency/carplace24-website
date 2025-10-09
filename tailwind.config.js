@@ -15,6 +15,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-poppins)", "sans-serif"],
+      },
       colors: {
         border: "var(--border)",
         input: "var(--input)",
@@ -59,4 +62,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
