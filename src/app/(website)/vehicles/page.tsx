@@ -1,5 +1,11 @@
+import VehiclesMainPage from "@/components/website/vehicles/VehiclesMainPage";
+
 const page = () => {
-  return <div>Vehicles Page</div>;
+  return (
+    <div>
+      <VehiclesMainPage />
+    </div>
+  );
 };
 
 export default page;
