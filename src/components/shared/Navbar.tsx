@@ -15,7 +15,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="w-full py-4 shadow-sm bg-gray-50">
+    <header className="w-full py-4 shadow-sm bg-gray-50 fixed top-0 left-0 z-50">
       <div className="container mx-auto flex items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">
