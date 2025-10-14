@@ -10,9 +10,8 @@ const VehicleDetailsTabs = () => {
   );
 
   return (
-    <section className="py-4">
+    <section className="py-4 min-h-[520px]">
       <Container>
-        {/* Tabs */}
         <div className="border-b flex gap-6 text-sm">
           <button
             className={
