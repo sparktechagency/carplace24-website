@@ -2,19 +2,22 @@
 
 import { useState } from "react";
 import Container from "@/components/ui/container";
-import {
-  Mail,
-  Phone,
-  Share2,
-  Heart,
-  MapPin,
-  Star,
-} from "lucide-react";
+import { Mail, Phone, Share2, Heart, MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import { CAR_DETAILS } from "./carData";
+import TestDriveModal from "./TestDriveModal";
 
 const CarDetails = () => {
   const [activeImage, setActiveImage] = useState(CAR_DETAILS.images[0]);
+  const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
+
+  const handleTestDriveClick = () => {
+    setIsTestDriveOpen(true);
+  };
+
+  const handleCloseTestDrive = () => {
+    setIsTestDriveOpen(false);
+  };
 
   return (
     <section className="py-8">
@@ -130,13 +133,21 @@ const CarDetails = () => {
                 <button className="px-3 h-9 rounded-md border text-sm cursor-pointer">
                   Compare
                 </button>
-                <button className="px-3 h-9 rounded-md border text-sm cursor-pointer">
+                <button 
+                  className="px-3 h-9 rounded-md border text-sm cursor-pointer"
+                  onClick={handleTestDriveClick}
+                >
                   Test Drive
                 </button>
                 <button className="px-3 h-9 rounded-md border text-sm flex items-center gap-2 cursor-pointer">
                   <Heart className="h-4 w-4" /> Favorite
                 </button>
               </div>
+              <TestDriveModal 
+                isOpen={isTestDriveOpen} 
+                onClose={handleCloseTestDrive} 
+                carName={CAR_DETAILS.title}
+              />
             </div>
           </div>
         </div>

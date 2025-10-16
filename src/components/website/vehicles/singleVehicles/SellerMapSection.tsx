@@ -1,27 +1,16 @@
 "use client";
 
 import Container from "@/components/ui/container";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Polyline,
-  Popup,
-} from "react-leaflet";
-import { useEffect, useMemo, useRef, useState } from "react";
-import L from "leaflet";
+import { useEffect, useRef, useState } from "react";
+import Script from "next/script";
 
-const sellerIcon = new L.Icon({
-  iconUrl: "/icons/seller.png",
-  iconSize: [32, 48],
-  iconAnchor: [16, 48],
-});
-
-const buyerIcon = new L.Icon({
-  iconUrl: "/icons/buyer.png",
-  iconSize: [32, 48],
-  iconAnchor: [16, 48],
-});
+// TypeScript declarations for Google Maps API
+declare global {
+  interface Window {
+    google: typeof google;
+    initGoogleMaps: () => void;
+  }
+}
 
 type LatLng = { lat: number; lng: number };
 
@@ -32,105 +21,186 @@ interface SellerMapSectionProps {
 }
 
 const defaultSeller: LatLng = { lat: 37.6264, lng: -77.378 }; // Mechanicsville, VA
-const defaultBuyer: LatLng = { lat: 37.5804, lng: -77.461 }; // Richmond, VA
+const defaultBuyer: LatLng = { lat: 37.67067523916521, lng: -92.655622129894 }; // Richmond, VA
 
 const SellerMapSection = ({
   seller = defaultSeller,
   buyer = defaultBuyer,
   height = 580,
 }: SellerMapSectionProps) => {
-  const mapRef = useRef<L.Map | null>(null);
-  const [routeCoords, setRouteCoords] = useState<LatLng[]>([]);
-  const [routeError, setRouteError] = useState<string | null>(null);
-  const [loadingRoute, setLoadingRoute] = useState<boolean>(false);
-
-  const initialBounds: [[number, number], [number, number]] = useMemo(
-    () => [
-      [buyer.lat, buyer.lng],
-      [seller.lat, seller.lng],
-    ],
-    [buyer, seller]
+  const mapRef = useRef<HTMLDivElement>(null);
+  const googleMapRef = useRef<google.maps.Map | null>(null);
+  const directionsServiceRef = useRef<google.maps.DirectionsService | null>(
+    null
   );
+  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(
+    null
+  );
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
 
-  // Fetch a driving route that follows roads using OSRM (free demo server)
-  useEffect(() => {
-    const fetchRoute = async () => {
-      setLoadingRoute(true);
-      setRouteError(null);
-      setRouteCoords([]);
-      try {
-        const url = `https://router.project-osrm.org/route/v1/driving/${buyer.lng},${buyer.lat};${seller.lng},${seller.lat}?overview=full&geometries=geojson`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`OSRM error: ${res.status}`);
-        const data = await res.json();
-        const coords: Array<[number, number]> =
-          data?.routes?.[0]?.geometry?.coordinates ?? [];
-        if (!coords.length) throw new Error("No route found");
-        const latLngs: LatLng[] = coords.map(([lon, lat]) => ({
-          lat,
-          lng: lon,
-        }));
-        setRouteCoords(latLngs);
-      } catch (err: any) {
-        setRouteError(err?.message || "Failed to fetch route");
-      } finally {
-        setLoadingRoute(false);
-      }
-    };
-    fetchRoute();
-  }, [buyer, seller]);
+  const initializeMap = () => {
+    console.log("Initializing map...");
+    console.log("mapRef.current:", mapRef.current);
+    console.log("window.google:", window.google);
+    console.log("API Key:", process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
 
-  // Fit map view to the route once available
-  useEffect(() => {
-    if (routeCoords.length && mapRef.current) {
-      const bounds = L.latLngBounds(
-        routeCoords.map((p) => L.latLng(p.lat, p.lng))
-      );
-      mapRef.current.fitBounds(bounds, { padding: [24, 24] });
+    if (!mapRef.current) {
+      setMapError("Map container not found");
+      return;
     }
-  }, [routeCoords]);
+
+    if (!window.google) {
+      setMapError("Google Maps API not loaded");
+      return;
+    }
+
+    try {
+      // Initialize map
+      const map = new google.maps.Map(mapRef.current, {
+        center: {
+          lat: (buyer.lat + seller.lat) / 2,
+          lng: (buyer.lng + seller.lng) / 2,
+        },
+        zoom: 10,
+        mapTypeControl: true,
+        streetViewControl: true,
+        fullscreenControl: true,
+      });
+
+      console.log("Map created successfully:", map);
+      googleMapRef.current = map;
+
+      // Add seller marker
+      const sellerMarker = new google.maps.Marker({
+        position: seller,
+        map: map,
+        title: "Private Seller",
+        icon: {
+          url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+          scaledSize: new google.maps.Size(32, 32),
+        },
+      });
+
+      // Add buyer marker
+      const buyerMarker = new google.maps.Marker({
+        position: buyer,
+        map: map,
+        title: "You (Buyer)",
+        icon: {
+          url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+          scaledSize: new google.maps.Size(32, 32),
+        },
+      });
+
+      console.log("Markers created:", { sellerMarker, buyerMarker });
+
+      // Initialize directions service and renderer
+      directionsServiceRef.current = new google.maps.DirectionsService();
+      directionsRendererRef.current = new google.maps.DirectionsRenderer({
+        suppressMarkers: true, // We already have custom markers
+        polylineOptions: {
+          strokeColor: "#4285F4",
+          strokeWeight: 4,
+          strokeOpacity: 0.8,
+        },
+      });
+      directionsRendererRef.current.setMap(map);
+
+      // Calculate and display route
+      calculateRoute();
+
+      setMapError(null); // Clear any previous errors
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      setMapError(`Failed to initialize map: ${error}`);
+    }
+  };
+
+  const calculateRoute = () => {
+    if (!directionsServiceRef.current || !directionsRendererRef.current) return;
+
+    setRouteError(null);
+
+    directionsServiceRef.current.route(
+      {
+        origin: buyer,
+        destination: seller,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === "OK" && result) {
+          directionsRendererRef.current?.setDirections(result);
+        } else {
+          setRouteError("Could not calculate driving directions");
+          console.error("Directions request failed:", status);
+        }
+      }
+    );
+  };
+
+  useEffect(() => {
+    // Set up global callback for Google Maps
+    (window as any).initGoogleMaps = () => {
+      console.log("Google Maps callback triggered");
+      setIsLoaded(true);
+    };
+
+    return () => {
+      // Cleanup
+      delete (window as any).initGoogleMaps;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      initializeMap();
+    }
+  }, [isLoaded, buyer, seller]);
 
   return (
-    <div className="my-6">
-      <Container>
-        <MapContainer
-          bounds={initialBounds}
-          style={{ height, width: "100%" }}
-          className="w-full rounded-xl overflow-hidden border"
-          scrollWheelZoom
-          ref={mapRef}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&copy; OpenStreetMap contributors"
+    <>
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=geometry&callback=initGoogleMaps`}
+        onLoad={() => {
+          console.log("Google Maps script loaded");
+          // Don't set isLoaded here, let the callback handle it
+        }}
+        onError={(e) => {
+          console.error("Failed to load Google Maps script:", e);
+          setMapError("Failed to load Google Maps API");
+        }}
+      />
+      <div className="my-6">
+        <Container>
+          <div
+            ref={mapRef}
+            style={{ height: `${height}px`, width: "100%", minHeight: "400px" }}
+            className="w-full rounded-xl overflow-hidden border bg-gray-100"
           />
-          <Marker position={seller} icon={sellerIcon}>
-            <Popup>Private Seller</Popup>
-          </Marker>
-          <Marker position={buyer} icon={buyerIcon}>
-            <Popup>You (Buyer)</Popup>
-          </Marker>
-          {routeCoords.length > 0 && (
-            <Polyline
-              positions={routeCoords}
-              color="#020fff"
-              weight={5}
-              opacity={0.9}
-            />
+          {mapError && (
+            <div className="text-sm text-red-600 mt-2 p-2 bg-red-50 rounded">
+              <strong>Map Error:</strong> {mapError}
+            </div>
           )}
           {routeError && (
-            <Popup position={buyer} closeButton={false} autoClose={false}>
-              {routeError}
-            </Popup>
+            <div className="text-sm text-red-600 mt-2">
+              <strong>Route Error:</strong> {routeError}
+            </div>
           )}
-        </MapContainer>
-        {loadingRoute && (
-          <div className="text-sm text-muted-foreground mt-2">
-            Fetching driving route…
+          {!isLoaded && !mapError && (
+            <div className="text-sm text-muted-foreground mt-2">
+              Loading Google Maps...
+            </div>
+          )}
+          <div className="text-xs text-gray-500 mt-2">
+            Debug: API Key present:{" "}
+            {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? "Yes" : "No"}
           </div>
-        )}
-      </Container>
-    </div>
+        </Container>
+      </div>
+    </>
   );
 };
 

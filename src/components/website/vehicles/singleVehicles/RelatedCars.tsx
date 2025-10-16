@@ -1,6 +1,7 @@
 "use client";
 
 import Container from "@/components/ui/container";
+import Image from "next/image";
 
 type CarItem = {
   id: string;
@@ -48,14 +49,16 @@ const RelatedCars = () => {
         <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-6">
           Vehicles from this seller
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {items.map((car) => (
             <article
               key={car.id}
               className="rounded-xl border bg-white shadow-sm overflow-hidden"
             >
               <div className="relative">
-                <img
+                <Image
+                  width={2070}
+                  height={1380}
                   src={car.imageSrc}
                   alt={car.title}
                   className="w-full h-48 object-cover"
