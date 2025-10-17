@@ -7,7 +7,11 @@ const AboutMainPage = () => {
           <h1>
             Our <span>Story</span>
           </h1>
-          <p></p>
+          <p>
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Vero culpa
+            nemo illo velit quasi dignissimos officia commodi quas doloribus
+            eveniet.
+          </p>
         </div>
       </div>
     </div>
