@@ -6,22 +6,26 @@ export interface NavItemType {
 export const navItems: NavItemType[] = [
   {
     href: "/",
-    label: "Home"
+    label: "Home",
   },
   {
     href: "/vehicles",
-    label: "Vehicles"
+    label: "Search",
+  },
+  {
+    href: "/search",
+    label: "Search",
   },
   {
     href: "/about",
-    label: "About"
+    label: "About",
   },
   {
     href: "/blogs",
-    label: "Blogs"
+    label: "Blogs",
   },
   {
     href: "/contact-us",
-    label: "Contact us"
-  }
+    label: "Contact us",
+  },
 ];

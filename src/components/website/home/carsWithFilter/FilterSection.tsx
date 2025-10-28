@@ -4,30 +4,13 @@ import { useState } from "react";
 import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
 
-const vehicleTypes = [
-  { id: "car", label: "Car", icon: "🚗" },
-  { id: "truck", label: "Truck", icon: "🚚" },
-  { id: "bus", label: "Bus", icon: "🚌" },
-  { id: "commercial", label: "Commercial", icon: "🚐" },
-  { id: "camper", label: "Camper", icon: "🚙" },
-  { id: "motorcycles", label: "Motorcycles", icon: "🏍️" },
-];
+const vehicleTypes = [{ id: "car", label: "Car", icon: "🚗" }];
 
 const filterOptions = [
   {
     id: "brand",
     label: "Brand & Model",
     options: ["All", "Toyota", "Honda", "BMW", "Mercedes", "Audi"],
-  },
-  {
-    id: "body",
-    label: "Body type",
-    options: ["All", "Sedan", "SUV", "Hatchback", "Coupe", "Convertible"],
-  },
-  {
-    id: "condition",
-    label: "Condition",
-    options: ["All", "New", "Used", "Certified Pre-Owned"],
   },
   {
     id: "year",
@@ -44,11 +27,6 @@ const filterOptions = [
       "$20,000-$30,000",
       "$30,000+",
     ],
-  },
-  {
-    id: "fuel",
-    label: "Fuel",
-    options: ["All", "Gasoline", "Diesel", "Electric", "Hybrid"],
   },
 ];
 
@@ -133,7 +111,7 @@ const FilterSection = () => {
 
           {/* Filter Dropdowns and Search Button in a single row */}
           <div className="flex flex-col lg:flex-row lg:items-end gap-4 lg:gap-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
               {filterOptions.map((filter, index) => (
                 <div
                   key={index}

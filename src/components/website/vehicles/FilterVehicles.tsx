@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
+import Link from "next/link";
 
 // Filter options for Vehicles page (extended)
 const filterOptions = [
@@ -126,10 +127,12 @@ const FilterVehicles = () => {
             <button className="flex items-center gap-1 text-green-600">
               <RotateCcw className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-1 text-primary cursor-pointer">
-              <Settings2 className="w-4 h-4" />
-              <span className="text-sm">Advanced search</span>
-            </div>
+            <Link href={"/advanced-search"}>
+              <div className="flex items-center gap-1 text-primary cursor-pointer">
+                <Settings2 className="w-4 h-4" />
+                <span className="text-sm">Advanced search</span>
+              </div>
+            </Link>
           </div>
 
           {/* Filters: single column on mobile; two rows on desktop with separators only between items */}

@@ -6,11 +6,12 @@ import Faq from "./Faq";
 import Hero from "./Hero";
 import ReviewSection from "./reviewSection/ReviewSection";
 import SellQuicklyBanner from "./SellQuicklyBanner";
+import BannerSlider from "./banner/BannerSlider";
 
 const MainHomePage = () => {
   return (
     <div>
-      <Hero />
+      <BannerSlider />
       <CarsWithFilter />
       <FindNearestDealers />
       <BlogSectionHome />
