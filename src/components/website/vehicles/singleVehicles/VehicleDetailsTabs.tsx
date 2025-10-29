@@ -8,6 +8,11 @@ const VehicleDetailsTabs = () => {
   const [activeTab, setActiveTab] = useState<"basic" | "hours" | "reviews">(
     "basic"
   );
+  const [expanded, setExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
 
   return (
     <section className="py-4 min-h-[520px]">
@@ -60,31 +65,176 @@ const VehicleDetailsTabs = () => {
           </div>
         )}
 
-        {/* Basic & Technical Info */}
+        {/* All Vehicle Info */}
         {activeTab === "basic" && (
           <div className="mt-6">
-            <h3 className="text-sm text-green-600 font-medium">
-              Basic Information
-            </h3>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              {CAR_DETAILS.basicInformation.map((row, i) => (
-                <div key={i} className="flex justify-between border-b pb-2">
-                  <span className="text-gray-500">{row.name}</span>
-                  <span className="text-gray-800">{row.value}</span>
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 gap-x-6 ${
+                !expanded ? "h-[400px] overflow-hidden" : ""
+              }`}
+            >
+              {/* Left Column */}
+              <div>
+                <h3 className="text-sm text-green-600 font-medium">
+                  Basic Information
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.basicInformation.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Color Information
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.colorInformation.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Equipment
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.equipment.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Extras
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.extras.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div>
+                <h3 className="text-sm text-green-600 font-medium">
+                  Technical Information
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.technicalInformation.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Seats & Doors
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.seatsAndDoors.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Fuel Consumption
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.fuelConsumption.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Euro Standard
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.euroStandard.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Electric & Hybrid Specific
+                </h3>
+                <div className="mt-3 text-sm">
+                  {CAR_DETAILS.electricHybridSpecific.map((row, i) => (
+                    <div
+                      key={i}
+                      className="flex justify-between border-b pb-2 mb-2"
+                    >
+                      <span className="text-gray-500">{row.name}</span>
+                      <span className="text-gray-800">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {!expanded && (
+              <div className="relative">
+                <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent"></div>
+              </div>
+            )}
+
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={toggleExpand}
+                className="px-4 py-2 cursor-pointer bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+              >
+                {expanded ? "Show Less" : "Show More Information"}
+              </button>
             </div>
 
             <h3 className="mt-6 text-sm text-green-600 font-medium">
-              Technical Information
+              Description
             </h3>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              {CAR_DETAILS.technicalInformation.map((row, i) => (
-                <div key={i} className="flex justify-between border-b pb-2">
-                  <span className="text-gray-500">{row.name}</span>
-                  <span className="text-gray-800">{row.value}</span>
-                </div>
-              ))}
+            <div className="mt-3 text-sm text-gray-700">
+              <p>{CAR_DETAILS.description}</p>
             </div>
           </div>
         )}

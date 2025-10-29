@@ -7,9 +7,9 @@ import Image from "next/image";
 import Link from "next/link";
 import NavItem from "./NavItem";
 import { navItems } from "./navData";
-import compareIcon from "@/assets/compareIcon.png";
+import compareIcon from "@/assets/compareIcone.png";
 import heartIcon from "@/assets/heart.png";
-import bellIcon from "@/assets/bell.png";
+import addCarIcon from "@/assets/addCarIcon.png";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,15 +56,25 @@ export default function Navbar() {
         {/* User Actions */}
         <div className="hidden md:flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="relative">
-              <Image
-                src={compareIcon}
-                alt="User Profile"
-                width={24}
-                height={24}
-              />
-            </Button>
-            <Button variant="ghost" size="icon" className="relative">
+            <Link href={"/compare"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative cursor-pointer"
+              >
+                <Image
+                  src={compareIcon}
+                  alt="User Profile"
+                  width={24}
+                  height={24}
+                />
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative cursor-pointer"
+            >
               <Image
                 src={heartIcon}
                 alt="User Profile"
@@ -72,8 +82,18 @@ export default function Navbar() {
                 height={24}
               />
             </Button>
-            <Button variant="ghost" size="icon" className="relative p-1">
-              <Image src={bellIcon} alt="User Profile" width={24} height={24} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative w-[50px] cursor-pointer"
+            >
+              <Image
+                src={addCarIcon}
+                alt="User Profile"
+                width={543}
+                height={543}
+                className="object-cover w-[45px] h-[30px]"
+              />
             </Button>
           </div>
           <div className="flex items-center space-x-2">
