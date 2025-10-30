@@ -1,5 +1,11 @@
+import BlogMainPage from "@/components/website/blogs/BlogMainPage";
+
 const page = () => {
-  return <div>Blog Page</div>;
+  return (
+    <div>
+      <BlogMainPage />
+    </div>
+  );
 };
 
 export default page;

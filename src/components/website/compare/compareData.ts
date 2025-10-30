@@ -1,5 +1,3 @@
-import { Star } from "lucide-react";
-
 export interface CompareCarType {
   id: string;
   title: string;
@@ -131,7 +129,8 @@ export const COMPARE_CARS: CompareCarType[] = [
       fuelType: "2010",
       transmission: "32000",
     },
-    description: "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
+    description:
+      "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
     image:
       "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop",
   },
@@ -198,7 +197,8 @@ export const COMPARE_CARS: CompareCarType[] = [
       fuelType: "2010",
       transmission: "32000",
     },
-    description: "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
+    description:
+      "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
     image:
       "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=2070&auto=format&fit=crop",
   },
@@ -265,7 +265,8 @@ export const COMPARE_CARS: CompareCarType[] = [
       fuelType: "2010",
       transmission: "32000",
     },
-    description: "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
+    description:
+      "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
     image:
       "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop",
   },
@@ -332,7 +333,8 @@ export const COMPARE_CARS: CompareCarType[] = [
       fuelType: "2010",
       transmission: "32000",
     },
-    description: "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
+    description:
+      "The KIA Sportage is a striking SUV known for its bold design and comfortable interior. It offers a smooth driving experience with responsive handling and ample cargo space.",
     image:
       "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1470&auto=format&fit=crop",
   },

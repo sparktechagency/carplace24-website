@@ -30,12 +30,12 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  
+
   const handleDateChange = (date: Date | null) => {
     if (date) {
-      setFormData((prev) => ({ 
-        ...prev, 
-        date: date.toLocaleDateString() 
+      setFormData((prev) => ({
+        ...prev,
+        date: date.toLocaleDateString(),
       }));
       setShowDatePicker(false);
     }
@@ -142,7 +142,7 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
                       required
                       onClick={() => setShowDatePicker(true)}
                     />
-                    <div 
+                    <div
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
                       onClick={() => setShowDatePicker(true)}
                     >
@@ -151,7 +151,9 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
                     {showDatePicker && (
                       <div className="absolute z-10 mt-1 bg-white shadow-lg rounded-md">
                         <DatePicker
-                          selected={formData.date ? new Date(formData.date) : null}
+                          selected={
+                            formData.date ? new Date(formData.date) : null
+                          }
                           onChange={handleDateChange}
                           inline
                           onClickOutside={() => setShowDatePicker(false)}
