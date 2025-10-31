@@ -82,19 +82,21 @@ export default function Navbar() {
                 height={24}
               />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative w-[50px] cursor-pointer"
-            >
-              <Image
-                src={addCarIcon}
-                alt="User Profile"
-                width={543}
-                height={543}
-                className="object-cover w-[45px] h-[30px]"
-              />
-            </Button>
+            <Link href={"/seller/add-cars"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative w-[50px] cursor-pointer"
+              >
+                <Image
+                  src={addCarIcon}
+                  alt="User Profile"
+                  width={543}
+                  height={543}
+                  className="object-cover w-[45px] h-[30px]"
+                />
+              </Button>
+            </Link>
           </div>
           <div className="flex items-center space-x-2">
             <select className="bg-transparent border-none outline-none font-medium text-gray-700 cursor-pointer">
