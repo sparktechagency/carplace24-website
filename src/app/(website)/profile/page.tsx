@@ -1,5 +1,9 @@
-const page = () => {
-  return <div>My Profile</div>;
-};
+"use client";
 
-export default page;
+import MainProfileLayout from '@/components/website/profile/MainProfileLayout';
+
+export default function ProfilePage() {
+  return (
+    <MainProfileLayout initialTab="profile" />
+  );
+}

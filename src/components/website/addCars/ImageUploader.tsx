@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import { FaTimes } from "react-icons/fa";
 
 interface ImageUploaderProps {
@@ -21,7 +21,7 @@ const ImageUploader = ({ images, setImages }: ImageUploaderProps) => {
         if (event.target?.result) {
           newImages.push(event.target.result as string);
           if (newImages.length === files.length) {
-            setImages((prev) => [...prev, ...newImages].slice(0, 4));
+            setImages((prev) => [...prev, ...newImages]);
           }
         }
       };
@@ -39,10 +39,12 @@ const ImageUploader = ({ images, setImages }: ImageUploaderProps) => {
         Vehicle Images
       </label>
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
           {images.map((image, index) => (
             <div key={index} className="relative">
-              <img
+              <Image
+                width={7567557}
+                height={7557724}
                 src={image}
                 alt={`Vehicle ${index + 1}`}
                 className="w-full h-24 object-cover rounded-lg"
@@ -53,26 +55,6 @@ const ImageUploader = ({ images, setImages }: ImageUploaderProps) => {
               >
                 <FaTimes className="w-3 h-3" />
               </button>
-            </div>
-          ))}
-          {Array.from({ length: 4 - images.length }).map((_, index) => (
-            <div
-              key={`empty-${index}`}
-              className="h-24 border-2 border-gray-200 rounded-lg flex items-center justify-center bg-white"
-            >
-              <svg
-                className="w-8 h-8 text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                ></path>
-              </svg>
             </div>
           ))}
         </div>

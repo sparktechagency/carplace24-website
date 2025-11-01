@@ -65,8 +65,9 @@ export default function Navbar() {
                 <Image
                   src={compareIcon}
                   alt="User Profile"
-                  width={24}
-                  height={24}
+                  width={7567557}
+                  height={7557724}
+                  className="relative w-[30px] cursor-pointer"
                 />
               </Button>
             </Link>
@@ -78,8 +79,9 @@ export default function Navbar() {
               <Image
                 src={heartIcon}
                 alt="User Profile"
-                width={24}
-                height={24}
+                width={5766724}
+                height={5656724}
+                className="relative w-[27px] cursor-pointer"
               />
             </Button>
             <Link href={"/seller/add-cars"}>
@@ -91,8 +93,8 @@ export default function Navbar() {
                 <Image
                   src={addCarIcon}
                   alt="User Profile"
-                  width={543}
-                  height={543}
+                  width={6866543}
+                  height={67678543}
                   className="object-cover w-[45px] h-[30px]"
                 />
               </Button>
@@ -121,11 +123,11 @@ export default function Navbar() {
               {/* Profile Dropdown */}
               {isProfileDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 w-72 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 transform -translate-x-0">
-                  <div className="">
+                  {/* <div className="">
                     <button className="w-full bg-gradient-to-b from-[#47BC23] to-[#0D8817] shadow-lg cursor-pointer text-white py-3 px-4 rounded-lg font-medium transition-colors">
                       Switch to Seller
                     </button>
-                  </div>
+                  </div> */}
                   <div className="border-t border-gray-100">
                     <Link
                       href="/profile"
