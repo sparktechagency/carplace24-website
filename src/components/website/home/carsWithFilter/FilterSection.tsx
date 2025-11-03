@@ -3,15 +3,11 @@
 import { useState } from "react";
 import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
+import BrandModelDropdown from "./BrandModelDropdown";
 
 const vehicleTypes = [{ id: "car", label: "Car", icon: "🚗" }];
 
 const filterOptions = [
-  {
-    id: "brand",
-    label: "Brand & Model",
-    options: ["All", "Toyota", "Honda", "BMW", "Mercedes", "Audi"],
-  },
   {
     id: "year",
     label: "Year",
@@ -112,6 +108,13 @@ const FilterSection = () => {
           {/* Filter Dropdowns and Search Button in a single row */}
           <div className="flex flex-col lg:flex-row lg:items-end gap-4 lg:gap-0">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
+              {/* Brand & Model Custom Dropdown */}
+              <div className="lg:border-r lg:pr-4">
+                <BrandModelDropdown 
+                  onSelect={(brand) => console.log(`Selected brand: ${brand}`)} 
+                />
+              </div>
+              
               {filterOptions.map((filter, index) => (
                 <div
                   key={index}
