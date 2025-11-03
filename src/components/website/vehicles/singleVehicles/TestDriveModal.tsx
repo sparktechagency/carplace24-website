@@ -47,6 +47,8 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
     onClose();
   };
 
+  console.log(carName);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="bg-black/50" />

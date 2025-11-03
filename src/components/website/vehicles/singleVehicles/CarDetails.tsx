@@ -36,7 +36,6 @@ const CarDetails = () => {
               </div>
             </div>
 
-            {/* Thumbnails - scrollable list showing all images */}
             <div className="w-full md:w-1/6 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[600px] scrollbar-thin">
               {CAR_DETAILS.images.map((img, idx) => (
                 <button
@@ -59,9 +58,7 @@ const CarDetails = () => {
             </div>
           </div>
 
-          {/* Details section (moved below) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left column: Title and pricing */}
             <div>
               <h1 className="text-xl md:text-2xl font-semibold">
                 {CAR_DETAILS.title}
@@ -81,7 +78,6 @@ const CarDetails = () => {
               </div>
             </div>
 
-            {/* Right column: Dealer box */}
             <div>
               <div className="p-3 border rounded-lg">
                 <div className="flex items-center gap-3">

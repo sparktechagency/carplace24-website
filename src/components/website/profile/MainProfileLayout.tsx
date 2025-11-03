@@ -10,6 +10,7 @@ import {
   FaCog,
   FaBars,
   FaTimes,
+  FaShoppingCart,
 } from "react-icons/fa";
 import MyProfile from "./sections/MyProfile";
 import Favorites from "./sections/Favorites";
@@ -19,45 +20,62 @@ import MyCars from "./sections/MyCars";
 interface MainProfileLayoutProps {
   children?: ReactNode;
   initialTab?: string;
+  initialRole?: "buyer" | "seller";
 }
+
+type UserRole = "buyer" | "seller";
 
 const MainProfileLayout = ({
   children,
   initialTab = "profile",
+  initialRole = "buyer",
 }: MainProfileLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const menuItems = [
-    {
+  const sharedComponents = {
+    profile: {
       id: "profile",
       label: "My Profile",
       icon: <FaUser className="mr-2" />,
       component: <MyProfile />,
     },
-    {
-      id: "listings",
-      label: "My Cars",
-      icon: <FaCar className="mr-2" />,
-      component: <MyCars />,
+    settings: {
+      id: "settings",
+      label: "Settings",
+      icon: <FaCog className="mr-2" />,
+      component: <Settings />,
     },
+  };
+
+  const buyerMenuItems = [
+    sharedComponents.profile,
     {
       id: "favorites",
       label: "Favorites",
       icon: <FaHeart className="mr-2" />,
       component: <Favorites />,
     },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: <FaCog className="mr-2" />,
-      component: <Settings />,
-    },
+    sharedComponents.settings,
   ];
+
+  const sellerMenuItems = [
+    sharedComponents.profile,
+    {
+      id: "myCars",
+      label: "My Cars",
+      icon: <FaCar className="mr-2" />,
+      component: <MyCars />,
+    },
+    sharedComponents.settings,
+  ];
+
+  const menuItems = activeRole === "buyer" ? buyerMenuItems : sellerMenuItems;
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
@@ -72,6 +90,40 @@ const MainProfileLayout = ({
         </button>
       </div>
 
+      {/* Role Switcher */}
+      <div className="flex justify-center mb-6">
+        <div className="inline-flex rounded-md shadow-sm" role="group">
+          <button
+            type="button"
+            className={`px-6 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${
+              activeRole === "buyer"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-900 hover:bg-gray-100"
+            }`}
+            onClick={() => {
+              setActiveRole("buyer");
+              setActiveTab("profile");
+            }}
+          >
+            Buyer Profile
+          </button>
+          <button
+            type="button"
+            className={`px-6 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${
+              activeRole === "seller"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-900 hover:bg-gray-100"
+            }`}
+            onClick={() => {
+              setActiveRole("seller");
+              setActiveTab("profile");
+            }}
+          >
+            Seller Profile
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar */}
         <aside
@@ -84,7 +136,7 @@ const MainProfileLayout = ({
           <div className="flex flex-col items-center mb-8">
             <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden mb-4 relative">
               <Image
-                src="/placeholder-avatar.jpg"
+                src="https://i.ibb.co.com/vXqkJSM/john-wick-anatomy-zphl-square640.jpg"
                 alt="User Avatar"
                 fill
                 className="object-cover"
@@ -106,7 +158,7 @@ const MainProfileLayout = ({
                 <li key={item.id}>
                   <button
                     className={`
-                      flex items-center p-3 rounded-md w-full text-left
+                      flex items-center p-3 rounded-md w-full cursor-pointer text-left
                       ${
                         activeTab === item.id
                           ? "bg-blue-50 text-blue-600"

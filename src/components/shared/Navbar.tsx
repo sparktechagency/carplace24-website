@@ -71,19 +71,22 @@ export default function Navbar() {
                 />
               </Button>
             </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative cursor-pointer"
-            >
-              <Image
-                src={heartIcon}
-                alt="User Profile"
-                width={5766724}
-                height={5656724}
-                className="relative w-[27px] cursor-pointer"
-              />
-            </Button>
+            <Link href={"/favorites"}>
+              {" "}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative cursor-pointer"
+              >
+                <Image
+                  src={heartIcon}
+                  alt="User Profile"
+                  width={5766724}
+                  height={5656724}
+                  className="relative w-[27px] cursor-pointer"
+                />
+              </Button>
+            </Link>
             <Link href={"/seller/add-cars"}>
               <Button
                 variant="ghost"

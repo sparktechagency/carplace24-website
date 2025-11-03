@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { FaTimes } from "react-icons/fa";
 import SelectDropdown from "./SelectDropdown";
 import ImageUploader from "./ImageUploader";
 import FormSection from "./FormSection";
@@ -20,7 +19,7 @@ import {
 } from "./sections/FormSections";
 
 const AddCarsPage = () => {
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     vehicleName: "",
     vinNo: "",
@@ -69,7 +68,7 @@ const AddCarsPage = () => {
     description: "",
   });
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
