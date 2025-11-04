@@ -4,15 +4,12 @@ import { useState } from "react";
 import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
 import BrandModelDropdown from "./BrandModelDropdown";
+import YearDropdown from "./YearDropdown";
 
 const vehicleTypes = [{ id: "car", label: "Car", icon: "🚗" }];
 
+// Keep only non-year filters; Year will be a free-entry input
 const filterOptions = [
-  {
-    id: "year",
-    label: "Year",
-    options: ["All", "2023", "2022", "2021", "2020", "2019"],
-  },
   {
     id: "price",
     label: "Price Range",
@@ -73,7 +70,10 @@ const Dropdown = ({
   );
 };
 
+// YearDropdown moved to its own reusable component
+
 const FilterSection = () => {
+  const [year, setYear] = useState<string>("");
   return (
     <div className="w-full lg:w-[1400px] bg-white shadow-md rounded-md">
       <Container>
@@ -110,11 +110,21 @@ const FilterSection = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
               {/* Brand & Model Custom Dropdown */}
               <div className="lg:border-r lg:pr-4">
-                <BrandModelDropdown 
-                  onSelect={(brand) => console.log(`Selected brand: ${brand}`)} 
+                <BrandModelDropdown
+                  onSelect={(brand) => console.log(`Selected brand: ${brand}`)}
                 />
               </div>
-              
+              {/* Year free-entry selector */}
+              <div className="lg:border-r lg:pr-4">
+                <YearDropdown
+                  value={year}
+                  onSelect={(val) => {
+                    setYear(val);
+                    console.log(`Selected year: ${val}`);
+                  }}
+                />
+              </div>
+
               {filterOptions.map((filter, index) => (
                 <div
                   key={index}

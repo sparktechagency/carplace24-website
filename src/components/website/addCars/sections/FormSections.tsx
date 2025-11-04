@@ -5,7 +5,7 @@ import FormSection from "../FormSection";
 
 interface FormSectionsProps {
   formData: any;
-  handleInputChange: (field: string, value: string) => void;
+  handleInputChange: (field: string, value: any) => void;
 }
 
 export const Pricing = ({ formData, handleInputChange }: FormSectionsProps) => {
@@ -255,9 +255,65 @@ export const WeightInformation = ({ formData, handleInputChange }: FormSectionsP
 };
 
 export const Equipment = ({ formData, handleInputChange }: FormSectionsProps) => {
+  const equipmentOptions: string[] = [
+    "ABS",
+    "360° camera",
+    "Adaptive cruise control",
+    "Alarm system",
+    "Electric seat adjustment",
+    "Towbar",
+    "Leather / Alcantara / fabric seats",
+    "Heated / ventilated seats",
+    "Sunroof / panoramic roof",
+    "Android Auto",
+    "Navigation system (built-in / portable)",
+    "Parking sensors (front, rear) / Parking assist",
+    "Head-up display",
+    "Xenon / LED / Laser headlights",
+    "Keyless entry / start",
+    "Isofix",
+    "Start-stop system",
+    "Theft protection",
+    "Climate control (manual / automatic)",
+    "Sports seats",
+    "Speed limiter",
+    "Stability control (ESP)",
+    "Sound system",
+  ];
+
+  const selected: string[] = formData.equipmentFeatures || [];
+
+  const toggleOption = (label: string) => {
+    const next = selected.includes(label)
+      ? selected.filter((l) => l !== label)
+      : [...selected, label];
+    handleInputChange("equipmentFeatures", next);
+  };
+
   return (
     <FormSection title="Equipment">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Checkboxes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+        {equipmentOptions.map((label, idx) => {
+          const id = `equip-${idx}`;
+          const checked = selected.includes(label);
+          return (
+            <label key={id} htmlFor={id} className="flex items-center gap-2 text-gray-800">
+              <input
+                id={id}
+                type="checkbox"
+                className="h-4 w-4 border-gray-300 rounded"
+                checked={checked}
+                onChange={() => toggleOption(label)}
+              />
+              <span className="text-sm md:text-base">{label}</span>
+            </label>
+          );
+        })}
+      </div>
+
+      {/* Optional: equipment weight input retained */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Equipment Weight

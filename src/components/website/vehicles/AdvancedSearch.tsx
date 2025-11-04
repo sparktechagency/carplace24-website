@@ -1,5 +1,13 @@
+import Container from "@/components/ui/container";
+
 const AdvancedSearch = () => {
-  return <div>AdvancedSearch</div>;
+  return (
+    <div>
+      <Container>
+        <div></div>
+      </Container>
+    </div>
+  );
 };
 
 export default AdvancedSearch;

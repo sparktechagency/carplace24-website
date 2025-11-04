@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
 import Link from "next/link";
+import BrandModelDropdown from "../home/carsWithFilter/BrandModelDropdown";
+import YearDropdown from "../home/carsWithFilter/YearDropdown";
 
 // Filter options for Vehicles page (extended)
 const filterOptions = [
@@ -11,11 +13,6 @@ const filterOptions = [
     id: "category",
     label: "Vehicle Category",
     options: ["All", "Car", "Truck", "SUV", "Van", "Bus"],
-  },
-  {
-    id: "brand",
-    label: "Brand & Model",
-    options: ["All", "Toyota", "Honda", "BMW", "Mercedes", "Audi"],
   },
   {
     id: "body",
@@ -31,7 +28,7 @@ const filterOptions = [
   {
     id: "year",
     label: "Year",
-    options: ["All", "2025", "2024", "2023", "2022", "2021"],
+    options: ["All"],
   },
   {
     id: "price",
@@ -105,6 +102,8 @@ const Dropdown = ({
 };
 
 const FilterVehicles = () => {
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   return (
     <div className="bg-white shadow-2xl rounded-md">
       <Container>
@@ -138,55 +137,141 @@ const FilterVehicles = () => {
           {/* Filters: single column on mobile; two rows on desktop with separators only between items */}
           {/* Mobile: single column */}
           <div className="lg:hidden flex flex-col gap-4">
-            {filterOptions.map((filter, index) => (
-              <div key={index}>
-                <Dropdown
-                  label={filter.label}
-                  options={filter.options}
-                  onChange={(option) =>
-                    console.log(`Selected ${filter.id}:`, option)
-                  }
-                />
+            {/* Category */}
+            <Dropdown
+              label={filterOptions[0].label}
+              options={filterOptions[0].options}
+              onChange={(option) => console.log(`Selected category:`, option)}
+            />
+
+            {/* Brand & Model combined dropdown */}
+            <BrandModelDropdown
+              onSelect={(brand) => {
+                setSelectedBrand(brand);
+                console.log("Selected brand:", brand);
+              }}
+            />
+
+            {/* Remaining filters */}
+            {filterOptions.slice(1).map((filter, index) => (
+              <div key={`mobile-${filter.id}-${index}`}>
+                {filter.id === "year" ? (
+                  <YearDropdown
+                    value={selectedYear ?? undefined}
+                    onSelect={(y) => {
+                      setSelectedYear(y);
+                      console.log("Selected year:", y);
+                    }}
+                    startYear={1950}
+                    endYear={new Date().getFullYear()}
+                  />
+                ) : (
+                  <Dropdown
+                    label={filter.label}
+                    options={filter.options}
+                    onChange={(option) =>
+                      console.log(`Selected ${filter.id}:`, option)
+                    }
+                  />
+                )}
               </div>
             ))}
           </div>
 
           {/* Desktop: two rows, separators only between items (no far-left/right lines) */}
           <div className="hidden lg:flex lg:flex-col lg:gap-4">
-            {(() => {
-              const firstRow = filterOptions.slice(0, 5);
-              const secondRow = filterOptions.slice(5);
-              return (
-                <>
-                  <div className="flex divide-x">
-                    {firstRow.map((filter, index) => (
-                      <div key={index} className="flex-1 px-4">
-                        <Dropdown
-                          label={filter.label}
-                          options={filter.options}
-                          onChange={(option) =>
-                            console.log(`Selected ${filter.id}:`, option)
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex divide-x">
-                    {secondRow.map((filter, index) => (
-                      <div key={index} className="flex-1 px-4">
-                        <Dropdown
-                          label={filter.label}
-                          options={filter.options}
-                          onChange={(option) =>
-                            console.log(`Selected ${filter.id}:`, option)
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </>
-              );
-            })()}
+            {/* First row: Category | BrandModel | Body | Condition | Buy/Lease */}
+            <div className="flex divide-x">
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[0].label}
+                  options={filterOptions[0].options}
+                  onChange={(option) =>
+                    console.log(`Selected category:`, option)
+                  }
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <BrandModelDropdown
+                  onSelect={(brand) => {
+                    setSelectedBrand(brand);
+                    console.log("Selected brand:", brand);
+                  }}
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[1].label}
+                  options={filterOptions[1].options}
+                  onChange={(option) => console.log(`Selected body:`, option)}
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[2].label}
+                  options={filterOptions[2].options}
+                  onChange={(option) =>
+                    console.log(`Selected condition:`, option)
+                  }
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[3].label}
+                  options={filterOptions[3].options}
+                  onChange={(option) =>
+                    console.log(`Selected buyLease:`, option)
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Second row: Year (YearDropdown) | Price | Mileage | Fuel | Gearbox */}
+            <div className="flex divide-x">
+              <div className="flex-1 px-4">
+                <YearDropdown
+                  value={selectedYear ?? undefined}
+                  onSelect={(y) => {
+                    setSelectedYear(y);
+                    console.log("Selected year:", y);
+                  }}
+                  startYear={1950}
+                  endYear={new Date().getFullYear()}
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[5].label}
+                  options={filterOptions[5].options}
+                  onChange={(option) => console.log(`Selected price:`, option)}
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[6].label}
+                  options={filterOptions[6].options}
+                  onChange={(option) =>
+                    console.log(`Selected mileage:`, option)
+                  }
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[7].label}
+                  options={filterOptions[7].options}
+                  onChange={(option) => console.log(`Selected fuel:`, option)}
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label={filterOptions[8].label}
+                  options={filterOptions[8].options}
+                  onChange={(option) =>
+                    console.log(`Selected gearbox:`, option)
+                  }
+                />
+              </div>
+            </div>
           </div>
         </div>
       </Container>

@@ -16,6 +16,8 @@ import MyProfile from "./sections/MyProfile";
 import Favorites from "./sections/Favorites";
 import Settings from "./sections/Settings";
 import MyCars from "./sections/MyCars";
+import Inquiries from "./sections/Inquiries";
+import { BsQuestionOctagonFill } from "react-icons/bs";
 
 interface MainProfileLayoutProps {
   children?: ReactNode;
@@ -72,6 +74,12 @@ const MainProfileLayout = ({
       icon: <FaCar className="mr-2" />,
       component: <MyCars />,
     },
+    {
+      id: "inquiries",
+      label: "Inquiries",
+      icon: <BsQuestionOctagonFill className="mr-2" />,
+      component: <Inquiries />,
+    },
     sharedComponents.settings,
   ];
 
@@ -124,11 +132,11 @@ const MainProfileLayout = ({
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row md:min-h-[700px] gap-8">
         {/* Sidebar */}
         <aside
           className={`
-          lg:w-1/4 bg-white rounded-lg shadow-md p-6 h-fit
+          lg:w-1/4 bg-white rounded-lg shadow-md p-6 md:h-[700px]
           ${isMobileMenuOpen ? "block" : "hidden"} lg:block
         `}
         >

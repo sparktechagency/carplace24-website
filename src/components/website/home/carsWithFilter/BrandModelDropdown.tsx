@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, Search } from "lucide-react";
 import Image from "next/image";
+import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 
 // Brand data with logos
 const popularBrands = [
@@ -141,7 +142,9 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
         className="flex items-center justify-between w-full cursor-pointer px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none"
       >
         <span>Select brand</span>
-        <span className="text-gray-500">▼</span>
+        <span className="text-gray-500">
+          <MdOutlineKeyboardArrowDown size={20} />
+        </span>
       </button>
 
       {isOpen && (
@@ -217,7 +220,7 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
             </h3>
             {filteredBrands.map((group) => (
               <div key={group.letter} className="mb-3">
-                <div 
+                <div
                   className="flex items-center justify-between p-2 hover:bg-gray-50 cursor-pointer"
                   onClick={() => handleBrandSelect(group.brands[0])}
                 >
@@ -230,7 +233,7 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
                   </div>
                 </div>
                 {group.brands.map((brand, idx) => (
-                  <div 
+                  <div
                     key={idx}
                     className="flex items-center justify-between p-2 pl-4 hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleBrandSelect(brand)}

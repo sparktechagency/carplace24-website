@@ -1,138 +1,144 @@
+
 "use client";
 
 import { useState } from "react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
 const Settings = () => {
-  const [notifications, setNotifications] = useState({
-    email: true,
-    sms: false,
-    newListings: true,
-    messages: true,
-    promotions: false
-  });
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleToggle = (setting: keyof typeof notifications) => {
-    setNotifications(prev => ({
-      ...prev,
-      [setting]: !prev[setting]
-    }));
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError("New password must be at least 8 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("New password and confirmation do not match.");
+      return;
+    }
+
+    // UI-only: simulate success
+    setSuccess("Password updated successfully.");
+    console.log("Change password submitted", {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   return (
-    <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Settings</h2>
-        <p className="text-gray-600">Manage your account preferences</p>
+    <div className="w-full max-w-xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Lock className="w-5 h-5 text-primary" />
+        <h2 className="text-lg font-semibold">Change Password</h2>
       </div>
+      <p className="text-sm text-gray-600 mb-6">
+        For your security, please use a strong password (at least 8 characters).
+      </p>
 
-      <div className="space-y-8">
-        <section>
-          <h3 className="text-lg font-semibold mb-4">Notification Preferences</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Email Notifications</p>
-                <p className="text-sm text-gray-500">Receive updates via email</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={notifications.email}
-                  onChange={() => handleToggle('email')}
-                  className="sr-only peer" 
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
+      {error && (
+        <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="mb-4 text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-2">
+          {success}
+        </div>
+      )}
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">SMS Notifications</p>
-                <p className="text-sm text-gray-500">Receive updates via text message</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={notifications.sms}
-                  onChange={() => handleToggle('sms')}
-                  className="sr-only peer" 
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">New Listings</p>
-                <p className="text-sm text-gray-500">Get notified about new vehicles matching your criteria</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={notifications.newListings}
-                  onChange={() => handleToggle('newListings')}
-                  className="sr-only peer" 
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Messages</p>
-                <p className="text-sm text-gray-500">Get notified when you receive messages</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={notifications.messages}
-                  onChange={() => handleToggle('messages')}
-                  className="sr-only peer" 
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Promotions</p>
-                <p className="text-sm text-gray-500">Receive promotional offers and deals</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={notifications.promotions}
-                  onChange={() => handleToggle('promotions')}
-                  className="sr-only peer" 
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-semibold mb-4">Account Security</h3>
-          <div className="space-y-4">
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              Change Password
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              Enable Two-Factor Authentication
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Current Password */}
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Current password</label>
+          <div className="relative">
+            <input
+              type={showCurrent ? "text" : "password"}
+              className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+            />
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+              onClick={() => setShowCurrent((s) => !s)}
+            >
+              {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-        </section>
+        </div>
 
-        <section>
-          <h3 className="text-lg font-semibold mb-4 text-red-600">Danger Zone</h3>
-          <div className="p-4 border border-red-200 bg-red-50 rounded-md">
-            <p className="mb-4 text-gray-700">Permanently delete your account and all of your data</p>
-            <button className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-              Delete Account
+        {/* New Password */}
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">New password</label>
+          <div className="relative">
+            <input
+              type={showNew ? "text" : "password"}
+              className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+            />
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+              onClick={() => setShowNew((s) => !s)}
+            >
+              {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-        </section>
-      </div>
+          <p className="mt-1 text-xs text-gray-500">Minimum 8 characters.</p>
+        </div>
+
+        {/* Confirm Password */}
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Confirm new password</label>
+          <div className="relative">
+            <input
+              type={showConfirm ? "text" : "password"}
+              className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter new password"
+            />
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+              onClick={() => setShowConfirm((s) => !s)}
+            >
+              {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="w-full bg-primary text-white px-4 py-2 rounded-md text-sm hover:bg-primary/90 hover:shadow-md"
+          >
+            Update password
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

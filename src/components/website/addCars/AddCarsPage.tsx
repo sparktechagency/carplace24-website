@@ -48,6 +48,7 @@ const AddCarsPage = () => {
     curbWeight: "",
     equipmentCurbWeight: "",
     equipmentTransmission: "",
+    equipmentFeatures: [],
     tires: "",
     summerWinter: "",
     handicapAccessible: "",
@@ -68,7 +69,7 @@ const AddCarsPage = () => {
     description: "",
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -334,7 +335,7 @@ const AddCarsPage = () => {
               type="submit"
               className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              List Vehicle
+              Add Vehicle
             </button>
           </div>
         </div>
