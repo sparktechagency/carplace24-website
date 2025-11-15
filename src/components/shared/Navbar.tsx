@@ -14,24 +14,42 @@ import addCarIcon from "@/assets/addCarIcon.png";
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
 
   // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+      // Close profile dropdown when clicking outside
       if (
         isProfileDropdownOpen &&
         !target.closest(".profile-dropdown-container")
       ) {
         setIsProfileDropdownOpen(false);
       }
+      // Close search dropdown when clicking outside
+      if (
+        isSearchDropdownOpen &&
+        !target.closest(".search-dropdown-container")
+      ) {
+        setIsSearchDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsProfileDropdownOpen(false);
+        setIsSearchDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isProfileDropdownOpen]);
+  }, [isProfileDropdownOpen, isSearchDropdownOpen]);
 
   return (
     <header className="w-full py-4 shadow-sm bg-gray-50 fixed top-0 left-0 z-50 overflow-visible">
@@ -45,7 +63,74 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center">
           {navItems.map((item, index) => (
             <React.Fragment key={item.href}>
-              <NavItem href={item.href} label={item.label} />
+              {item.label === "Search" ? (
+                <div className="relative search-dropdown-container">
+                  <button
+                    type="button"
+                    className={`font-medium transition-colors cursor-pointer duration-200 hover:text-primary ${
+                      isSearchDropdownOpen ? "text-primary" : ""
+                    }`}
+                    onClick={() => setIsSearchDropdownOpen((p) => !p)}
+                  >
+                    {item.label}
+                  </button>
+                  <div
+                    aria-expanded={isSearchDropdownOpen}
+                    className={`absolute left-0 top-full mt-3 w-[720px] max-w-[85vw] bg-white border border-gray-200 rounded-lg shadow-lg p-6 z-50 transform transition-all duration-200 ease-out ${
+                      isSearchDropdownOpen
+                        ? "opacity-100 translate-y-0 pointer-events-auto"
+                        : "opacity-0 -translate-y-2 pointer-events-none"
+                    }`}
+                  >
+                    <div className="grid grid-cols-2 gap-8">
+                      <div>
+                        <h3 className="text-gray-800 font-semibold mb-3">
+                          Vehicles
+                        </h3>
+                        <div className="space-y-2">
+                          <Link
+                            href="/vehicles"
+                            onClick={() => setIsSearchDropdownOpen(false)}
+                            className="block text-gray-700 hover:text-primary"
+                          >
+                            Simple Search
+                          </Link>
+                          <Link
+                            href="/advanced-search"
+                            onClick={() => setIsSearchDropdownOpen(false)}
+                            className="block text-gray-700 hover:text-primary"
+                          >
+                            Advanced Search
+                          </Link>
+                          <Link
+                            href="/compare"
+                            onClick={() => setIsSearchDropdownOpen(false)}
+                            className="block text-gray-700 hover:text-primary"
+                          >
+                            Comparison Tool
+                          </Link>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-gray-800 font-semibold mb-3">
+                          Dealers
+                        </h3>
+                        <div className="space-y-2">
+                          <Link
+                            href="/dealers"
+                            onClick={() => setIsSearchDropdownOpen(false)}
+                            className="block text-gray-700 hover:text-primary"
+                          >
+                            Search Dealers
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <NavItem href={item.href} label={item.label} />
+              )}
               {index < navItems.length - 1 && (
                 <div className="h-5 w-px bg-gray-300 mx-4"></div>
               )}

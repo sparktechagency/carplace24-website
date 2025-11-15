@@ -5,23 +5,13 @@ import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
 import BrandModelDropdown from "./BrandModelDropdown";
 import YearDropdown from "./YearDropdown";
+import PriceDropdown from "./PriceDropdown";
+import { FaCar } from "react-icons/fa";
 
-const vehicleTypes = [{ id: "car", label: "Car", icon: "🚗" }];
+const vehicleTypes = [{ id: "car", label: "Car", icon: <FaCar /> }];
 
-// Keep only non-year filters; Year will be a free-entry input
-const filterOptions = [
-  {
-    id: "price",
-    label: "Price Range",
-    options: [
-      "All",
-      "$0-$10,000",
-      "$10,000-$20,000",
-      "$20,000-$30,000",
-      "$30,000+",
-    ],
-  },
-];
+// Additional filters can be added later; price is custom
+const filterOptions: { id: string; label: string; options: string[] }[] = [];
 
 // Custom Dropdown Component
 const Dropdown = ({
@@ -73,7 +63,14 @@ const Dropdown = ({
 // YearDropdown moved to its own reusable component
 
 const FilterSection = () => {
-  const [year, setYear] = useState<string>("");
+  const [yearRange, setYearRange] = useState<{ min: number; max: number }>({
+    min: 1950,
+    max: new Date().getFullYear(),
+  });
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
+    min: 0,
+    max: 1_000_000,
+  });
   return (
     <div className="w-full lg:w-[1400px] bg-white shadow-md rounded-md">
       <Container>
@@ -117,10 +114,24 @@ const FilterSection = () => {
               {/* Year free-entry selector */}
               <div className="lg:border-r lg:pr-4">
                 <YearDropdown
-                  value={year}
-                  onSelect={(val) => {
-                    setYear(val);
-                    console.log(`Selected year: ${val}`);
+                  value={yearRange}
+                  onSelect={(range) => {
+                    setYearRange(range);
+                    console.log(
+                      `Selected year range: ${range.min}-${range.max}`
+                    );
+                  }}
+                />
+              </div>
+              {/* Price range dropdown like image */}
+              <div className="lg:border-r lg:pr-4">
+                <PriceDropdown
+                  value={priceRange}
+                  onSelect={(range) => {
+                    setPriceRange(range);
+                    console.log(
+                      `Selected price range: CHF ${range.min} - CHF ${range.max}`
+                    );
                   }}
                 />
               </div>

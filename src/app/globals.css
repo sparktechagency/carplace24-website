@@ -121,3 +121,44 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Range slider styling helpers for YearDropdown */
+.range-track::-webkit-slider-runnable-track {
+  height: 8px;
+  background: #e5e7eb; /* gray-200 */
+  border-radius: 9999px;
+}
+.range-track-transparent::-webkit-slider-runnable-track {
+  height: 8px;
+  background: transparent;
+  border-radius: 9999px;
+}
+.range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #374151; /* gray-700 */
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #cbd5e1; /* gray-300 outline */
+}
+
+/* Firefox */
+.range-track::-moz-range-track {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 9999px;
+}
+.range-track-transparent::-moz-range-track {
+  height: 8px;
+  background: transparent;
+  border-radius: 9999px;
+}
+.range-thumb::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #374151;
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+}

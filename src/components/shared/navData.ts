@@ -13,6 +13,10 @@ export const navItems: NavItemType[] = [
     label: "Search",
   },
   {
+    href: "/pricing",
+    label: "Pricing",
+  },
+  {
     href: "/about",
     label: "About",
   },

@@ -1,57 +1,55 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-interface YearRange {
+interface MileageRange {
   min: number;
   max: number;
 }
 
-interface YearDropdownProps {
-  value?: YearRange;
-  onSelect: (range: YearRange) => void;
-  histogram?: Record<number, number>; // year -> count of cars
-  startYear?: number; // defaults to 1950
-  endYear?: number; // defaults to current year
+interface MileageDropdownProps {
+  value?: MileageRange;
+  onSelect: (range: MileageRange) => void;
+  startMileage?: number; // defaults to 0
+  endMileage?: number; // defaults to 400_000
+  unit?: string; // defaults to km
+  histogramBins?: number; // number of bars
+  histogram?: number[]; // optional counts per bin; otherwise synthetic
 }
 
-const YearDropdown = ({
+const MileageDropdown = ({
   value,
   onSelect,
+  startMileage = 0,
+  endMileage = 400_000,
+  unit = "km",
+  histogramBins = 30,
   histogram,
-  startYear = 1950,
-  endYear,
-}: YearDropdownProps) => {
+}: MileageDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
-  const currentYear = endYear ?? new Date().getFullYear();
-  const rangeStart = Math.min(startYear, currentYear);
-  const rangeEnd = Math.max(startYear, currentYear);
-
-  const [minYear, setMinYear] = useState<number>(value?.min ?? rangeStart);
-  const [maxYear, setMaxYear] = useState<number>(value?.max ?? rangeEnd);
-  const [externalHistogram, setExternalHistogram] = useState<Record<
-    number,
-    number
-  > | null>(null);
+  const [min, setMin] = useState<number>(value?.min ?? startMileage);
+  const [max, setMax] = useState<number>(value?.max ?? endMileage);
   const [activeHandle, setActiveHandle] = useState<"min" | "max" | "none">(
     "none"
   );
-  const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Keep local state in sync when value prop changes
+  // Sync local state to prop
   useEffect(() => {
     if (value) {
-      setMinYear(Math.max(rangeStart, Math.min(value.min, value.max)));
-      setMaxYear(Math.min(rangeEnd, Math.max(value.min, value.max)));
+      const clampedMin = Math.max(startMileage, Math.min(value.min, value.max));
+      const clampedMax = Math.min(endMileage, Math.max(value.min, value.max));
+      setMin(clampedMin);
+      setMax(clampedMax);
     }
-  }, [value, rangeStart, rangeEnd]);
+  }, [value, startMileage, endMileage]);
 
-  // Close dropdown when clicking outside the menu or pressing Escape
+  // Close when clicking outside
   useEffect(() => {
     const handlePointer = (event: MouseEvent | TouchEvent) => {
       if (!isOpen) return;
@@ -61,7 +59,7 @@ const YearDropdown = ({
         !!triggerRef.current && triggerRef.current.contains(target);
       if (!insideMenu && !insideTrigger) {
         setIsOpen(false);
-        onSelect({ min: minYear, max: maxYear });
+        onSelect({ min, max });
       }
     };
     const handleKey = (e: KeyboardEvent) => {
@@ -80,85 +78,56 @@ const YearDropdown = ({
       document.removeEventListener("touchstart", handlePointer as any);
       document.removeEventListener("keydown", handleKey);
     };
-  }, [isOpen, minYear, maxYear, onSelect]);
+  }, [isOpen, min, max, onSelect]);
 
-  // Fetch dynamic histogram from public JSON if not provided
-  useEffect(() => {
-    if (!histogram) {
-      fetch("/data/year-car-counts.json")
-        .then((res) => res.json())
-        .then((data: Record<string, number>) => {
-          // Convert keys to numbers
-          const parsed: Record<number, number> = {};
-          Object.entries(data).forEach(([k, v]) => {
-            const yr = Number(k);
-            if (!Number.isNaN(yr)) parsed[yr] = v;
-          });
-          setExternalHistogram(parsed);
-        })
-        .catch(() => setExternalHistogram(null));
+  const totalSpan = Math.max(1, endMileage - startMileage);
+  const leftPercent = ((min - startMileage) / totalSpan) * 100;
+  const rightPercent = ((max - startMileage) / totalSpan) * 100;
+  const widthPercent = Math.max(0, rightPercent - leftPercent);
+
+  // Build bars (synthetic falloff, or provided histogram)
+  const bars = useMemo(() => {
+    if (histogram && histogram.length > 0) return histogram;
+    const arr: number[] = [];
+    for (let i = 0; i < histogramBins; i++) {
+      // Decreasing trend with slight noise
+      const base = Math.max(1, Math.round((histogramBins - i) * 2));
+      arr.push(base + (i % 3));
     }
-  }, [histogram]);
-
-  // Create list of years for rendering bars
-  const years = useMemo(
-    () =>
-      Array.from(
-        { length: rangeEnd - rangeStart + 1 },
-        (_, i) => rangeStart + i
-      ),
-    [rangeStart, rangeEnd]
-  );
-
-  // Build histogram data (fallback to synthetic trend if not provided)
-  const counts = useMemo(() => {
-    const c: Record<number, number> = {};
-    years.forEach((y) => {
-      const source = histogram ?? externalHistogram ?? {};
-      c[y] =
-        source[y] ?? Math.max(0, Math.round((y - rangeStart) * 0.3) + (y % 5));
-    });
-    return c;
-  }, [years, histogram, externalHistogram, rangeStart]);
-
-  const maxCount = useMemo(
-    () => Math.max(...years.map((y) => counts[y] || 0), 1),
-    [years, counts]
-  );
+    return arr;
+  }, [histogram, histogramBins]);
+  const maxBar = Math.max(...bars, 1);
 
   const handleMinChange = (v: number) => {
-    const next = Math.min(v, maxYear);
-    setMinYear(next);
-    onSelect({ min: next, max: maxYear });
+    const next = Math.min(v, max);
+    setMin(next);
+    onSelect({ min: next, max });
   };
 
   const handleMaxChange = (v: number) => {
-    const next = Math.max(v, minYear);
-    setMaxYear(next);
-    onSelect({ min: minYear, max: next });
+    const next = Math.max(v, min);
+    setMax(next);
+    onSelect({ min, max: next });
   };
 
-  const resetRange = () => {
-    setMinYear(rangeStart);
-    setMaxYear(rangeEnd);
-    onSelect({ min: rangeStart, max: rangeEnd });
+  const restore = () => {
+    setMin(startMileage);
+    setMax(endMileage);
+    onSelect({ min: startMileage, max: endMileage });
   };
 
-  const label = `${minYear} – ${maxYear}`;
-  const totalSpan = rangeEnd - rangeStart || 1;
-  const leftPercent = ((minYear - rangeStart) / totalSpan) * 100;
-  const widthPercent = ((maxYear - minYear) / totalSpan) * 100;
-  const rightPercent = ((maxYear - rangeStart) / totalSpan) * 100;
+  const plus = max === endMileage ? "+" : "";
+  const label = `${min.toLocaleString()} ${unit} – ${max.toLocaleString()}${plus} ${unit}`;
 
   return (
     <div className="relative" ref={dropdownRef}>
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-xs text-gray-500">Year</h1>
+        <h1 className="text-xs text-gray-500">Mileage</h1>
         <button
-          onClick={resetRange}
+          onClick={restore}
           className="text-xs text-gray-500 hover:text-gray-700"
         >
-          Reset
+          Restore
         </button>
       </div>
       <button
@@ -178,25 +147,23 @@ const YearDropdown = ({
           {/* Histogram */}
           <div className="relative">
             <div className="flex items-end gap-[2px] h-24 overflow-hidden">
-              {years.map((y) => {
-                const height = Math.max(
-                  2,
-                  Math.round(((counts[y] || 0) / maxCount) * 90)
-                );
-                const active = y >= minYear && y <= maxYear;
+              {bars.map((b, idx) => {
+                const height = Math.max(2, Math.round((b / maxBar) * 90));
+                // Determine if bin falls within selected range
+                const binStart = startMileage + (idx / bars.length) * totalSpan;
+                const binEnd = startMileage + ((idx + 1) / bars.length) * totalSpan;
+                const active = binEnd >= min && binStart <= max;
                 return (
                   <div
-                    key={y}
-                    className={`w-[4px] ${
-                      active ? "bg-gray-600" : "bg-gray-300"
-                    }`}
+                    key={idx}
+                    className={`w-[4px] ${active ? "bg-gray-600" : "bg-gray-300"}`}
                     style={{ height }}
-                    title={`${y}: ${counts[y] || 0}`}
                   />
                 );
               })}
             </div>
-            {/* Single track + dual handles (overlayed range inputs) */}
+
+            {/* Range slider */}
             <div
               className="mt-3 relative h-6"
               ref={sliderRef}
@@ -230,12 +197,12 @@ const YearDropdown = ({
                 className="absolute top-1/2 -translate-y-1/2 h-2 bg-gray-400/70 rounded-lg"
                 style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
               />
-              {/* Handles: both with transparent native tracks so only one custom track shows */}
+              {/* Handles */}
               <input
                 type="range"
-                min={rangeStart}
-                max={rangeEnd}
-                value={minYear}
+                min={startMileage}
+                max={endMileage}
+                value={min}
                 onChange={(e) => handleMinChange(Number(e.target.value))}
                 className={`range-track-transparent range-thumb w-full appearance-none bg-transparent absolute left-0 right-0 top-1/3 -translate-y-1/3 z-20 ${
                   activeHandle === "min"
@@ -245,9 +212,9 @@ const YearDropdown = ({
               />
               <input
                 type="range"
-                min={rangeStart}
-                max={rangeEnd}
-                value={maxYear}
+                min={startMileage}
+                max={endMileage}
+                value={max}
                 onChange={(e) => handleMaxChange(Number(e.target.value))}
                 className={`range-track-transparent range-thumb w-full appearance-none bg-transparent absolute left-0 right-0 top-1/3 -translate-y-1/3 z-20 ${
                   activeHandle === "max"
@@ -260,22 +227,28 @@ const YearDropdown = ({
 
           {/* Value boxes */}
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <input
-              type="number"
-              min={rangeStart}
-              max={maxYear}
-              value={minYear}
-              onChange={(e) => handleMinChange(Number(e.target.value))}
-              className="border rounded-md px-3 py-2 text-center text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <input
-              type="number"
-              min={minYear}
-              max={rangeEnd}
-              value={maxYear}
-              onChange={(e) => handleMaxChange(Number(e.target.value))}
-              className="border rounded-md px-3 py-2 text-center text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+            <div className="border rounded-md px-3 py-2 flex items-center gap-2">
+              <span className="text-xs text-gray-500">{unit}</span>
+              <input
+                type="number"
+                min={startMileage}
+                max={max}
+                value={min}
+                onChange={(e) => handleMinChange(Number(e.target.value))}
+                className="w-full bg-transparent text-sm text-gray-700 focus:outline-none"
+              />
+            </div>
+            <div className="border rounded-md px-3 py-2 flex items-center gap-2">
+              <span className="text-xs text-gray-500">{unit}</span>
+              <input
+                type="number"
+                min={min}
+                max={endMileage}
+                value={max}
+                onChange={(e) => handleMaxChange(Number(e.target.value))}
+                className="w-full bg-transparent text-sm text-gray-700 focus:outline-none"
+              />
+            </div>
           </div>
         </div>
       )}
@@ -283,4 +256,4 @@ const YearDropdown = ({
   );
 };
 
-export default YearDropdown;
+export default MileageDropdown;

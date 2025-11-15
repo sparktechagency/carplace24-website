@@ -1,5 +1,6 @@
 import Container from "@/components/ui/container";
 import CarCard from "./CarCard";
+import Link from "next/link";
 
 // Sample data for the cars
 const CARS_DATA = [
@@ -62,17 +63,19 @@ const YouMayLike = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {CARS_DATA.map((car) => (
-            <CarCard
-              key={car.id}
-              image={car.image}
-              dealerName={car.dealerName}
-              dealerType={car.dealerType}
-              dealerLogo={car.dealerLogo || ""}
-              carName={car.carName}
-              carCategory={car.carCategory}
-              originalPrice={car.originalPrice}
-              discountedPrice={car.discountedPrice}
-            />
+            <Link key={car.id} href={`/vehicles/${car.id}`}>
+              <CarCard
+                key={car.id}
+                image={car.image}
+                dealerName={car.dealerName}
+                dealerType={car.dealerType}
+                dealerLogo={car.dealerLogo || ""}
+                carName={car.carName}
+                carCategory={car.carCategory}
+                originalPrice={car.originalPrice}
+                discountedPrice={car.discountedPrice}
+              />
+            </Link>
           ))}
         </div>
       </Container>

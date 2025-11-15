@@ -79,7 +79,7 @@ const BlogCard = ({ blog }: { blog: (typeof blogPosts)[0] }) => {
             {blog.description}
           </p>
           <Link
-            href="#"
+            href={`/blogs/${blog.id}`}
             className="text-blue-300 hover:text-blue-200 text-xs sm:text-sm inline-flex items-center"
           >
             {blog.linkText} <span className="ml-1">→</span>

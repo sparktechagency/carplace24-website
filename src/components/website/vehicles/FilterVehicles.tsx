@@ -6,14 +6,12 @@ import Container from "@/components/ui/container";
 import Link from "next/link";
 import BrandModelDropdown from "../home/carsWithFilter/BrandModelDropdown";
 import YearDropdown from "../home/carsWithFilter/YearDropdown";
+import PriceDropdown from "../home/carsWithFilter/PriceDropdown";
+import MileageDropdown from "../home/carsWithFilter/MileageDropdown";
+import FuelDropdown from "../home/carsWithFilter/FuelDropdown";
 
-// Filter options for Vehicles page (extended)
+// Filter options for Vehicles page (category removed)
 const filterOptions = [
-  {
-    id: "category",
-    label: "Vehicle Category",
-    options: ["All", "Car", "Truck", "SUV", "Van", "Bus"],
-  },
   {
     id: "body",
     label: "Body type",
@@ -65,7 +63,7 @@ const Dropdown = ({
   onChange: (option: string) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(options[0]);
+  const [selectedOption, setSelectedOption] = useState(options?.[0] ?? "All");
 
   const handleSelect = (option: string) => {
     setSelectedOption(option);
@@ -102,8 +100,26 @@ const Dropdown = ({
 };
 
 const FilterVehicles = () => {
-  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [yearRange, setYearRange] = useState<{ min: number; max: number }>({
+    min: 1950,
+    max: new Date().getFullYear(),
+  });
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
+    min: 0,
+    max: 200000,
+  });
+  const [mileageRange, setMileageRange] = useState<{ min: number; max: number}>(
+    { min: 0, max: 400000 }
+  );
+  const [selectedFuels, setSelectedFuels] = useState<string[]>([]);
+  const fuelCounts: Record<string, number> = {
+    All: 100000,
+    Gasoline: 73418,
+    Diesel: 27322,
+    Hybrid: 36695,
+    Electric: 15184,
+  };
   return (
     <div className="bg-white shadow-2xl rounded-md">
       <Container>
@@ -137,13 +153,6 @@ const FilterVehicles = () => {
           {/* Filters: single column on mobile; two rows on desktop with separators only between items */}
           {/* Mobile: single column */}
           <div className="lg:hidden flex flex-col gap-4">
-            {/* Category */}
-            <Dropdown
-              label={filterOptions[0].label}
-              options={filterOptions[0].options}
-              onChange={(option) => console.log(`Selected category:`, option)}
-            />
-
             {/* Brand & Model combined dropdown */}
             <BrandModelDropdown
               onSelect={(brand) => {
@@ -152,18 +161,50 @@ const FilterVehicles = () => {
               }}
             />
 
-            {/* Remaining filters */}
-            {filterOptions.slice(1).map((filter, index) => (
+            {/* Filters */}
+            {filterOptions.map((filter, index) => (
               <div key={`mobile-${filter.id}-${index}`}>
                 {filter.id === "year" ? (
                   <YearDropdown
-                    value={selectedYear ?? undefined}
-                    onSelect={(y) => {
-                      setSelectedYear(y);
-                      console.log("Selected year:", y);
+                    value={yearRange}
+                    onSelect={(range) => {
+                      setYearRange(range);
+                      console.log(
+                        `Selected year range: ${range.min}-${range.max}`
+                      );
                     }}
                     startYear={1950}
                     endYear={new Date().getFullYear()}
+                  />
+                ) : filter.id === "price" ? (
+                  <PriceDropdown
+                    value={priceRange}
+                    onSelect={(range) => {
+                      setPriceRange(range);
+                      console.log(
+                        `Selected price range: ${range.min}-${range.max}`
+                      );
+                    }}
+                  />
+                ) : filter.id === "mileage" ? (
+                  <MileageDropdown
+                    value={mileageRange}
+                    onSelect={(range) => {
+                      setMileageRange(range);
+                      console.log(
+                        `Selected mileage range: ${range.min}-${range.max}`
+                      );
+                    }}
+                  />
+                ) : filter.id === "fuel" ? (
+                  <FuelDropdown
+                    options={filter.options}
+                    value={selectedFuels}
+                    counts={fuelCounts}
+                    onSelect={(items) => {
+                      setSelectedFuels(items);
+                      console.log("Selected fuels:", items);
+                    }}
                   />
                 ) : (
                   <Dropdown
@@ -180,17 +221,8 @@ const FilterVehicles = () => {
 
           {/* Desktop: two rows, separators only between items (no far-left/right lines) */}
           <div className="hidden lg:flex lg:flex-col lg:gap-4">
-            {/* First row: Category | BrandModel | Body | Condition | Buy/Lease */}
+            {/* First row: BrandModel | Body | Condition | Buy/Lease | Year */}
             <div className="flex divide-x">
-              <div className="flex-1 px-4">
-                <Dropdown
-                  label={filterOptions[0].label}
-                  options={filterOptions[0].options}
-                  onChange={(option) =>
-                    console.log(`Selected category:`, option)
-                  }
-                />
-              </div>
               <div className="flex-1 px-4">
                 <BrandModelDropdown
                   onSelect={(brand) => {
@@ -201,15 +233,15 @@ const FilterVehicles = () => {
               </div>
               <div className="flex-1 px-4">
                 <Dropdown
-                  label={filterOptions[1].label}
-                  options={filterOptions[1].options}
+                  label={filterOptions[0].label}
+                  options={filterOptions[0].options}
                   onChange={(option) => console.log(`Selected body:`, option)}
                 />
               </div>
               <div className="flex-1 px-4">
                 <Dropdown
-                  label={filterOptions[2].label}
-                  options={filterOptions[2].options}
+                  label={filterOptions[1].label}
+                  options={filterOptions[1].options}
                   onChange={(option) =>
                     console.log(`Selected condition:`, option)
                   }
@@ -217,60 +249,76 @@ const FilterVehicles = () => {
               </div>
               <div className="flex-1 px-4">
                 <Dropdown
-                  label={filterOptions[3].label}
-                  options={filterOptions[3].options}
+                  label={filterOptions[2].label}
+                  options={filterOptions[2].options}
                   onChange={(option) =>
                     console.log(`Selected buyLease:`, option)
                   }
                 />
               </div>
-            </div>
-
-            {/* Second row: Year (YearDropdown) | Price | Mileage | Fuel | Gearbox */}
-            <div className="flex divide-x">
               <div className="flex-1 px-4">
                 <YearDropdown
-                  value={selectedYear ?? undefined}
-                  onSelect={(y) => {
-                    setSelectedYear(y);
-                    console.log("Selected year:", y);
+                  value={yearRange}
+                  onSelect={(range) => {
+                    setYearRange(range);
+                    console.log(
+                      `Selected year range: ${range.min}-${range.max}`
+                    );
                   }}
                   startYear={1950}
                   endYear={new Date().getFullYear()}
                 />
               </div>
+            </div>
+
+            {/* Second row: Price | Mileage | Fuel | Gearbox | spacer */}
+            <div className="flex divide-x">
               <div className="flex-1 px-4">
-                <Dropdown
-                  label={filterOptions[5].label}
-                  options={filterOptions[5].options}
-                  onChange={(option) => console.log(`Selected price:`, option)}
+                <PriceDropdown
+                  value={priceRange}
+                  onSelect={(range) => {
+                    setPriceRange(range);
+                    console.log(
+                      `Selected price range: ${range.min}-${range.max}`
+                    );
+                  }}
                 />
               </div>
               <div className="flex-1 px-4">
-                <Dropdown
-                  label={filterOptions[6].label}
+                <MileageDropdown
+                  value={mileageRange}
+                  onSelect={(range) => {
+                    setMileageRange(range);
+                    console.log(
+                      `Selected mileage range: ${range.min}-${range.max}`
+                    );
+                  }}
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <FuelDropdown
                   options={filterOptions[6].options}
-                  onChange={(option) =>
-                    console.log(`Selected mileage:`, option)
-                  }
+                  value={selectedFuels}
+                  counts={fuelCounts}
+                  onSelect={(items) => {
+                    setSelectedFuels(items);
+                    console.log("Selected fuels:", items);
+                  }}
                 />
               </div>
-              <div className="flex-1 px-4">
-                <Dropdown
-                  label={filterOptions[7].label}
-                  options={filterOptions[7].options}
-                  onChange={(option) => console.log(`Selected fuel:`, option)}
-                />
-              </div>
-              <div className="flex-1 px-4">
-                <Dropdown
-                  label={filterOptions[8].label}
-                  options={filterOptions[8].options}
-                  onChange={(option) =>
-                    console.log(`Selected gearbox:`, option)
-                  }
-                />
-              </div>
+              {filterOptions[7] && (
+                <div className="flex-1 px-4">
+                  <Dropdown
+                    label={filterOptions[7].label}
+                    options={filterOptions[7].options}
+                    onChange={(option) =>
+                      console.log(`Selected gearbox:`, option)
+                    }
+                  />
+                </div>
+              )}
+              {/* Spacer to keep 5 items per row visually */}
+              <div className="flex-1 px-4" />
             </div>
           </div>
         </div>

@@ -33,7 +33,7 @@ const BannerSlider = () => {
       >
         {bannerImages.map((image, index) => (
           <SwiperSlide key={index}>
-            <div className="relative w-full h-[800px]">
+            <div className="relative w-full h-[700px]">
               <Image
                 src={image}
                 alt={`Banner ${index}`}

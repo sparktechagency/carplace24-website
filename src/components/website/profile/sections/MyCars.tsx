@@ -33,6 +33,7 @@ const MyCars = () => {
       image:
         "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop",
       status: "active",
+      remainingDays: 10,
       date: "2023-10-15",
       views: 245,
       inquiries: 12,
@@ -48,6 +49,7 @@ const MyCars = () => {
       image:
         "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=2070&auto=format&fit=crop",
       status: "active",
+      remainingDays: 15,
       date: "2023-09-22",
       views: 187,
       inquiries: 8,
@@ -60,6 +62,7 @@ const MyCars = () => {
       model: "GLE",
       price: "$52,000",
       location: "Chicago, IL",
+      remainingDays: 0,
       image:
         "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop",
       status: "sold",
@@ -74,6 +77,7 @@ const MyCars = () => {
       brand: "Tesla",
       model: "Model Y",
       price: "$59,900",
+      remainingDays: 20,
       location: "Miami, FL",
       image:
         "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1470&auto=format&fit=crop",
@@ -288,6 +292,9 @@ const MyCars = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Listing Date
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Remaining
+                </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -333,6 +340,11 @@ const MyCars = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">{listing.date}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-center text-gray-500">
+                      {listing.remainingDays}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex justify-center gap-3">
