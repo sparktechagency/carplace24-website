@@ -8,12 +8,14 @@ import "swiper/css/navigation";
 import "./styles.css";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
-import image1 from "@/assets/bannerImg1.jpg";
-import image2 from "@/assets/bannerImg2.jpg";
-import image3 from "@/assets/bannerImg3.jpg";
+import image1 from "@/assets/bannerSlider1.png";
+import image2 from "@/assets/bannerSlider2.png";
+import image3 from "@/assets/bannerSlider3.png";
+import image4 from "@/assets/bannerSlider4.png";
+import image5 from "@/assets/bannerSlider5.png";
 import Image from "next/image";
 
-const bannerImages = [image1, image2, image3];
+const bannerImages = [image1, image2, image3, image4, image5];
 
 const BannerSlider = () => {
   return (
