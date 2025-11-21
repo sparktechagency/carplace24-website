@@ -52,7 +52,7 @@ export default function Navbar() {
   }, [isProfileDropdownOpen, isSearchDropdownOpen]);
 
   return (
-    <header className="w-full py-4 shadow-sm bg-gray-50 fixed top-0 left-0 z-50 overflow-visible">
+    <header className="w-full py-4 bg-gray-50 fixed top-0 left-0 z-50 overflow-visible">
       <div className="w-[1350px] mx-auto flex items-center justify-between px-4 overflow-visible">
         {/* Logo */}
         <Link href="/" className="flex items-center">

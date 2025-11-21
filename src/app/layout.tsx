@@ -28,7 +28,7 @@ export default function RootLayout({
         className={`${poppins.className} ${poppins.variable} font-sans antialiased`}
       >
         <Navbar />
-        <div className="mt-20">{children}</div>
+        <div className="mt-[75px]">{children}</div>
         <Footer />
       </body>
     </html>
