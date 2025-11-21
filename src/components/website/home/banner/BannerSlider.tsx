@@ -20,36 +20,38 @@ const bannerImages = [image1, image2, image3, image4, image5];
 
 const BannerSlider = () => {
   return (
-    <Container>
-      <Swiper
-        spaceBetween={30}
-        loop={true}
-        autoplay={{
-          delay: 2000,
-          disableOnInteraction: false,
-        }}
-        pagination={{
-          clickable: true,
-        }}
-        modules={[Autoplay, Pagination, Navigation]}
-        className="mySwiper"
-      >
-        {bannerImages.map((image, index) => (
-          <SwiperSlide key={index}>
-            <div className="relative w-full h-[700px]">
-              <Image
-                src={image}
-                alt={`Banner ${index}`}
-                width={75751920}
-                height={67571080}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/10"></div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </Container>
+    <div className="bg-[#F9FAFB]">
+      <Container>
+        <Swiper
+          spaceBetween={30}
+          loop={true}
+          autoplay={{
+            delay: 2000,
+            disableOnInteraction: false,
+          }}
+          pagination={{
+            clickable: true,
+          }}
+          modules={[Autoplay, Pagination, Navigation]}
+          className="mySwiper"
+        >
+          {bannerImages.map((image, index) => (
+            <SwiperSlide key={index}>
+              <div className="relative w-full h-[700px]">
+                <Image
+                  src={image}
+                  alt={`Banner ${index}`}
+                  width={75751920}
+                  height={67571080}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/10"></div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </Container>
+    </div>
   );
 };
 
