@@ -52,7 +52,7 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="bg-black/50" />
-      <DialogContent className="p-0 border-none max-w-2xl rounded-lg overflow-hidden bg-white ">
+      <DialogContent className="p-0 border-none max-w-2xl rounded-lg overflow-visible bg-white ">
         <div className="relative">
           <DialogClose className="absolute right-4 top-4 z-10">
             <X className="h-4 w-4 text-gray-500" />
@@ -151,7 +151,7 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
                       <Calendar className="h-5 w-5 text-gray-400" />
                     </div>
                     {showDatePicker && (
-                      <div className="absolute z-10 mt-1 bg-white shadow-lg rounded-md">
+                      <div className="absolute left-0 top-full z-50 mt-1 bg-white shadow-lg rounded-md border">
                         <DatePicker
                           selected={
                             formData.date ? new Date(formData.date) : null

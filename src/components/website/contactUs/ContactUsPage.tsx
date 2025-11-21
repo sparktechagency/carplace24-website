@@ -121,7 +121,7 @@ const ContactUsPage = () => {
                   name="contactNumber"
                   value={formData.contactNumber}
                   onChange={handleChange}
-                  placeholder="+99"
+                  placeholder="Enter your contact number"
                   className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />

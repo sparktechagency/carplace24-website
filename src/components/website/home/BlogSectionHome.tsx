@@ -96,7 +96,9 @@ const BlogSectionHome = () => {
       <Container>
         {/* Header with View All link */}
         <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8">
-          <h2 className="text-xl sm:text-2xl font-semibold">You may like</h2>
+          <h2 className="text-3xl text-black font-semibold mb-4">
+            Popular Blog Posts
+          </h2>
           <Link
             href="#"
             className="text-blue-600 hover:text-blue-800 text-sm sm:text-base"

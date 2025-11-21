@@ -29,7 +29,9 @@ const BrandMarquee = () => {
     <div className="py-12 bg-gray-50">
       <Container>
         {" "}
-        <h2 className="text-2xl font-semibold mb-8">Popular Brands</h2>
+        <h2 className="text-3xl text-black text-center font-semibold mb-4">
+          Popular Brands
+        </h2>
       </Container>
       <Marquee gradient={false} speed={40} pauseOnHover={true} className="py-4">
         {brandLogos.map((logo, index) => (
@@ -39,7 +41,7 @@ const BrandMarquee = () => {
               alt={logo.alt}
               width={400}
               height={400}
-              className="h-32 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+              className="h-32 w-auto object-contain transition-all duration-300"
             />
           </div>
         ))}

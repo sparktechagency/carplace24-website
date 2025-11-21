@@ -125,7 +125,7 @@ const ReviewSection = () => {
     <section className="py-16 bg-gray-50">
       <Container>
         <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+          <h2 className="text-3xl text-black font-semibold mb-4">
             What Our Customers Say
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">

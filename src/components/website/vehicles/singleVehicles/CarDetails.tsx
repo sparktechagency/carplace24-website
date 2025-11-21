@@ -6,9 +6,9 @@ import { Mail, Phone, Share2, Heart, MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import { CAR_DETAILS } from "./carData";
 import TestDriveModal from "./TestDriveModal";
+import CarImageGallery from "./CarImageGallery";
 
 const CarDetails = () => {
-  const [activeImage, setActiveImage] = useState(CAR_DETAILS.images[0]);
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
 
   const handleTestDriveClick = () => {
@@ -23,40 +23,7 @@ const CarDetails = () => {
     <section className="py-8">
       <Container>
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="w-full md:w-5/6">
-              <div className="rounded-lg overflow-hidden border h-full">
-                <Image
-                  src={activeImage}
-                  alt={CAR_DETAILS.title}
-                  className="w-full h-[300px] sm:h-[400px] md:h-[600px] object-cover"
-                  width={34341000}
-                  height={3434500}
-                />
-              </div>
-            </div>
-
-            <div className="w-full md:w-1/6 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[600px] scrollbar-thin">
-              {CAR_DETAILS.images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveImage(img)}
-                  className={
-                    "rounded-md overflow-hidden border flex-shrink-0 w-16 h-16 md:w-full md:h-[80px] cursor-pointer" +
-                    (activeImage === img ? " border-primary" : "")
-                  }
-                >
-                  <Image
-                    src={img}
-                    alt={`thumb-${idx}`}
-                    className="w-full h-full object-cover"
-                    width={56100}
-                    height={66100}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+          <CarImageGallery images={CAR_DETAILS.images} title={CAR_DETAILS.title} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>

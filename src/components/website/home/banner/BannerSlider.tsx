@@ -14,17 +14,18 @@ import image3 from "@/assets/bannerSlider3.png";
 import image4 from "@/assets/bannerSlider4.png";
 import image5 from "@/assets/bannerSlider5.png";
 import Image from "next/image";
+import Container from "@/components/ui/container";
 
 const bannerImages = [image1, image2, image3, image4, image5];
 
 const BannerSlider = () => {
   return (
-    <div>
+    <Container>
       <Swiper
         spaceBetween={30}
-        centeredSlides={true}
+        loop={true}
         autoplay={{
-          delay: 4000,
+          delay: 2000,
           disableOnInteraction: false,
         }}
         pagination={{
@@ -48,7 +49,7 @@ const BannerSlider = () => {
           </SwiperSlide>
         ))}
       </Swiper>
-    </div>
+    </Container>
   );
 };
 

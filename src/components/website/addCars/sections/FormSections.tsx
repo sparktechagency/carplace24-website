@@ -2,6 +2,8 @@
 
 import SelectDropdown from "../SelectDropdown";
 import FormSection from "../FormSection";
+import { useState, useMemo } from "react";
+import { Search } from "lucide-react";
 
 interface FormSectionsProps {
   formData: any;
@@ -29,7 +31,9 @@ export const Pricing = ({ formData, handleInputChange }: FormSectionsProps) => {
               placeholder="0.00"
               className="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.regularPrice || ""}
-              onChange={(e) => handleInputChange("regularPrice", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("regularPrice", e.target.value)
+              }
             />
           </div>
         </div>
@@ -83,7 +87,10 @@ export const Pricing = ({ formData, handleInputChange }: FormSectionsProps) => {
   );
 };
 
-export const TechnicalSpecifications = ({ formData, handleInputChange }: FormSectionsProps) => {
+export const TechnicalSpecifications = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
   return (
     <FormSection title="Technical Specifications">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -167,7 +174,10 @@ export const TechnicalSpecifications = ({ formData, handleInputChange }: FormSec
   );
 };
 
-export const ElectricHybridSpecific = ({ formData, handleInputChange }: FormSectionsProps) => {
+export const ElectricHybridSpecific = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
   return (
     <FormSection title="Electric & Hybrid Specific">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -192,7 +202,9 @@ export const ElectricHybridSpecific = ({ formData, handleInputChange }: FormSect
             placeholder="kWh"
             className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={formData.batteryCapacity}
-            onChange={(e) => handleInputChange("batteryCapacity", e.target.value)}
+            onChange={(e) =>
+              handleInputChange("batteryCapacity", e.target.value)
+            }
           />
         </div>
       </div>
@@ -200,7 +212,10 @@ export const ElectricHybridSpecific = ({ formData, handleInputChange }: FormSect
   );
 };
 
-export const WeightInformation = ({ formData, handleInputChange }: FormSectionsProps) => {
+export const WeightInformation = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
   return (
     <FormSection title="Weight Information">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -215,7 +230,9 @@ export const WeightInformation = ({ formData, handleInputChange }: FormSectionsP
               placeholder="kg"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.towingCapacity || ""}
-              onChange={(e) => handleInputChange("towingCapacity", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("towingCapacity", e.target.value)
+              }
             />
           </div>
         </div>
@@ -254,34 +271,94 @@ export const WeightInformation = ({ formData, handleInputChange }: FormSectionsP
   );
 };
 
-export const Equipment = ({ formData, handleInputChange }: FormSectionsProps) => {
-  const equipmentOptions: string[] = [
-    "ABS",
-    "360° camera",
-    "Adaptive cruise control",
-    "Alarm system",
-    "Electric seat adjustment",
-    "Towbar",
-    "Leather / Alcantara / fabric seats",
-    "Heated / ventilated seats",
-    "Sunroof / panoramic roof",
-    "Android Auto",
-    "Navigation system (built-in / portable)",
-    "Parking sensors (front, rear) / Parking assist",
-    "Head-up display",
-    "Xenon / LED / Laser headlights",
-    "Keyless entry / start",
-    "Isofix",
-    "Start-stop system",
-    "Theft protection",
-    "Climate control (manual / automatic)",
-    "Sports seats",
-    "Speed limiter",
-    "Stability control (ESP)",
-    "Sound system",
+export const Equipment = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
+  const equipmentOptions: { label: string; count: number }[] = [
+    { label: "ABS", count: 128151 },
+    { label: "Accesso e accensione senza chiave", count: 81695 },
+    { label: "Aiuti al parcheggio", count: 66207 },
+    { label: "Altoparlante", count: 65203 },
+    { label: "Alzacristalli elettrici", count: 97030 },
+    { label: "Android Auto", count: 64373 },
+    { label: "Apple CarPlay", count: 66654 },
+    { label: "Aria condizionata", count: 134856 },
+    { label: "Climatizzatore automatico", count: 123996 },
+    { label: "Assistente di corsia", count: 85471 },
+    { label: "Assistente di frenata automatico", count: 81098 },
+    { label: "Bloccaggio differenziale", count: 46545 },
+    { label: "Cerchi in lega", count: 127143 },
+    { label: "Controllo di velocità", count: 116990 },
+    { label: "Controllo di velocità adattivo", count: 75991 },
+    { label: "Controllo elettronico della stabilità (ESP)", count: 121589 },
+    { label: "Coperture dei sedili", count: 120854 },
+    { label: "Alcantara", count: 19472 },
+    { label: "Interni in tessuto", count: 73920 },
+    { label: "Sedili in pelle", count: 59464 },
+    { label: "Dispositivo antifurto", count: 17593 },
+    { label: "Elementi cromati", count: 10469 },
+    { label: "Fari", count: 102674 },
+    { label: "Fari allo laser", count: 2781 },
+    { label: "Fari LED", count: 87272 },
+    { label: "Fari allo xeno", count: 18285 },
+    { label: "Fari adattivi", count: 30467 },
+    { label: "Gancio traino", count: 30142 },
+    { label: "Gancio di traino rimovibile", count: 9381 },
+    { label: "Gancio di traino orientabile", count: 16402 },
+    { label: "Gancio di traino fisso", count: 21764 },
+    { label: "Head-up Display", count: 36664 },
+    { label: "Interfaccia Bluetooth", count: 94226 },
+    { label: "ISOFIX", count: 109058 },
+    { label: "Pedana", count: 2210 },
+    { label: "Pittura speciale", count: 3739 },
+    { label: "Porta scorrevole", count: 5269 },
+    { label: "Portapacchi", count: 244 },
+    { label: "Porte ad ali di gabbiano", count: 1852 },
+    { label: "Portellone posteriore elettrico", count: 23826 },
+    { label: "Radio DAB", count: 100705 },
+    { label: "Regolazione elettrica dei sedili", count: 88236 },
+    { label: "Ricarica rapida", count: 44088 },
+    { label: "Riscaldamento ausiliario", count: 11668 },
+    { label: "Schienale", count: 1052 },
+    { label: "Sedili riscaldati", count: 105055 },
+    { label: "Sedili sportivi", count: 53142 },
+    { label: "Sedili ventilati", count: 25404 },
+    { label: "Sensori di parcheggio anteriori", count: 94268 },
+    { label: "Sensori di parcheggio posteriori", count: 111643 },
+    { label: "Silenziatore personalizzato", count: 2702 },
+    { label: "Sistema di allarme", count: 49690 },
+    { label: "Sistema di monitoraggio angolo cieco", count: 73349 },
+    { label: "Sistema di navigazione", count: 93986 },
+    { label: "Navigazione", count: 93643 },
+    { label: "Sistema di navigazione portatile", count: 1295 },
+    { label: "Sistema start-stop", count: 78881 },
+    { label: "Sospensioni pneumatiche", count: 14890 },
+    { label: "Sospensioni rinforzate", count: 556 },
+    { label: "Strumentazione aggiuntiva", count: 49132 },
+    { label: "Telecamera a 360°", count: 46528 },
+    { label: "Telecamera posteriore", count: 95905 },
+    { label: "Tetto panoramico", count: 38438 },
+    { label: "Tetto rigido", count: 1005 },
+    { label: "Tettuccio apribile", count: 33975 },
+    { label: "Valigia", count: 2518 },
+    { label: "Vivavoce", count: 67216 },
   ];
 
   const selected: string[] = formData.equipmentFeatures || [];
+  const [query, setQuery] = useState("");
+
+  const filteredOptions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return equipmentOptions;
+    return equipmentOptions.filter((o) => o.label.toLowerCase().includes(q));
+  }, [query]);
+
+  const columns = 4;
+  const perCol = Math.ceil(filteredOptions.length / columns);
+  const chunked = Array.from({ length: columns }, (_, i) =>
+    filteredOptions.slice(i * perCol, i * perCol + perCol)
+  );
 
   const toggleOption = (label: string) => {
     const next = selected.includes(label)
@@ -290,30 +367,57 @@ export const Equipment = ({ formData, handleInputChange }: FormSectionsProps) =>
     handleInputChange("equipmentFeatures", next);
   };
 
+  const restore = () => {
+    setQuery("");
+    handleInputChange("equipmentFeatures", []);
+  };
+
   return (
     <FormSection title="Equipment">
-      {/* Checkboxes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-        {equipmentOptions.map((label, idx) => {
-          const id = `equip-${idx}`;
-          const checked = selected.includes(label);
-          return (
-            <label key={id} htmlFor={id} className="flex items-center gap-2 text-gray-800">
-              <input
-                id={id}
-                type="checkbox"
-                className="h-4 w-4 border-gray-300 rounded"
-                checked={checked}
-                onChange={() => toggleOption(label)}
-              />
-              <span className="text-sm md:text-base">{label}</span>
-            </label>
-          );
-        })}
+      <div className="flex items-center justify-between mb-3">
+        <div className="relative w-full mb-5">
+          <input
+            type="text"
+            placeholder="Search equipment"
+            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        </div>
       </div>
 
-      {/* Optional: equipment weight input retained */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {chunked.map((col, cIdx) => (
+          <div key={cIdx} className="space-y-3">
+            {col.map(({ label, count }, idx) => {
+              const id = `equip-${cIdx}-${idx}`;
+              const checked = selected.includes(label);
+              return (
+                <label
+                  key={id}
+                  htmlFor={id}
+                  className="flex items-center gap-2 text-gray-800"
+                >
+                  <input
+                    id={id}
+                    type="checkbox"
+                    className="h-4 w-4 border-gray-300 rounded"
+                    checked={checked}
+                    onChange={() => toggleOption(label)}
+                  />
+                  <span className="flex-1 text-sm md:text-base">{label}</span>
+                  <span className="text-xs text-gray-500">
+                    {count.toLocaleString()}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      {/* <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Equipment Weight
@@ -325,11 +429,13 @@ export const Equipment = ({ formData, handleInputChange }: FormSectionsProps) =>
               placeholder="kg"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.equipmentCurbWeight || ""}
-              onChange={(e) => handleInputChange("equipmentCurbWeight", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("equipmentCurbWeight", e.target.value)
+              }
             />
           </div>
         </div>
-      </div>
+      </div> */}
     </FormSection>
   );
 };
@@ -345,7 +451,7 @@ export const Extras = ({ formData, handleInputChange }: FormSectionsProps) => {
             options={[
               { value: "4wd", label: "4WD" },
               { value: "awd", label: "AWD" },
-              { value: "2wd", label: "2WD" }
+              { value: "2wd", label: "2WD" },
             ]}
             value={formData.tires || ""}
             onChange={(e) => handleInputChange("tires", e.target.value)}
@@ -358,7 +464,7 @@ export const Extras = ({ formData, handleInputChange }: FormSectionsProps) => {
             options={[
               { value: "summer", label: "Summer" },
               { value: "winter", label: "Winter" },
-              { value: "all-season", label: "All Season" }
+              { value: "all-season", label: "All Season" },
             ]}
             value={formData.summerWinter || ""}
             onChange={(e) => handleInputChange("summerWinter", e.target.value)}
@@ -370,10 +476,12 @@ export const Extras = ({ formData, handleInputChange }: FormSectionsProps) => {
             label="Handicap accessible"
             options={[
               { value: "yes", label: "yes" },
-              { value: "no", label: "no" }
+              { value: "no", label: "no" },
             ]}
             value={formData.handicapAccessible || ""}
-            onChange={(e) => handleInputChange("handicapAccessible", e.target.value)}
+            onChange={(e) =>
+              handleInputChange("handicapAccessible", e.target.value)
+            }
           />
         </div>
         <div>
@@ -382,7 +490,7 @@ export const Extras = ({ formData, handleInputChange }: FormSectionsProps) => {
             label="Race Car"
             options={[
               { value: "yes", label: "yes" },
-              { value: "no", label: "no" }
+              { value: "no", label: "no" },
             ]}
             value={formData.raceCar || ""}
             onChange={(e) => handleInputChange("raceCar", e.target.value)}
@@ -394,7 +502,7 @@ export const Extras = ({ formData, handleInputChange }: FormSectionsProps) => {
             label="Tuning"
             options={[
               { value: "yes", label: "yes" },
-              { value: "no", label: "no" }
+              { value: "no", label: "no" },
             ]}
             value={formData.tuning || ""}
             onChange={(e) => handleInputChange("tuning", e.target.value)}
@@ -406,33 +514,110 @@ export const Extras = ({ formData, handleInputChange }: FormSectionsProps) => {
 };
 
 export const Colour = ({ formData, handleInputChange }: FormSectionsProps) => {
+  const COLORS: { label: string; hex: string }[] = [
+    { label: "Schwarz", hex: "#1f1f1f" },
+    { label: "Weiss", hex: "#ffffff" },
+    { label: "Gelb", hex: "#ffd800" },
+    { label: "Pink", hex: "#ff4fb3" },
+    { label: "Braun", hex: "#7b4f2e" },
+    { label: "Türkis", hex: "#3ddad7" },
+    { label: "Anthrazit", hex: "#3f4a54" },
+    { label: "Beige", hex: "#e8e2cf" },
+    { label: "Gold", hex: "#f4c542" },
+    { label: "Rot", hex: "#ff2f2f" },
+    { label: "Grün", hex: "#198a2b" },
+    { label: "Blau", hex: "#3b82f6" },
+    { label: "Grau", hex: "#9ca3af" },
+    { label: "Silber", hex: "#c0c0c0" },
+    { label: "Orange", hex: "#f59e0b" },
+    { label: "Bordeaux", hex: "#6b0f1a" },
+    { label: "Violett", hex: "#8b5cf6" },
+    { label: "sonstiges", hex: "#ffffff" },
+  ];
+
+  const extSelected: string[] = Array.isArray(formData.exteriorColour)
+    ? formData.exteriorColour
+    : [];
+  const intSelected: string[] = Array.isArray(formData.interiorColour)
+    ? formData.interiorColour
+    : [];
+
+  const toggle = (
+    field: "exteriorColour" | "interiorColour",
+    label: string
+  ) => {
+    const current = field === "exteriorColour" ? extSelected : intSelected;
+    const next = current.includes(label)
+      ? current.filter((l) => l !== label)
+      : [...current, label];
+    handleInputChange(field, next);
+  };
+
+  const Swatch = ({ hex }: { hex: string }) => (
+    <span
+      className="inline-block w-5 h-5 rounded-sm border mr-2"
+      style={{ backgroundColor: hex }}
+    />
+  );
+
   return (
     <FormSection title="Colour">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Exterior colour</label>
-          <div className="relative">
-            <input
-              type="text"
-              id="exterior-colour"
-              placeholder="Black, Blue"
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.exteriorColour || ""}
-              onChange={(e) => handleInputChange("exteriorColour", e.target.value)}
-            />
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Exterior colour
+          </label>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+            {COLORS.map((c, idx) => {
+              const id = `ext-${idx}`;
+              const checked = extSelected.includes(c.label);
+              return (
+                <label
+                  key={id}
+                  htmlFor={id}
+                  className="flex items-center text-gray-800"
+                >
+                  <input
+                    id={id}
+                    type="checkbox"
+                    className="mr-2 h-4 w-4 rounded border-gray-300"
+                    checked={checked}
+                    onChange={() => toggle("exteriorColour", c.label)}
+                  />
+                  <Swatch hex={c.hex} />
+                  <span className="text-sm">{c.label}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Interior Colour</label>
-          <div className="relative">
-            <input
-              type="text"
-              id="interior-colour"
-              placeholder="White, Ash"
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.interiorColour || ""}
-              onChange={(e) => handleInputChange("interiorColour", e.target.value)}
-            />
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Interior colour
+          </label>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+            {COLORS.map((c, idx) => {
+              const id = `int-${idx}`;
+              const checked = intSelected.includes(c.label);
+              return (
+                <label
+                  key={id}
+                  htmlFor={id}
+                  className="flex items-center text-gray-800"
+                >
+                  <input
+                    id={id}
+                    type="checkbox"
+                    className="mr-2 h-4 w-4 rounded border-gray-300"
+                    checked={checked}
+                    onChange={() => toggle("interiorColour", c.label)}
+                  />
+                  <Swatch hex={c.hex} />
+                  <span className="text-sm">{c.label}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -440,12 +625,17 @@ export const Colour = ({ formData, handleInputChange }: FormSectionsProps) => {
   );
 };
 
-export const SeatsAndDoors = ({ formData, handleInputChange }: FormSectionsProps) => {
+export const SeatsAndDoors = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
   return (
     <FormSection title="Seats & Doors">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Seats & Door</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Seats & Door
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -453,12 +643,16 @@ export const SeatsAndDoors = ({ formData, handleInputChange }: FormSectionsProps
               placeholder="5 Seats"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.seatsAndDoor || ""}
-              onChange={(e) => handleInputChange("seatsAndDoor", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("seatsAndDoor", e.target.value)
+              }
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Door</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Door
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -475,12 +669,17 @@ export const SeatsAndDoors = ({ formData, handleInputChange }: FormSectionsProps
   );
 };
 
-export const EnergyAndEnvironment = ({ formData, handleInputChange }: FormSectionsProps) => {
+export const EnergyAndEnvironment = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
   return (
     <FormSection title="Energy & Environment">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Fuel Consumption</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Fuel Consumption
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -488,12 +687,16 @@ export const EnergyAndEnvironment = ({ formData, handleInputChange }: FormSectio
               placeholder="l/100 km"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.fuelConsumption || ""}
-              onChange={(e) => handleInputChange("fuelConsumption", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("fuelConsumption", e.target.value)
+              }
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Co emissions</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Co emissions
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -515,10 +718,12 @@ export const EnergyAndEnvironment = ({ formData, handleInputChange }: FormSectio
               { value: "euro3", label: "Euro 3" },
               { value: "euro4", label: "Euro 4" },
               { value: "euro5", label: "Euro 5" },
-              { value: "euro6", label: "Euro 6" }
+              { value: "euro6", label: "Euro 6" },
             ]}
             value={formData.energyEfficiencyClass || ""}
-            onChange={(e) => handleInputChange("energyEfficiencyClass", e.target.value)}
+            onChange={(e) =>
+              handleInputChange("energyEfficiencyClass", e.target.value)
+            }
           />
         </div>
       </div>
@@ -526,12 +731,17 @@ export const EnergyAndEnvironment = ({ formData, handleInputChange }: FormSectio
   );
 };
 
-export const EuroStandard = ({ formData, handleInputChange }: FormSectionsProps) => {
+export const EuroStandard = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
   return (
     <FormSection title="Euro Standard">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Fuel type</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Fuel type
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -539,12 +749,16 @@ export const EuroStandard = ({ formData, handleInputChange }: FormSectionsProps)
               placeholder="2010"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.euroFuelType || ""}
-              onChange={(e) => handleInputChange("euroFuelType", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("euroFuelType", e.target.value)
+              }
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Transmission</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Transmission
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -552,7 +766,9 @@ export const EuroStandard = ({ formData, handleInputChange }: FormSectionsProps)
               placeholder="32000"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.euroTransmission || ""}
-              onChange={(e) => handleInputChange("euroTransmission", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("euroTransmission", e.target.value)
+              }
             />
           </div>
         </div>
@@ -561,12 +777,17 @@ export const EuroStandard = ({ formData, handleInputChange }: FormSectionsProps)
   );
 };
 
-export const Location = ({ formData, handleInputChange }: FormSectionsProps) => {
+export const Location = ({
+  formData,
+  handleInputChange,
+}: FormSectionsProps) => {
   return (
     <FormSection title="Location">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Country
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -579,7 +800,9 @@ export const Location = ({ formData, handleInputChange }: FormSectionsProps) => 
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            City
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -592,7 +815,9 @@ export const Location = ({ formData, handleInputChange }: FormSectionsProps) => 
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Zip code</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Zip code
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -606,7 +831,9 @@ export const Location = ({ formData, handleInputChange }: FormSectionsProps) => 
         </div>
       </div>
       <div className="mt-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Description
+        </label>
         <textarea
           id="description"
           placeholder="Enter product description"

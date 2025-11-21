@@ -53,7 +53,7 @@ export default function Navbar() {
 
   return (
     <header className="w-full py-4 shadow-sm bg-gray-50 fixed top-0 left-0 z-50 overflow-visible">
-      <div className="container mx-auto flex items-center justify-between px-4 overflow-visible">
+      <div className="w-[1350px] mx-auto flex items-center justify-between px-4 overflow-visible">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image src={logo} alt="Carplace24 Logo" width={120} height={100} />

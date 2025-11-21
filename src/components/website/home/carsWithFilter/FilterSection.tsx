@@ -72,7 +72,7 @@ const FilterSection = () => {
     max: 1_000_000,
   });
   return (
-    <div className="w-full lg:w-[1400px] bg-white shadow-md rounded-md">
+    <div className="w-full lg:w-[1200px] bg-white shadow-md rounded-md">
       <Container>
         <div className="py-4">
           {/* Vehicle Type Selection */}
