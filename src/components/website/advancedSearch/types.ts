@@ -1,0 +1,42 @@
+export type Range = { min: number; max: number };
+
+export interface AdvancedSearchForm {
+  search: string;
+  category: string;
+  brand: string;
+  model: string;
+  condition: string;
+  buyLease: string;
+  driveType: string;
+  price: Range;
+  year: Range;
+  mileage: Range;
+  fuel: string;
+  gearbox: string;
+  transmission: string;
+  performance: string;
+  displacement: string;
+  cylinders: string;
+  warranty: string;
+  accident: string;
+  rangeKm: number;
+  battery: string;
+  interiorColor: string;
+  metallic: string;
+  exteriorColor: string;
+  towingKg: number;
+  curbKg: number;
+  totalKg: number;
+  seats: string;
+  doors: string;
+  fuelConsumption: string;
+  coKg: number;
+  energyClass: string;
+  euroStandard: string;
+  euro6Standard: string;
+  country: string;
+  city: string;
+  zipCode: string;
+  radius: Range;
+  equipment: string[];
+}

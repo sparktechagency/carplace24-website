@@ -7,6 +7,7 @@ import BrandModelDropdown from "./BrandModelDropdown";
 import YearDropdown from "./YearDropdown";
 import PriceDropdown from "./PriceDropdown";
 import { FaCar } from "react-icons/fa";
+import Link from "next/link";
 
 const vehicleTypes = [{ id: "car", label: "Car", icon: <FaCar /> }];
 
@@ -95,10 +96,12 @@ const FilterSection = () => {
               <button className="flex items-center gap-1 text-green-600">
                 <RotateCcw className="w-4 h-4" />
               </button>
-              <div className="flex items-center gap-1 text-primary cursor-pointer">
-                <Settings2 className="w-4 h-4" />{" "}
-                <span className="text-sm">Advanced search</span>
-              </div>
+              <Link href="/advanced-search">
+                <div className="flex items-center gap-1 text-primary cursor-pointer">
+                  <Settings2 className="w-4 h-4" />{" "}
+                  <span className="text-sm">Advanced search</span>
+                </div>
+              </Link>
             </div>
           </div>
 

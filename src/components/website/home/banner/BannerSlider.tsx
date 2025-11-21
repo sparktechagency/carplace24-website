@@ -26,7 +26,7 @@ const BannerSlider = () => {
           spaceBetween={30}
           loop={true}
           autoplay={{
-            delay: 2000,
+            delay: 12000,
             disableOnInteraction: false,
           }}
           pagination={{

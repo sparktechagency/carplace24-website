@@ -1,4 +1,4 @@
-import AdvancedSearch from "@/components/website/vehicles/AdvancedSearch";
+import AdvancedSearch from "@/components/website/advancedSearch/AdvancedSearch";
 
 const page = () => {
   return (
