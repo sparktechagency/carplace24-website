@@ -1,17 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Container from "@/components/ui/container";
 import { Mail, Phone, Share2, Heart, MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import { CAR_DETAILS } from "./carData";
 import TestDriveModal from "./TestDriveModal";
 import CarImageGallery from "./CarImageGallery";
+import {
+  useCompareACarMutation,
+  useGetCompareCarsQuery,
+  useToggleBookmarkCarMutation,
+  useGetBookmarkCarsQuery,
+} from "@/redux/apiSlice/compareSlice";
+import toast from "react-hot-toast";
 
 type Details = any;
 
 const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
+  const [compareCar, { isLoading: comparing }] = useCompareACarMutation();
+  const { data: compareData } = useGetCompareCarsQuery(undefined);
+  const comparedList = (compareData?.data || compareData?.items || []) as any[];
+  const alreadyCompared = Array.isArray(comparedList)
+    ? comparedList.some(
+        (c) =>
+          c?._id === details.id ||
+          c?.carId === details.id ||
+          c?.id === details.id
+      )
+    : false;
+  const [isCompared, setIsCompared] = useState(alreadyCompared);
+
+  const { data: bookmarkData, refetch: refetchBookmarks } =
+    useGetBookmarkCarsQuery(undefined);
+  const raw = bookmarkData as any;
+  const bookmarksList = (raw?.data?.data ||
+    raw?.data ||
+    raw?.items ||
+    raw?.bookmarks ||
+    raw?.results ||
+    []) as any[];
+  const carId = String(details?.id || "");
+  const alreadyBookmarked = Array.isArray(bookmarksList)
+    ? bookmarksList.some((c) => {
+        const ids = [c?._id, c?.carId, c?.id, c?.car, c?.car?._id]
+          .filter((v) => v != null)
+          .map((v) => String(v));
+        return ids.includes(carId);
+      })
+    : false;
+  const [isBookmarked, setIsBookmarked] = useState(alreadyBookmarked);
+
+  useEffect(() => {
+    setIsCompared(alreadyCompared);
+  }, [alreadyCompared]);
+
+  useEffect(() => {
+    setIsBookmarked(alreadyBookmarked);
+  }, [alreadyBookmarked]);
 
   const handleTestDriveClick = () => {
     setIsTestDriveOpen(true);
@@ -19,6 +66,39 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
 
   const handleCloseTestDrive = () => {
     setIsTestDriveOpen(false);
+  };
+
+  const handleCompare = async () => {
+    try {
+      const res = await compareCar({ carId: details.id }).unwrap();
+      if (res?.success) {
+        toast.success("Added to compare");
+        setIsCompared(true);
+      } else {
+        toast.error(res?.message || "Compare failed");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Compare failed");
+    }
+  };
+
+  const [toggleBookmark, { isLoading: togglingBookmark }] =
+    useToggleBookmarkCarMutation();
+
+  const handleBookmark = async () => {
+    try {
+      const res = await toggleBookmark({ car: details.id }).unwrap();
+      if (res?.success) {
+        const next = !isBookmarked;
+        setIsBookmarked(next);
+        toast.success(next ? "Added to favorites" : "Removed from favorites");
+        refetchBookmarks();
+      } else {
+        toast.error(res?.message || "Action failed");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Action failed");
+    }
   };
 
   return (
@@ -110,8 +190,18 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                   </button>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  <button className="px-3 h-9 rounded-md border text-sm cursor-pointer">
-                    Compare
+                  <button
+                    className={`px-3 h-9 rounded-md border text-sm cursor-pointer ${
+                      isCompared ? "bg-blue-600 text-white border-blue-600" : ""
+                    }`}
+                    onClick={handleCompare}
+                    disabled={comparing || isCompared}
+                  >
+                    {isCompared
+                      ? "Added to Compare"
+                      : comparing
+                      ? "Comparing..."
+                      : "Compare"}
                   </button>
                   <button
                     className="px-3 h-9 rounded-md border text-sm cursor-pointer"
@@ -119,8 +209,19 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                   >
                     Test Drive
                   </button>
-                  <button className="px-3 h-9 rounded-md border text-sm flex items-center gap-2 cursor-pointer">
-                    <Heart className="h-4 w-4" /> Favorite
+                  <button
+                    className={`px-3 h-9 rounded-md border text-sm flex items-center gap-2 cursor-pointer ${
+                      isBookmarked ? "bg-red-600 text-white border-red-600" : ""
+                    }`}
+                    onClick={handleBookmark}
+                    disabled={togglingBookmark}
+                  >
+                    <Heart className="h-4 w-4" />
+                    {isBookmarked
+                      ? "Favorited"
+                      : togglingBookmark
+                      ? "Processing..."
+                      : "Favorite"}
                   </button>
                 </div>
                 <TestDriveModal

@@ -4,7 +4,6 @@ import { useGetAllCarsQuery } from "@/redux/apiSlice/carSlice";
 import FilterSection from "./FilterSection";
 import PopularCars from "./PopularCars";
 import YouMayLike from "./YouMayLike";
-import { Loader } from "lucide-react";
 
 const CarsWithFilter = () => {
   const { data: allCars, isLoading } = useGetAllCarsQuery(undefined);

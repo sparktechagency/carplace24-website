@@ -13,6 +13,10 @@ import addCarIcon from "@/assets/addCarIcon.png";
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import {
+  useGetCompareCarsQuery,
+  useGetBookmarkCarsQuery,
+} from "@/redux/apiSlice/compareSlice";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,8 +24,32 @@ export default function Navbar() {
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
 
   const { data: userDetails, isLoading } = useProfileQuery(undefined);
+  const { data: compareData } = useGetCompareCarsQuery(undefined);
+  const { data: bookmarkData } = useGetBookmarkCarsQuery(undefined);
 
   const user = userDetails?.data;
+  const compareItems = (compareData?.data || compareData?.items || []) as any[];
+  const compareCount = Array.isArray(compareItems)
+    ? compareItems.length
+    : Number(
+        (compareData as any)?.data?.count || (compareData as any)?.count || 0
+      ) || 0;
+
+  const favoriteItems =
+    (bookmarkData as any)?.data?.data ||
+    (bookmarkData as any)?.data ||
+    (bookmarkData as any)?.items ||
+    (bookmarkData as any)?.bookmarks ||
+    (bookmarkData as any)?.results ||
+    [];
+  const favoriteCount = Array.isArray(favoriteItems)
+    ? favoriteItems.length
+    : Number(
+        (bookmarkData as any)?.data?.count ||
+          (bookmarkData as any)?.count ||
+          (bookmarkData as any)?.data?.total ||
+          0
+      ) || 0;
 
   const router = useRouter();
 
@@ -174,6 +202,11 @@ export default function Navbar() {
                   height={7557724}
                   className="relative w-[30px] cursor-pointer"
                 />
+                {compareCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] leading-none rounded-full px-1.5 h-4 min-w-[16px] flex items-center justify-center">
+                    {compareCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Link href={"/favorites"}>
@@ -190,6 +223,11 @@ export default function Navbar() {
                   height={5656724}
                   className="relative w-[27px] cursor-pointer"
                 />
+                {favoriteCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] leading-none rounded-full px-1.5 h-4 min-w-[16px] flex items-center justify-center">
+                    {favoriteCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Link href={"/seller/add-cars"}>

@@ -1,8 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 
-const API_BASE_URL = "http://10.10.7.72:5000/api/v1";
-const IMAGE_BASE_URL = "http://10.10.7.72:5000";
+// const API_BASE_URL = "http://10.10.7.72:5000/api/v1";
+// const IMAGE_BASE_URL = "http://10.10.7.72:5000";
+const API_BASE_URL = "http://31.97.114.108:5001/api/v1";
+const IMAGE_BASE_URL = "http://31.97.114.108:5001";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
@@ -52,7 +54,7 @@ const api = createApi({
   reducerPath: "api",
   baseQuery: customBaseQuery,
   endpoints: () => ({}),
-  tagTypes: ["AdminData"],
+  tagTypes: ["AdminData", "Compare", "Bookmark"],
 });
 
 export const { reducer } = api;
