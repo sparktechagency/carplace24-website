@@ -48,7 +48,7 @@ const BlogCard = ({ blog }: { blog: BlogCardData }) => {
           >
             {blog.title}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-200 mb-2 sm:mb-3">
+          <p className="text-xs sm:text-sm text-gray-200 mb-2 sm:mb-3 line-clamp-2">
             {blog.description}
           </p>
           <Link
