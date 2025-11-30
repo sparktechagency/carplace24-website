@@ -4,7 +4,9 @@ import { useState } from "react";
 import Container from "@/components/ui/container";
 import { CAR_DETAILS } from "./carData";
 
-const VehicleDetailsTabs = () => {
+type Details = any;
+
+const VehicleDetailsTabs = ({ details = CAR_DETAILS }: { details?: Details }) => {
   const [activeTab, setActiveTab] = useState<"basic" | "hours" | "reviews">(
     "basic"
   );
@@ -56,7 +58,7 @@ const VehicleDetailsTabs = () => {
         {/* Summary icons */}
         {activeTab === "basic" && (
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {CAR_DETAILS.summary.map((item, i) => (
+            {details.summary.map((item: any, i: number) => (
               <div key={i} className="flex items-center gap-2">
                 <item.icon className="h-4 w-4 text-gray-500" />
                 <span className="text-sm text-gray-700">{item.label}</span>
@@ -79,7 +81,7 @@ const VehicleDetailsTabs = () => {
                   Basic Information
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.basicInformation.map((row, i) => (
+                  {details.basicInformation.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -94,7 +96,7 @@ const VehicleDetailsTabs = () => {
                   Color Information
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.colorInformation.map((row, i) => (
+                  {details.colorInformation.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -109,7 +111,7 @@ const VehicleDetailsTabs = () => {
                   Equipment
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.equipment.map((row, i) => (
+                  {details.equipment.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -124,7 +126,7 @@ const VehicleDetailsTabs = () => {
                   Extras
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.extras.map((row, i) => (
+                  {details.extras.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -142,7 +144,7 @@ const VehicleDetailsTabs = () => {
                   Technical Information
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.technicalInformation.map((row, i) => (
+                  {details.technicalInformation.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -157,7 +159,7 @@ const VehicleDetailsTabs = () => {
                   Seats & Doors
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.seatsAndDoors.map((row, i) => (
+                  {details.seatsAndDoors.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -202,7 +204,7 @@ const VehicleDetailsTabs = () => {
                   Electric & Hybrid Specific
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.electricHybridSpecific.map((row, i) => (
+                  {details.electricHybridSpecific.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -234,7 +236,7 @@ const VehicleDetailsTabs = () => {
               Description
             </h3>
             <div className="mt-3 text-sm text-gray-700">
-              <p>{CAR_DETAILS.description}</p>
+              <p>{details.description}</p>
             </div>
           </div>
         )}

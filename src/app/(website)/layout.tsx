@@ -1,5 +1,16 @@
-const layout = ({ children }: { children: React.ReactNode }) => {
-  return <div>{children}</div>;
-};
+import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
 
-export default layout;
+export default function WebsiteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <Navbar />
+      <div className="mt-[75px]">{children}</div>
+      <Footer />
+    </div>
+  );
+}

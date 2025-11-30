@@ -18,6 +18,8 @@ import Settings from "./sections/Settings";
 import MyCars from "./sections/MyCars";
 import Inquiries from "./sections/Inquiries";
 import { BsQuestionOctagonFill } from "react-icons/bs";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface MainProfileLayoutProps {
   children?: ReactNode;
@@ -35,9 +37,20 @@ const MainProfileLayout = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
+  const router = useRouter();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    const isHttps =
+      typeof window !== "undefined" && window.location.protocol === "https:";
+    document.cookie = `accessToken=; Path=/; Max-Age=0; SameSite=Lax${
+      isHttps ? "; Secure" : ""
+    }`;
+    toast.success("Logged out");
+    router.push("/login");
   };
 
   const sharedComponents = {
@@ -184,7 +197,10 @@ const MainProfileLayout = ({
                 </li>
               ))}
               <li className="pt-4 mt-4 border-t border-gray-200">
-                <button className="flex items-center p-3 text-red-500 hover:bg-red-50 rounded-md w-full text-left">
+                <button
+                  onClick={() => handleLogout()}
+                  className="flex items-center cursor-pointer p-3 text-red-500 hover:bg-red-50 rounded-md w-full text-left"
+                >
                   <FaSignOutAlt className="mr-2" />
                   Logout
                 </button>

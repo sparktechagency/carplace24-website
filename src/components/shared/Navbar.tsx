@@ -10,11 +10,31 @@ import { navItems } from "./navData";
 import compareIcon from "@/assets/compareIcone.png";
 import heartIcon from "@/assets/heart.png";
 import addCarIcon from "@/assets/addCarIcon.png";
+import { useProfileQuery } from "@/redux/apiSlice/authSlice";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+
+  const { data: userDetails, isLoading } = useProfileQuery(undefined);
+
+  const user = userDetails?.data;
+
+  const router = useRouter();
+
+  const handleLogout = () => {
+    const isHttps =
+      typeof window !== "undefined" && window.location.protocol === "https:";
+    document.cookie = `accessToken=; Path=/; Max-Age=0; SameSite=Lax${
+      isHttps ? "; Secure" : ""
+    }`;
+    toast.success("Logged out");
+    setIsProfileDropdownOpen(false);
+    router.push("/login");
+  };
 
   // Close dropdown when clicking outside
   React.useEffect(() => {
@@ -194,69 +214,87 @@ export default function Navbar() {
               <option value="de">DE</option>
               <option value="fr">FR</option>
             </select>
-            <div className="flex items-center space-x-2 relative profile-dropdown-container">
-              <div
-                className="flex items-center space-x-2"
-                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-              >
-                <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
-                  <span className="text-sm font-medium">A</span>
-                </div>
-                <div className="flex flex-col cursor-pointer">
-                  <span className="text-sm font-medium">Asadujjaman</span>
-                  <span className="text-xs text-gray-500">Buyer</span>
-                </div>
-              </div>
-
-              {/* Profile Dropdown */}
-              {isProfileDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 w-72 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 transform -translate-x-0">
-                  {/* <div className="">
-                    <button className="w-full bg-gradient-to-b from-[#47BC23] to-[#0D8817] shadow-lg cursor-pointer text-white py-3 px-4 rounded-lg font-medium transition-colors">
-                      Switch to Seller
-                    </button>
-                  </div> */}
-                  <div className="border-t border-gray-100">
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                    >
-                      <button className="w-full cursor-pointer border-y border-gray-100 text-left px-4 py-3 hover:bg-gray-50 transition-colors">
-                        <span className="text-gray-800 font-medium">
-                          My Profile
-                        </span>
-                      </button>
-                    </Link>
-                    <Link
-                      href="/terms-and-conditions"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                    >
-                      <button className="w-full cursor-pointer border-y border-gray-100 text-left px-4 py-3 hover:bg-gray-50 transition-colors">
-                        <span className="text-gray-800 font-medium">
-                          Terms & Conditions
-                        </span>
-                      </button>
-                    </Link>
-                    <Link
-                      href="/privacy-policy"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                    >
-                      <button className="w-full cursor-pointer border-y border-gray-100 text-left px-4 py-3 hover:bg-gray-50 transition-colors">
-                        <span className="text-gray-800 font-medium">
-                          Privacy Policy
-                        </span>
-                      </button>
-                    </Link>
-                    <button
-                      className="w-full cursor-pointer text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                    >
-                      <span className="text-gray-800 font-medium">Log out</span>
-                    </button>
+            {user ? (
+              <div className="flex items-center space-x-2 relative profile-dropdown-container">
+                <div
+                  className="flex items-center space-x-2"
+                  onClick={() =>
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                  }
+                >
+                  <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
+                    <span className="text-sm font-medium">
+                      {(
+                        user?.name?.[0] ||
+                        user?.email?.[0] ||
+                        "U"
+                      ).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col cursor-pointer">
+                    <span className="text-sm font-medium">
+                      {user?.name || user?.email}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {user?.role || "User"}
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
+
+                {isProfileDropdownOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-72 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 transform -translate-x-0">
+                    <div className="border-t border-gray-100">
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        <button className="w-full cursor-pointer border-y border-gray-100 text-left px-4 py-3 hover:bg-gray-50 transition-colors">
+                          <span className="text-gray-800 font-medium">
+                            My Profile
+                          </span>
+                        </button>
+                      </Link>
+                      <Link
+                        href="/terms-and-conditions"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        <button className="w-full cursor-pointer border-y border-gray-100 text-left px-4 py-3 hover:bg-gray-50 transition-colors">
+                          <span className="text-gray-800 font-medium">
+                            Terms & Conditions
+                          </span>
+                        </button>
+                      </Link>
+                      <Link
+                        href="/privacy-policy"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        <button className="w-full cursor-pointer border-y border-gray-100 text-left px-4 py-3 hover:bg-gray-50 transition-colors">
+                          <span className="text-gray-800 font-medium">
+                            Privacy Policy
+                          </span>
+                        </button>
+                      </Link>
+                      <button
+                        className="w-full cursor-pointer text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                        onClick={handleLogout}
+                      >
+                        <span className="text-gray-800 font-medium">
+                          Log out
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link href="/login">
+                  <button className="border cursor-pointer border-[#007bff] text-[#007bff] px-4 py-2 rounded-md hover:bg-[#007bff] hover:text-white transition-colors">
+                    Login
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
@@ -308,15 +346,32 @@ export default function Navbar() {
             <Button variant="ghost" className="font-medium">
               EN
             </Button>
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                <span className="text-sm font-medium">A</span>
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-sm font-medium">
+                    {(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">
+                    {user?.name || user?.email}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {user?.role || "User"}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">Asadujjaman</span>
-                <span className="text-xs text-gray-500">Buyer</span>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link href="/login">
+                  <Button className="h-9">Login</Button>
+                </Link>
+                <Link href="/register" className="text-sm text-primary">
+                  Register
+                </Link>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

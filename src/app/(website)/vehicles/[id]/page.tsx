@@ -3,7 +3,7 @@ import SingleVehiclesMain from "@/components/website/vehicles/singleVehicles/Sin
 const page = ({ params }: { params: { id: string } }) => {
   return (
     <div>
-      <SingleVehiclesMain params={params} />
+      <SingleVehiclesMain params={{ id: params.id }} />
     </div>
   );
 };

@@ -8,7 +8,9 @@ import { CAR_DETAILS } from "./carData";
 import TestDriveModal from "./TestDriveModal";
 import CarImageGallery from "./CarImageGallery";
 
-const CarDetails = () => {
+type Details = any;
+
+const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
 
   const handleTestDriveClick = () => {
@@ -23,24 +25,28 @@ const CarDetails = () => {
     <section className="py-8">
       <Container>
         <div className="flex flex-col gap-6">
-          <CarImageGallery images={CAR_DETAILS.images} title={CAR_DETAILS.title} />
+          <CarImageGallery images={details.images} title={details.title} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h1 className="text-xl md:text-2xl font-semibold">
-                {CAR_DETAILS.title}
+                {details.title}
               </h1>
-              <p className="text-gray-600 mt-1">{CAR_DETAILS.subtitle}</p>
+              <p className="text-gray-600 mt-1">{details.subtitle}</p>
 
               <div className="mt-3 flex items-end gap-3">
                 <span className="text-2xl font-bold">
-                  ${CAR_DETAILS.price.current.toLocaleString()}
+                  $
+                  {details.price.current?.toLocaleString?.() ||
+                    details.price.current}
                 </span>
                 <span className="text-red-500 line-through">
-                  ${CAR_DETAILS.price.original.toLocaleString()}
+                  $
+                  {details.price.original?.toLocaleString?.() ||
+                    details.price.original}
                 </span>
                 <span className="text-blue-600 text-sm">
-                  {CAR_DETAILS.price.monthly}
+                  {details.price.monthly}
                 </span>
               </div>
             </div>
@@ -49,18 +55,16 @@ const CarDetails = () => {
               <div className="p-3 border rounded-lg">
                 <div className="flex items-center gap-3">
                   <Image
-                    src={CAR_DETAILS.dealer.logo}
+                    src={details.dealer.logo}
                     alt="dealer"
                     className="h-10 w-10 rounded-full object-cover"
                     width={100}
                     height={100}
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium">
-                      {CAR_DETAILS.dealer.name}
-                    </p>
+                    <p className="text-sm font-medium">{details.dealer.name}</p>
                     <p className="text-xs text-gray-500">
-                      {CAR_DETAILS.dealer.type}
+                      {details.dealer.type}
                     </p>
                   </div>
                 </div>
@@ -71,23 +75,23 @@ const CarDetails = () => {
                         key={i}
                         className={
                           "h-4 w-4" +
-                          (i < Math.round(CAR_DETAILS.dealer.rating)
+                          (i < Math.round(details.dealer.rating)
                             ? " text-yellow-500"
                             : " text-gray-300")
                         }
                         fill={
-                          i < Math.round(CAR_DETAILS.dealer.rating)
+                          i < Math.round(details.dealer.rating)
                             ? "currentColor"
                             : "none"
                         }
                       />
                     ))}
                   </div>
-                  <span>({CAR_DETAILS.dealer.reviews})</span>
+                  <span>({details.dealer.reviews})</span>
                 </div>
                 <div className="flex justify-between">
                   <div className="flex mt-2 items-center gap-1">
-                    <MapPin className="h-4 w-4" /> {CAR_DETAILS.dealer.address}
+                    <MapPin className="h-4 w-4" /> {details.dealer.address}
                   </div>
                   <a
                     href="#"
@@ -122,7 +126,7 @@ const CarDetails = () => {
                 <TestDriveModal
                   isOpen={isTestDriveOpen}
                   onClose={handleCloseTestDrive}
-                  carName={CAR_DETAILS.title}
+                  carName={details.title}
                 />
               </div>
             </div>

@@ -1,47 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import Container from "@/components/ui/container";
+import { useGetAllBlogsQuery } from "@/redux/apiSlice/blogSlice";
+import { imageUrl } from "@/redux/api/baseApi";
 
-// Blog data structure
-const blogPosts = [
-  {
-    id: 1,
-    title: "How much does an electric car cost?",
-    description: "varius nisl ex facilisis vitae est. viverra quis laoreet",
-    image:
-      "https://images.unsplash.com/photo-1493454966123-fbf5a725f442?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    size: "large",
-    linkText: "Visit Now",
-  },
-  {
-    id: 2,
-    title: "How long does an electric car charge?",
-    description: "varius nisl ex facilisis vitae est. viverra quis laoreet",
-    image:
-      "https://plus.unsplash.com/premium_photo-1694261123397-d30aafbe04d3?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    size: "medium",
-    linkText: "Visit Now",
-  },
-  {
-    id: 3,
-    title: "What do I have to consider when it comes to range?",
-    description: "varius nisl ex facilisis vitae est. viverra quis laoreet",
-    image:
-      "https://images.unsplash.com/photo-1715372031424-b7a57e8339fe?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    size: "small",
-    linkText: "Visit Now",
-  },
-  {
-    id: 4,
-    title: "Can I change all the water at once?",
-    description: "varius nisl ex facilisis vitae est. viverra quis laoreet",
-    image:
-      "https://images.unsplash.com/photo-1545586433-dcb96e015755?q=80&w=1242&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    size: "small",
-    linkText: "Visit Now",
-  },
-];
+type BlogCardData = {
+  id: string | number;
+  title: string;
+  description: string;
+  image: string;
+  size: "large" | "medium" | "small";
+  linkText: string;
+};
 
-const BlogCard = ({ blog }: { blog: (typeof blogPosts)[0] }) => {
+const BlogCard = ({ blog }: { blog: BlogCardData }) => {
   return (
     <div className={`relative overflow-hidden rounded-lg h-full`}>
       {/* Image with overlay */}
@@ -91,6 +64,31 @@ const BlogCard = ({ blog }: { blog: (typeof blogPosts)[0] }) => {
 };
 
 const BlogSectionHome = () => {
+  const { data } = useGetAllBlogsQuery(undefined);
+  const apiBlogs = (data?.data || []) as any[];
+  const sizes: Array<"large" | "medium" | "small"> = [
+    "large",
+    "medium",
+    "small",
+    "small",
+  ];
+
+  const dynamicPosts: BlogCardData[] = apiBlogs.slice(0, 4).map((b, i) => ({
+    id: b?._id || i + 1,
+    title: b?.title || "",
+    description: b?.description || "",
+    image:
+      typeof b?.image === "string" && b.image.startsWith("http")
+        ? b.image
+        : b?.image
+        ? `${imageUrl}/${b.image}`
+        : "",
+    size: sizes[i],
+    linkText: "Visit Now",
+  }));
+
+  const posts: BlogCardData[] = dynamicPosts.length === 4 ? dynamicPosts : [];
+
   return (
     <div className="py-8 sm:py-12 md:py-16 bg-gray-50">
       <Container>
@@ -111,20 +109,20 @@ const BlogSectionHome = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Large card - full width on mobile, 2x2 on larger screens */}
           <div className="sm:col-span-2 lg:row-span-2">
-            <BlogCard blog={blogPosts[0]} />
+            {posts[0] && <BlogCard blog={posts[0]} />}
           </div>
 
           {/* Medium card - full width on mobile, 2x1 on larger screens */}
           <div className="sm:col-span-2">
-            <BlogCard blog={blogPosts[1]} />
+            {posts[1] && <BlogCard blog={posts[1]} />}
           </div>
 
           {/* Small cards - stack on mobile, side by side on larger screens */}
           <div className="lg:col-span-1">
-            <BlogCard blog={blogPosts[2]} />
+            {posts[2] && <BlogCard blog={posts[2]} />}
           </div>
           <div className="lg:col-span-1">
-            <BlogCard blog={blogPosts[3]} />
+            {posts[3] && <BlogCard blog={posts[3]} />}
           </div>
         </div>
       </Container>

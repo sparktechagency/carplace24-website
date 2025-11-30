@@ -1,25 +1,7 @@
+"use client";
 import Image from "next/image";
-
-const blogData = {
-  id: "1",
-  title: "The Ultimate Guide to House-Sharing Concierge Services",
-  date: "June 15, 2023",
-  author: "Sarah Johnson",
-  authorImage:
-    "https://blog.texasbar.com/files/2013/04/MaryGraceRuden_smaller1.jpg",
-  category: "Property Management",
-  readTime: "8 min read",
-  tags: ["house-sharing", "concierge", "property management", "rental"],
-  imageUrl:
-    "https://dvladigital.blog.gov.uk/wp-content/uploads/sites/7/2023/03/DD-Blog-Set-up-a-Direct-Debit-to-tax-your-vehicle-today-1-1024x510.jpg",
-  content: {
-    introduction:
-      "House-sharing concierge services have become increasingly popular among property owners who want to maximize their rental income while maintaining the peace of mind of their tenants. These services offer a range of features and benefits that make them a valuable addition to any rental property.",
-    body: "A house-sharing concierge is a dedicated professional who works closely with property owners to manage their rental properties. They handle tasks such as tenant screening, lease management, utility bills, and even provide 24/7 support to their tenants. By entrusting your property to a house-sharing concierge, you can focus on what matters most – your tenants.",
-    conclusion:
-      "House-sharing concierge services offer a valuable solution for property owners who want to maximize their rental income without the hassle of day-to-day management. By entrusting your property to experienced professionals, you can enjoy the benefits of house-sharing while maintaining your peace of mind.",
-  },
-};
+import { useGetBlogByIdQuery } from "@/redux/apiSlice/blogSlice";
+import { imageUrl } from "@/redux/api/baseApi";
 
 const relatedPosts = [
   {
@@ -52,8 +34,33 @@ const relatedPosts = [
 ];
 
 const BlogDetailsPage = ({ id }: { id: string }) => {
-  console.log(id);
-  const blog = blogData;
+  const { data } = useGetBlogByIdQuery(id);
+  const payload = (data?.data || {}) as any;
+  const b = payload.blogDetails || {};
+  const related = (payload.relatedBlogs || []) as any[];
+
+  const blog = {
+    id: b?._id || id,
+    title: b?.title || "",
+    date: b?.createdAt ? new Date(b.createdAt).toLocaleDateString() : "",
+    author: "Maholi Editorial",
+    authorImage:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop",
+    category: b?.type || "",
+    readTime: "5 min read",
+    tags: (b?.tags || []) as string[],
+    imageUrl:
+      typeof b?.image === "string" && b.image.startsWith("http")
+        ? b.image
+        : b?.image
+        ? `${imageUrl}/${b.image}`
+        : "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2071&auto=format&fit=crop",
+    content: {
+      introduction: b?.description || "",
+      body: b?.description || "",
+      conclusion: "",
+    },
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
@@ -119,32 +126,43 @@ const BlogDetailsPage = ({ id }: { id: string }) => {
       <div>
         <h2 className="text-2xl font-semibold mb-6">Related Posts</h2>
         <div className="grid md:grid-cols-3 gap-6">
-          {relatedPosts.map((post) => (
-            <div
-              key={post.id}
-              className="border rounded-xl overflow-hidden hover:shadow-md transition"
-            >
-              <Image
-                src={post.imageUrl}
-                alt={post.title}
-                width={400}
-                height={300}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <div className="flex items-center gap-3 text-sm text-gray-500 mb-2">
-                  <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-                    {post.category}
-                  </span>
+          {related.map((post) => {
+            const img =
+              typeof post.image === "string" && post.image.startsWith("http")
+                ? post.image
+                : `${imageUrl}/${post.image}`;
+            return (
+              <div
+                key={post._id}
+                className="border rounded-xl overflow-hidden hover:shadow-md transition"
+              >
+                <Image
+                  src={img}
+                  alt={post.title}
+                  width={400}
+                  height={300}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <div className="flex items-center gap-3 text-sm text-gray-500 mb-2">
+                    <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+                      {post.type}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {post.description}
+                  </p>
+                  <a
+                    href={`/blogs/${post._id}`}
+                    className="text-blue-600 text-sm font-medium hover:underline"
+                  >
+                    Read More →
+                  </a>
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
-                <p className="text-sm text-gray-600 mb-2">{post.excerpt}</p>
-                <button className="text-blue-600 text-sm font-medium hover:underline">
-                  Read More →
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

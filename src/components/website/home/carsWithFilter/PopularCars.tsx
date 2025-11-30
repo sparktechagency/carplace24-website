@@ -61,25 +61,33 @@ const CARS_DATA = [
   },
 ];
 
-const PopularCars = () => {
+const PopularCars = ({
+  carsData,
+  isLoading,
+}: {
+  carsData: any;
+  isLoading: boolean;
+}) => {
+  console.log("all cars", carsData);
+
   return (
     <section className="py-12 bg-gray-50 pt-40">
       <Container>
         <h2 className="text-3xl font-semibold mb-8">Popular Cars</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {CARS_DATA.map((car) => (
-            <Link key={car.id} href={`/vehicles/${car.id}`}>
+          {carsData?.map((car: any) => (
+            <Link key={car._id} href={`/vehicles/${car._id}`}>
               <CarCard
-                key={car.id}
-                image={car.image}
-                dealerLogo={car.dealerLogo}
-                dealerName={car.dealerName}
+                key={car._id}
+                image={car?.basicInformation?.productImage?.[0]}
+                dealerLogo={car.createdBy?.profile}
+                dealerName={car.createdBy?.name}
                 dealerType={car.dealerType ?? ""}
-                carName={car.carName}
-                carCategory={car.carCategory}
-                originalPrice={car.originalPrice}
-                discountedPrice={car.discountedPrice}
+                carName={car.basicInformation?.vehicleName}
+                carCategory={car.basicInformation?.BodyType}
+                originalPrice={car.basicInformation?.RegularPrice}
+                discountedPrice={car.basicInformation?.OfferPrice}
                 isFavorite={car.isFavorite}
               />
             </Link>
