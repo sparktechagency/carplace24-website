@@ -1,20 +1,30 @@
 "use client";
 
+import { useUserUpdateMutation } from "@/redux/apiSlice/authSlice";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
-const MyProfile = () => {
+const MyProfile = ({ userDetails }: { userDetails: any }) => {
   const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    address: "123 Main Street",
-    gender: "male",
-    dateOfBirth: "1990-01-01",
-    city: "New York",
-    zipCode: "10001",
-    country: "United States",
+    name:
+      userDetails?.name ||
+      `${userDetails?.firstName || ""} ${userDetails?.lastName || ""}`.trim() ||
+      "N/A",
+    email: userDetails?.email || "N/A",
+    mobileNumber: userDetails?.mobileNumber || "N/A",
+    address: userDetails?.address || "N/A",
+    gender: userDetails?.gender || "N/A",
+    dateOfBirth: userDetails?.dateOfBirth || "N/A",
+    city: userDetails?.city || "N/A",
+    zipCode: userDetails?.zipCode || "N/A",
+    country: userDetails?.country || "N/A",
   });
+
+  const [userUpdate, { isLoading, isError, isSuccess }] =
+    useUserUpdateMutation();
+
+  const [tradeLicences, setTradeLicences] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -26,9 +36,24 @@ const MyProfile = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Profile updated successfully!");
+    try {
+      const fd = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        const val = value === "N/A" ? "" : String(value ?? "");
+        fd.append(key, val);
+      });
+      if (tradeLicences) {
+        fd.append("tradeLicences", tradeLicences);
+      }
+      const res = await userUpdate(fd).unwrap();
+      const msg = (res as any)?.message || "Profile updated successfully";
+      toast.success(msg);
+    } catch (err: any) {
+      const msg = err?.data?.message || "Failed to update profile";
+      toast.error(msg);
+    }
   };
 
   return (
@@ -45,31 +70,13 @@ const MyProfile = () => {
               htmlFor="firstName"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              First Name
+              Full Name
             </label>
             <input
               type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="lastName"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Last Name
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
+              id="name"
+              name="name"
+              value={formData?.name}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               required
@@ -103,9 +110,9 @@ const MyProfile = () => {
             </label>
             <input
               type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
+              id="mobileNumber"
+              name="mobileNumber"
+              value={formData.mobileNumber}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
@@ -215,14 +222,72 @@ const MyProfile = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
+          <div>
+            <label
+              htmlFor="tradeLicences"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Trade Licences
+            </label>
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files?.[0];
+                if (file) setTradeLicences(file);
+                setIsDragging(false);
+              }}
+              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+                isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
+              }`}
+            >
+              <input
+                type="file"
+                id="tradeLicences"
+                name="tradeLicences"
+                accept="image/*,.pdf"
+                onChange={(e) => setTradeLicences(e.target.files?.[0] || null)}
+                className="hidden"
+              />
+              <label
+                htmlFor="tradeLicences"
+                className="flex flex-col cursor-pointer items-center gap-2 select-none"
+              >
+                <span className="text-sm text-gray-600">
+                  Click to upload or drag and drop
+                </span>
+                <span className="text-xs text-gray-500">PNG, JPG or PDF</span>
+              </label>
+              {tradeLicences && (
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <span className="text-xs text-gray-700 truncate max-w-[70%]">
+                    {tradeLicences.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setTradeLicences(null)}
+                    className="px-2 py-1 text-xs border rounded-md cursor-pointer hover:bg-gray-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="pt-4">
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60"
+            disabled={isLoading}
           >
-            Save Changes
+            {isLoading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </form>

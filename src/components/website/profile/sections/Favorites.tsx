@@ -3,35 +3,55 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaHeart } from "react-icons/fa";
+import {
+  useGetBookmarkCarsQuery,
+  useToggleBookmarkCarMutation,
+} from "@/redux/apiSlice/compareSlice";
+import { getImageUrl } from "@/lib/getImageUrl";
+import toast from "react-hot-toast";
+import CarLoader from "@/components/ui/loader/CarLoader";
 
 const Favorites = () => {
-  // Mock data for favorite cars
-  const favorites = [
-    {
-      id: 1,
-      title: "2022 Tesla Model 3",
-      price: "$48,000",
-      location: "San Francisco, CA",
-      image:
-        "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop",
-    },
-    {
-      id: 2,
-      title: "2021 Porsche 911",
-      price: "$112,000",
-      location: "Los Angeles, CA",
-      image:
-        "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=2070&auto=format&fit=crop",
-    },
-    {
-      id: 3,
-      title: "2023 Ford Mustang",
-      price: "$45,500",
-      location: "Miami, FL",
-      image:
-        "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1470&auto=format&fit=crop",
-    },
-  ];
+  const {
+    data: bookmarkData,
+    isLoading,
+    refetch,
+  } = useGetBookmarkCarsQuery(undefined);
+  const [toggleBookmark, { isLoading: toggling }] =
+    useToggleBookmarkCarMutation();
+
+  if (isLoading) {
+    return <CarLoader />;
+  }
+
+  const favorites =
+    (bookmarkData as any)?.data?.data ||
+    (bookmarkData as any)?.data ||
+    (bookmarkData as any)?.items ||
+    (bookmarkData as any)?.bookmarks ||
+    (bookmarkData as any)?.results ||
+    [];
+
+  const favoriteCount = Array.isArray(favorites) ? favorites.length : 0;
+
+  const removeFavorite = async (item: any) => {
+    const carId = item?.car?._id || item?.carId || item?.id;
+    if (!carId) {
+      toast.error("Missing car id");
+      return;
+    }
+    try {
+      const res = await toggleBookmark({ car: carId }).unwrap();
+      if (res?.success) {
+        toast.success("Removed from favorites");
+        refetch();
+      } else {
+        toast.error(res?.message || "Failed to remove");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to remove");
+    }
+  };
 
   return (
     <div>
@@ -41,36 +61,45 @@ const Favorites = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {favorites.map((car) => (
+        {favoriteCount === 0 && (
+          <div className="col-span-full text-center text-gray-600 py-12">
+            No favorite cars yet
+          </div>
+        )}
+        {favorites.map((car: any) => (
           <div
-            key={car.id}
+            key={car._id}
             className="border rounded-lg overflow-hidden bg-white hover:shadow-md transition-shadow"
           >
             <div className="relative h-48">
               <Image
-                src={car.image}
-                alt={car.title}
+                src={getImageUrl(car?.car?.basicInformation?.productImage?.[0])}
+                alt={car?.car?.basicInformation?.vehicleName}
                 fill
                 className="object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src =
-                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='2' width='20' height='20' rx='5' ry='5'%3E%3C/rect%3E%3Cpath d='M16 2v20'%3E%3C/path%3E%3Cpath d='M22 8.5l-4-4-4 4'%3E%3C/path%3E%3Cpath d='M22 16l-4 4-4-4'%3E%3C/path%3E%3Cpath d='M8.5 2l4 4 4-4'%3E%3C/path%3E%3Cpath d='M16.5 22l-4-4-4 4'%3E%3C/path%3E%3C/svg%3E";
-                }}
               />
               <button
                 className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md text-red-500 hover:text-red-600"
                 aria-label="Remove from favorites"
+                onClick={() => removeFavorite(car)}
+                disabled={toggling}
               >
                 <FaHeart />
               </button>
             </div>
             <div className="p-4">
-              <h3 className="text-lg font-semibold mb-2">{car.title}</h3>
-              <p className="font-semibold text-blue-600 mb-2">{car.price}</p>
-              <p className="text-gray-600 text-sm mb-4">{car.location}</p>
+              <h3 className="text-lg font-semibold mb-2">
+                {car?.car?.basicInformation?.vehicleName}
+              </h3>
+              <p className="font-semibold text-blue-600 mb-2">
+                $
+                {car?.car?.basicInformation?.OfferPrice?.toLocaleString?.() ||
+                  car?.car?.basicInformation?.OfferPrice ||
+                  ""}
+              </p>
+              <p className="text-gray-600 text-sm mb-4"></p>
               <Link
-                href={`/vehicles/${car.id}`}
+                href={`/vehicles/${car?.car?._id || car?.carId || car?.id}`}
                 className="block w-full text-center py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 View Details

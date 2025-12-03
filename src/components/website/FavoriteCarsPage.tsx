@@ -5,94 +5,71 @@ import Container from "../ui/container";
 import { Button } from "../ui/button";
 import { FaHeart, FaSearch, FaTrash, FaEye } from "react-icons/fa";
 import Image from "next/image";
-
-// Mock data for favorite cars
-const mockFavoriteCars = [
-  {
-    id: 1,
-    title: "2023 BMW X5",
-    brand: "BMW",
-    model: "X5",
-    price: 65000,
-    image:
-      "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070&auto=format&fit=crop",
-    location: "New York, NY",
-    year: 2023,
-    mileage: 5000,
-    fuelType: "Gasoline",
-    transmission: "Automatic",
-    features: ["Leather Seats", "Navigation", "Sunroof", "Bluetooth"],
-  },
-  {
-    id: 2,
-    title: "2022 Mercedes-Benz E-Class",
-    brand: "Mercedes-Benz",
-    model: "E-Class",
-    price: 58000,
-    image:
-      "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=2070&auto=format&fit=crop",
-    location: "Los Angeles, CA",
-    year: 2022,
-    mileage: 12000,
-    fuelType: "Hybrid",
-    transmission: "Automatic",
-    features: ["Heated Seats", "360 Camera", "Lane Assist", "Premium Sound"],
-  },
-  {
-    id: 3,
-    title: "2021 Audi Q7",
-    brand: "Audi",
-    model: "Q7",
-    price: 52000,
-    image:
-      "https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=2072&auto=format&fit=crop",
-    location: "Chicago, IL",
-    year: 2021,
-    mileage: 18000,
-    fuelType: "Diesel",
-    transmission: "Automatic",
-    features: [
-      "Third Row Seating",
-      "Panoramic Roof",
-      "Adaptive Cruise Control",
-    ],
-  },
-  {
-    id: 4,
-    title: "2022 Tesla Model 3",
-    brand: "Tesla",
-    model: "Model 3",
-    price: 48000,
-    image:
-      "https://images.unsplash.com/photo-1560958089-b8a1929cea89?q=80&w=2071&auto=format&fit=crop",
-    location: "San Francisco, CA",
-    year: 2022,
-    mileage: 8000,
-    fuelType: "Electric",
-    transmission: "Automatic",
-    features: ["Autopilot", "Glass Roof", "Premium Interior"],
-  },
-];
+import {
+  useGetBookmarkCarsQuery,
+  useToggleBookmarkCarMutation,
+} from "@/redux/apiSlice/compareSlice";
+import CarLoader from "../ui/loader/CarLoader";
+import { getImageUrl } from "@/lib/getImageUrl";
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 const FavoriteCarsPage = () => {
-  const [favorites, setFavorites] = useState(mockFavoriteCars);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const {
+    data: getFavoriteCars,
+    isLoading,
+    refetch,
+  } = useGetBookmarkCarsQuery({});
+  const [toggleBookmark, { isLoading: toggling }] =
+    useToggleBookmarkCarMutation();
+
+  if (isLoading) {
+    return <CarLoader />;
+  }
+
+  const favoriteCars = getFavoriteCars?.data || [];
+  console.log(favoriteCars);
+
+  const favoriteCount = Array.isArray(favoriteCars) ? favoriteCars.length : 0;
+
   // Filter cars based on search term
-  const filteredCars = favorites.filter(
-    (car) =>
-      car.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.model.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCars = favoriteCars?.filter(
+    (car: any) =>
+      car?.car?.basicInformation?.vehicleName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      car?.car?.basicInformation?.brand?.brand
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      car?.car?.basicInformation?.model?.model
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
   // Remove car from favorites
-  const removeFavorite = (id: number) => {
-    setFavorites(favorites.filter((car) => car.id !== id));
+  const removeFavorite = async (favItem: any) => {
+    const carId = favItem?.car?._id || favItem?.carId || favItem?.id;
+    if (!carId) {
+      toast.error("Missing car id");
+      return;
+    }
+    try {
+      const res = await toggleBookmark({ car: carId }).unwrap();
+      if (res?.success) {
+        toast.success("Removed from favorites");
+        refetch();
+      } else {
+        toast.error(res?.message || "Failed to remove");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to remove");
+    }
   };
 
   return (
-    <div className="py-8">
+    <div className="py-8 min-h-screen">
       <Container>
         <div className="space-y-6">
           {/* Header */}
@@ -102,8 +79,8 @@ const FavoriteCarsPage = () => {
                 <FaHeart className="text-red-500" /> My Favorite Cars
               </h1>
               <p className="text-gray-500 mt-1">
-                {favorites.length} {favorites.length === 1 ? "car" : "cars"}{" "}
-                saved to your favorites
+                {favoriteCount} {favoriteCount === 1 ? "car" : "cars"} saved to
+                your favorites
               </p>
             </div>
 
@@ -121,7 +98,7 @@ const FavoriteCarsPage = () => {
           </div>
 
           {/* No favorites message */}
-          {favorites.length === 0 && (
+          {favoriteCount === 0 && (
             <div className="bg-gray-50 rounded-lg p-8 text-center">
               <FaHeart className="mx-auto text-gray-300 text-5xl mb-4" />
               <h3 className="text-xl font-medium text-gray-700">
@@ -136,11 +113,11 @@ const FavoriteCarsPage = () => {
           )}
 
           {/* Favorites grid */}
-          {favorites.length > 0 && (
+          {favoriteCount > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCars.map((car) => (
+              {filteredCars?.map((car: any) => (
                 <div
-                  key={car.id}
+                  key={car._id}
                   className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
                 >
                   {/* Car image */}
@@ -148,14 +125,17 @@ const FavoriteCarsPage = () => {
                     <Image
                       width={500}
                       height={300}
-                      src={car.image}
-                      alt={car.title}
+                      src={getImageUrl(
+                        car?.car?.basicInformation?.productImage?.[0]
+                      )}
+                      alt={car?.car?.basicInformation?.vehicleName}
                       className="w-full h-full object-cover"
                     />
                     <button
-                      onClick={() => removeFavorite(car.id)}
+                      onClick={() => removeFavorite(car)}
                       className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors"
                       title="Remove from favorites"
+                      disabled={toggling}
                     >
                       <FaTrash className="text-red-500" />
                     </button>
@@ -163,46 +143,61 @@ const FavoriteCarsPage = () => {
 
                   {/* Car details */}
                   <div className="p-4">
-                    <h3 className="font-bold text-lg">{car.title}</h3>
+                    <h3 className="font-bold text-lg">
+                      {car?.car?.basicInformation?.vehicleName}
+                    </h3>
                     <div className="flex justify-between items-center mt-2">
                       <span className="font-semibold text-lg">
-                        ${car.price.toLocaleString()}
+                        $
+                        {car?.car?.basicInformation?.OfferPrice?.toLocaleString()}
                       </span>
-                      <span className="text-gray-500">{car.location}</span>
+                      <span className="text-gray-500">
+                        {/* {car?.car?.basicInformation?.location} */}
+                      </span>
                     </div>
 
                     {/* Car specs */}
                     <div className="grid grid-cols-2 gap-2 mt-3 text-sm text-gray-600">
-                      <div>Year: {car.year}</div>
-                      <div>Mileage: {car.mileage.toLocaleString()} mi</div>
-                      <div>Fuel: {car.fuelType}</div>
-                      <div>Transmission: {car.transmission}</div>
+                      <div>Year: {car?.car?.basicInformation?.year}</div>
+                      <div>
+                        Horspower:{" "}
+                        {car?.car?.technicalInformation?.engineDisplacement}
+                      </div>
+                      <div>Fuel: {car.car?.technicalInformation?.fuelType}</div>
+                      <div>
+                        Transmission:{" "}
+                        {car?.car?.technicalInformation?.transmission}
+                      </div>
                     </div>
 
                     {/* Features */}
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {car.features.slice(0, 3).map((feature, index) => (
-                        <span
-                          key={index}
-                          className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
-                        >
-                          {feature}
-                        </span>
-                      ))}
+                    {/* <div className="mt-3 flex flex-wrap gap-1">
+                      {car?.features
+                        ?.slice(0, 3)
+                        ?.map((feature: string, index: number) => (
+                          <span
+                            key={index}
+                            className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
+                          >
+                            {feature}
+                          </span>
+                        ))}
                       {car.features.length > 3 && (
                         <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
                           +{car.features.length - 3} more
                         </span>
                       )}
-                    </div>
+                    </div> */}
 
                     {/* Action button */}
-                    <Button
-                      className="w-full mt-4 flex items-center justify-center gap-2"
-                      variant="outline"
-                    >
-                      <FaEye /> View Details
-                    </Button>
+                    <Link href={`/vehicles/${car?.car?._id}`}>
+                      <Button
+                        className="w-full mt-4 flex items-center cursor-pointer justify-center gap-2"
+                        variant="outline"
+                      >
+                        <FaEye /> View Details
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -210,7 +205,7 @@ const FavoriteCarsPage = () => {
           )}
 
           {/* No search results */}
-          {favorites.length > 0 && filteredCars.length === 0 && (
+          {favoriteCount > 0 && filteredCars.length === 0 && (
             <div className="bg-gray-50 rounded-lg p-8 text-center">
               <FaSearch className="mx-auto text-gray-300 text-5xl mb-4" />
               <h3 className="text-xl font-medium text-gray-700">

@@ -74,7 +74,9 @@ const YouMayLike = ({
               <Link key={car._id} href={`/vehicles/${car._id}`}>
                 <CarCard
                   key={car._id}
-                  image={getImageUrl(car.basicInformation?.image?.[0] || "")}
+                  image={getImageUrl(
+                    car.basicInformation?.productImage?.[0] || ""
+                  )}
                   dealerLogo={car.createdBy?.profile}
                   dealerName={car.createdBy?.name}
                   dealerType={car.dealerType ?? ""}

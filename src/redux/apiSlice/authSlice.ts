@@ -97,6 +97,16 @@ const authApi = api.injectEndpoints({
       providesTags: ["AdminData"],
     }),
 
+    userUpdate: builder.mutation({
+      query: (data) => {
+        return {
+          method: "PATCH",
+          url: "/user",
+          body: data,
+        };
+      },
+    }),
+
     fetchAdminProfile: builder.query({
       query: () => {
         return {
@@ -129,6 +139,7 @@ export const {
   useChangePasswordMutation,
   useUpdateProfileMutation,
   useProfileQuery,
+  useUserUpdateMutation,
   useFetchAdminProfileQuery,
   useUpdateAdminProfileMutation,
 } = authApi;

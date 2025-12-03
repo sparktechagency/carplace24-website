@@ -2,6 +2,8 @@
 
 import { FaCheck } from "react-icons/fa";
 import { useState } from "react";
+import { useGetAllSubscriptionsQuery } from "@/redux/apiSlice/subscriptionSlice";
+import CarLoader from "@/components/ui/loader/CarLoader";
 
 interface PlanFeature {
   label: string;
@@ -27,111 +29,66 @@ interface PlanData {
 const PlanPricing = () => {
   const [activeTab, setActiveTab] = useState<"private" | "dealer">("private");
 
-  const privatePlanData: PlanData = {
-    titles: {
-      light: "PRIVATE LIGHT",
-      medium: "PRIVATE MEDIUM",
-      large: "PRIVATE LARGE",
-    },
-    pricing: {
-      light: "14 days / 9.90 CHF",
-      medium: "30 days / 19.90 CHF",
-      large: "60 days / 29.90 CHF",
-    },
-    features: [
-      {
-        label: "Number of vehicles",
-        light: "01",
-        medium: "02",
-        large: "03",
-      },
-      {
-        label: "Duration of listing",
-        light: "14 Days",
-        medium: "14 Days",
-        large: "14 Days",
-      },
-      {
-        label: "Online immediately",
-        light: true,
-        medium: true,
-        large: true,
-      },
-      {
-        label: "Visible to everyone",
-        light: true,
-        medium: true,
-        large: true,
-      },
-      {
-        label: "Number of images",
-        light: "10 per vehicle",
-        medium: "10 per vehicle",
-        large: "15 per vehicle",
-      },
-      {
-        label: "Credit card / PayPal",
-        light: true,
-        medium: true,
-        large: true,
-      },
-    ],
+  const { data: subscriptions, isLoading } =
+    useGetAllSubscriptionsQuery(undefined);
+
+  if (isLoading) {
+    return <CarLoader />;
+  }
+
+  const subscriptionData = subscriptions?.data || [];
+
+  const normalizeRole = (role?: string) => {
+    const v = String(role || "").toUpperCase();
+    if (v.includes("SELLER")) return "private" as const;
+    if (v.includes("DEALER") || v.includes("DELEAR")) return "dealer" as const;
+    return "private" as const;
+  };
+  const featureLabels = [
+    "Description",
+    "Number of vehicles",
+    "Duration of listing",
+    "Online immediately",
+    "Visible to everyone",
+    "Number of images",
+  ];
+
+  const plans = (subscriptionData as any[])
+    .filter((p) => normalizeRole(p?.targetRole) === activeTab)
+    .sort((a, b) => String(a?.title).localeCompare(String(b?.title)));
+
+  const getPricing = (plan: any) => {
+    const duration = String(plan?.duration || "-").replace(/day(s)?/i, "days");
+    const priceNum =
+      typeof plan?.price === "number"
+        ? plan.price.toFixed(2)
+        : plan?.price || "-";
+    return `${duration} / ${priceNum} CHF`;
   };
 
-  const dealerPlanData: PlanData = {
-    titles: {
-      light: "DEALER LIGHT",
-      medium: "DEALER MEDIUM",
-      large: "DEALER LARGE",
-    },
-    pricing: {
-      light: "30 days / 29.90 CHF",
-      medium: "60 days / 59.90 CHF",
-      large: "90 days / 99.90 CHF",
-    },
-    features: [
-      {
-        label: "Number of vehicles",
-        light: "10",
-        medium: "25",
-        large: "50+",
-      },
-      {
-        label: "Duration of listing",
-        light: "30 Days",
-        medium: "60 Days",
-        large: "90 Days",
-      },
-      {
-        label: "Online immediately",
-        light: true,
-        medium: true,
-        large: true,
-      },
-      {
-        label: "Visible to everyone",
-        light: true,
-        medium: true,
-        large: true,
-      },
-      {
-        label: "Number of images",
-        light: "15 per vehicle",
-        medium: "20+ per vehicle",
-        large: "20+ per vehicle",
-      },
-      {
-        label: "Credit card / PayPal",
-        light: true,
-        medium: true,
-        large: true,
-      },
-    ],
+  const getFeatureValue = (
+    plan: any,
+    label: string
+  ): string | boolean | number => {
+    switch (label) {
+      case "Number of vehicles":
+        return plan?.carLimit ?? "-";
+      case "Duration of listing":
+        return plan?.duration ?? "-";
+      case "Online immediately":
+        return Boolean(plan?.OnlineImmediately);
+      case "Visible to everyone":
+        return Boolean(plan?.VisibleToEveryone);
+      case "Number of images":
+        return "-";
+      case "Description":
+        return plan?.description ?? "-";
+      case "Credit card / PayPal":
+        return true;
+      default:
+        return "-";
+    }
   };
-
-  const activePlanData =
-    activeTab === "private" ? privatePlanData : dealerPlanData;
-  const features = activePlanData.features;
 
   const renderValue = (value: string | boolean | number) => {
     if (typeof value === "boolean") {
@@ -181,180 +138,68 @@ const PlanPricing = () => {
           <div className="h-[60px]"></div>
 
           <div className="h-[60px] flex items-center px-5 border-t">Price</div>
-
-          {features.map((feature, index) => (
+          {featureLabels.map((label, index) => (
             <div
               key={`feature-${index}`}
-              className={`h-[60px] flex px-5 items-center ${
+              className={`h-[80px] flex px-5 items-center ${
                 index % 2 === 0 ? "bg-gray-100" : ""
               }`}
             >
-              <span className="text-gray-700">{feature.label}</span>
+              <span className="text-gray-700">{label}</span>
             </div>
           ))}
 
           {/* Empty space for the Buy button */}
           <div className="h-[60px]"></div>
         </div>
-
-        {/* Light Plan */}
-        <div className="border rounded-lg overflow-hidden shadow-sm">
-          <div className="relative">
-            <div className="bg-white p-4 text-center">
-              <h3 className="text-primary font-bold text-xl mb-2">
-                {activePlanData.titles.light}
-              </h3>
-            </div>
-            <div className="bg-primary text-white p-3 text-center">
-              <p className="font-medium">{activePlanData.pricing.light}</p>
-            </div>
-          </div>
-
-          {/* Mobile feature labels + values */}
-          <div className="md:hidden">
-            {features.map((feature, index) => (
-              <div
-                key={`mobile-feature-${index}`}
-                className={`p-3 flex justify-between items-center ${
-                  index % 2 === 0 ? "bg-gray-100" : ""
-                }`}
-              >
-                <span className="text-gray-700">{feature.label}</span>
-                <span className="font-medium">
-                  {renderValue(feature.light)}
-                </span>
+        {plans.map((plan: any, planIndex: number) => (
+          <div
+            key={plan?._id || planIndex}
+            className="border rounded-lg overflow-hidden shadow-sm"
+          >
+            <div className="relative">
+              <div className="bg-white p-4 text-center">
+                <h3 className="text-primary font-bold text-xl mb-2">
+                  {String(plan?.title || "-")}
+                </h3>
               </div>
-            ))}
-          </div>
-
-          {/* Desktop values only */}
-          <div className="hidden md:block">
-            {features.map((feature, index) => (
-              <div
-                key={`light-${index}`}
-                className={`h-[60px] flex items-center justify-center ${
-                  index % 2 === 0 ? "bg-gray-100" : ""
-                }`}
-              >
-                <span className="font-medium">
-                  {renderValue(feature.light)}
-                </span>
+              <div className="bg-primary text-white p-3 text-center">
+                <p className="font-medium">{getPricing(plan)}</p>
               </div>
-            ))}
-          </div>
-
-          <div className="p-4 text-center">
-            <button className="bg-primary text-white py-2 px-8 rounded hover:bg-primary-dark transition duration-300">
-              Buy
-            </button>
-          </div>
-        </div>
-
-        {/* Medium Plan */}
-        <div className="border rounded-lg overflow-hidden shadow-sm">
-          <div className="relative">
-            <div className="bg-white p-4 text-center">
-              <h3 className="text-primary font-bold text-xl mb-2">
-                {activePlanData.titles.medium}
-              </h3>
             </div>
-            <div className="bg-primary text-white p-3 text-center">
-              <p className="font-medium">{activePlanData.pricing.medium}</p>
+
+            <div className="md:hidden pt-3">
+              {featureLabels.map((label, index) => (
+                <div
+                  key={`mobile-${planIndex}-${index}`}
+                  className={`py-3 h-[80px] px-5 flex justify-between items-center ${
+                    index % 2 === 0 ? "bg-gray-100" : ""
+                  }`}
+                >
+                  <span className="text-gray-700">{label}</span>
+                  <span className="font-medium">
+                    {renderValue(getFeatureValue(plan, label))}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden md:block pt-3">
+              {featureLabels.map((label, index) => (
+                <div
+                  key={`desktop-${planIndex}-${index}`}
+                  className={`h-[80px] px-2 flex items-center justify-center ${
+                    index % 2 === 0 ? "bg-gray-100" : ""
+                  }`}
+                >
+                  <span className="font-medium">
+                    {renderValue(getFeatureValue(plan, label))}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Mobile feature labels + values */}
-          <div className="md:hidden">
-            {features.map((feature, index) => (
-              <div
-                key={`mobile-feature-${index}`}
-                className={`p-3 flex justify-between items-center ${
-                  index % 2 === 0 ? "bg-gray-100" : ""
-                }`}
-              >
-                <span className="text-gray-700">{feature.label}</span>
-                <span className="font-medium">
-                  {renderValue(feature.medium)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop values only */}
-          <div className="hidden md:block">
-            {features.map((feature, index) => (
-              <div
-                key={`medium-${index}`}
-                className={`h-[60px] flex items-center justify-center ${
-                  index % 2 === 0 ? "bg-gray-100" : ""
-                }`}
-              >
-                <span className="font-medium">
-                  {renderValue(feature.medium)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="p-4 text-center">
-            <button className="bg-primary text-white py-2 px-8 rounded hover:bg-primary-dark transition duration-300">
-              Buy
-            </button>
-          </div>
-        </div>
-
-        {/* Large Plan */}
-        <div className="border rounded-lg overflow-hidden shadow-sm">
-          <div className="relative">
-            <div className="bg-white p-4 text-center">
-              <h3 className="text-primary font-bold text-xl mb-2">
-                {activePlanData.titles.large}
-              </h3>
-            </div>
-            <div className="bg-primary text-white p-3 text-center">
-              <p className="font-medium">{activePlanData.pricing.large}</p>
-            </div>
-          </div>
-
-          {/* Mobile feature labels + values */}
-          <div className="md:hidden">
-            {features.map((feature, index) => (
-              <div
-                key={`mobile-feature-${index}`}
-                className={`p-3 flex justify-between items-center ${
-                  index % 2 === 0 ? "bg-gray-100" : ""
-                }`}
-              >
-                <span className="text-gray-700">{feature.label}</span>
-                <span className="font-medium">
-                  {renderValue(feature.large)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop values only */}
-          <div className="hidden md:block">
-            {features.map((feature, index) => (
-              <div
-                key={`large-${index}`}
-                className={`h-[60px] flex items-center justify-center ${
-                  index % 2 === 0 ? "bg-gray-100" : ""
-                }`}
-              >
-                <span className="font-medium">
-                  {renderValue(feature.large)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="p-4 text-center">
-            <button className="bg-primary cursor-pointer text-white py-2 px-8 rounded hover:bg-primary-dark transition duration-300">
-              Buy
-            </button>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useEffect } from "react";
 import Image from "next/image";
 import {
   FaUser,
@@ -20,6 +20,12 @@ import Inquiries from "./sections/Inquiries";
 import { BsQuestionOctagonFill } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import {
+  useProfileQuery,
+  useUserUpdateMutation,
+} from "@/redux/apiSlice/authSlice";
+import { getImageUrl } from "@/lib/getImageUrl";
+import CarLoader from "@/components/ui/loader/CarLoader";
 
 interface MainProfileLayoutProps {
   children?: ReactNode;
@@ -38,6 +44,51 @@ const MainProfileLayout = ({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
   const router = useRouter();
+
+  const {
+    data: userData,
+    isLoading,
+    refetch: refetchProfile,
+  } = useProfileQuery(undefined);
+  const [userUpdate, { isLoading: isUpdating }] = useUserUpdateMutation();
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isAvatarDragging, setIsAvatarDragging] = useState(false);
+
+  useEffect(() => {
+    if (avatarFile) {
+      const url = URL.createObjectURL(avatarFile);
+      setAvatarPreview(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setAvatarPreview(null);
+  }, [avatarFile]);
+
+  const handleAvatarUpload = async (file?: File) => {
+    const selected = file || avatarFile;
+    if (!selected) return;
+    try {
+      const fd = new FormData();
+      fd.append("image", selected);
+      const res = await userUpdate(fd).unwrap();
+      const msg = (res as any)?.message || "Profile image updated";
+      toast.success(msg);
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      refetchProfile();
+    } catch (err: any) {
+      const msg = err?.data?.message || "Failed to update image";
+      toast.error(msg);
+    }
+  };
+
+  if (isLoading || isUpdating) {
+    return <CarLoader />;
+  }
+
+  const userDetails = userData?.data;
+  console.log(userDetails);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -58,7 +109,7 @@ const MainProfileLayout = ({
       id: "profile",
       label: "My Profile",
       icon: <FaUser className="mr-2" />,
-      component: <MyProfile />,
+      component: <MyProfile userDetails={userDetails} />,
     },
     settings: {
       id: "settings",
@@ -155,9 +206,28 @@ const MainProfileLayout = ({
         >
           {/* User Profile Summary */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden mb-4 relative">
+            <label
+              htmlFor="profileImageUploader"
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsAvatarDragging(true);
+              }}
+              onDragLeave={() => setIsAvatarDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files?.[0];
+                if (file) {
+                  setAvatarFile(file);
+                  handleAvatarUpload(file);
+                }
+                setIsAvatarDragging(false);
+              }}
+              className={`w-24 h-24 rounded-full bg-gray-200 overflow-hidden mb-2 relative cursor-pointer ${
+                isAvatarDragging ? "ring-2 ring-blue-500" : ""
+              }`}
+            >
               <Image
-                src="https://i.ibb.co.com/vXqkJSM/john-wick-anatomy-zphl-square640.jpg"
+                src={avatarPreview || getImageUrl(userDetails?.profile)}
                 alt="User Avatar"
                 fill
                 className="object-cover"
@@ -167,9 +237,39 @@ const MainProfileLayout = ({
                     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
                 }}
               />
-            </div>
-            <h2 className="text-xl font-semibold">John Doe</h2>
-            <p className="text-gray-500 text-sm">john.doe@example.com</p>
+              <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors"></div>
+            </label>
+            <input
+              id="profileImageUploader"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                if (file) {
+                  setAvatarFile(file);
+                  handleAvatarUpload(file);
+                } else {
+                  setAvatarFile(null);
+                }
+              }}
+            />
+            {avatarFile && (
+              <div className="w-full flex items-center gap-2 mb-2">
+                <span className="text-xs text-gray-600 truncate max-w-[60%]">
+                  {avatarFile.name}
+                </span>
+                {isUpdating && (
+                  <span className="text-xs text-gray-600">Uploading...</span>
+                )}
+              </div>
+            )}
+            <h2 className="text-xl font-semibold">
+              {userDetails?.name || "N/A"}
+            </h2>
+            <p className="text-gray-500 text-sm">
+              {userDetails?.email || "N/A"}
+            </p>
           </div>
 
           {/* Navigation Menu */}

@@ -1,5 +1,11 @@
+import TermsAndConditionsPage from "@/components/website/TermsAndConditionsPage";
+
 const page = () => {
-  return <div>Terms & Conditions</div>;
+  return (
+    <div>
+      <TermsAndConditionsPage />
+    </div>
+  );
 };
 
 export default page;
