@@ -3,6 +3,8 @@
 import { useUserUpdateMutation } from "@/redux/apiSlice/authSlice";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import Image from "next/image";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const MyProfile = ({ userDetails }: { userDetails: any }) => {
   const [formData, setFormData] = useState({
@@ -20,11 +22,21 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
     country: userDetails?.country || "N/A",
   });
 
-  const [userUpdate, { isLoading, isError, isSuccess }] =
-    useUserUpdateMutation();
+  const [userUpdate, { isLoading }] = useUserUpdateMutation();
 
   const [tradeLicences, setTradeLicences] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  const existingTradeLicenceRaw =
+    (userDetails?.tradeLicences ??
+      userDetails?.tradeLicense ??
+      userDetails?.tradeLicenseUrl ??
+      userDetails?.tradeLicenses ??
+      userDetails?.trade_license) ||
+    "";
+  const existingTradeLicence = Array.isArray(existingTradeLicenceRaw)
+    ? String(existingTradeLicenceRaw[0] || "")
+    : String(existingTradeLicenceRaw || "");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -40,8 +52,14 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
     e.preventDefault();
     try {
       const fd = new FormData();
+
       Object.entries(formData).forEach(([key, value]) => {
+        if (key === "gender") {
+          fd.append("gender", value);
+          return;
+        }
         const val = value === "N/A" ? "" : String(value ?? "");
+        if (val === "") return;
         fd.append(key, val);
       });
       if (tradeLicences) {
@@ -132,9 +150,10 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
@@ -263,6 +282,30 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
                 </span>
                 <span className="text-xs text-gray-500">PNG, JPG or PDF</span>
               </label>
+              {!tradeLicences && existingTradeLicence && (
+                <div className="mt-3">
+                  {existingTradeLicence.toLowerCase().endsWith(".pdf") ? (
+                    <a
+                      href={getImageUrl(existingTradeLicence)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 underline"
+                    >
+                      View current trade licence (PDF)
+                    </a>
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <Image
+                        src={getImageUrl(existingTradeLicence)}
+                        alt="Trade Licence"
+                        width={160}
+                        height={100}
+                        className="rounded-md border object-cover max-h-40"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
               {tradeLicences && (
                 <div className="mt-3 flex items-center justify-between gap-2">
                   <span className="text-xs text-gray-700 truncate max-w-[70%]">

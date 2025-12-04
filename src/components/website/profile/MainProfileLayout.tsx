@@ -10,7 +10,6 @@ import {
   FaCog,
   FaBars,
   FaTimes,
-  FaShoppingCart,
 } from "react-icons/fa";
 import MyProfile from "./sections/MyProfile";
 import Favorites from "./sections/Favorites";
@@ -26,6 +25,7 @@ import {
 } from "@/redux/apiSlice/authSlice";
 import { getImageUrl } from "@/lib/getImageUrl";
 import CarLoader from "@/components/ui/loader/CarLoader";
+import { logout } from "@/lib/logout";
 
 interface MainProfileLayoutProps {
   children?: ReactNode;
@@ -43,7 +43,6 @@ const MainProfileLayout = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
-  const router = useRouter();
 
   const {
     data: userData,
@@ -95,13 +94,8 @@ const MainProfileLayout = ({
   };
 
   const handleLogout = () => {
-    const isHttps =
-      typeof window !== "undefined" && window.location.protocol === "https:";
-    document.cookie = `accessToken=; Path=/; Max-Age=0; SameSite=Lax${
-      isHttps ? "; Secure" : ""
-    }`;
     toast.success("Logged out");
-    router.push("/login");
+    logout("/login");
   };
 
   const sharedComponents = {
@@ -270,6 +264,11 @@ const MainProfileLayout = ({
             <p className="text-gray-500 text-sm">
               {userDetails?.email || "N/A"}
             </p>
+            {userDetails?.isSubscribed && (
+              <span className="mt-2 inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                Subscribed
+              </span>
+            )}
           </div>
 
           {/* Navigation Menu */}

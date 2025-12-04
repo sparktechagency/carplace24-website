@@ -18,16 +18,21 @@ import {
   Pricing,
 } from "./sections/FormSections";
 import Container from "@/components/ui/container";
+import { useAddCarMutation } from "@/redux/apiSlice/carSlice";
+import toast from "react-hot-toast";
+import {
+  useGetAllBrandsQuery,
+  useGetModelByBrandQuery,
+} from "@/redux/apiSlice/brandAndModalSlice";
 
 const AddCarsPage = () => {
   const [images, setImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     vehicleName: "",
     vinNo: "",
-    categories: "",
+    year: "",
     brand: "",
     model: "",
-    year: "",
     condition: "",
     mileage: "",
     warranty: "",
@@ -70,11 +75,239 @@ const AddCarsPage = () => {
     description: "",
   });
 
+  const [addCar] = useAddCarMutation();
+  const { data: brandsData, isLoading: brandsLoading } =
+    useGetAllBrandsQuery(undefined);
+  const { data: modelsData, isLoading: modelsLoading } =
+    useGetModelByBrandQuery(formData.brand, { skip: !formData.brand });
+
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const brandOptions = [
+    { value: "", label: "Select Brand" },
+    ...(Array.isArray((brandsData as any)?.data || brandsData)
+      ? (((brandsData as any)?.data || brandsData) as any[]).map((b) => ({
+          value:
+            b?._id || b?.id || String(b?.value || b?.slug || b?.name || ""),
+          label:
+            b?.brand ||
+            b?.name ||
+            b?.title ||
+            String(b?.label || b?.slug || b?._id || ""),
+        }))
+      : []),
+  ];
+
+  const modelOptions = [
+    { value: "", label: "Select Model" },
+    ...(Array.isArray((modelsData as any)?.data || modelsData)
+      ? (((modelsData as any)?.data || modelsData) as any[]).map((m) => ({
+          value:
+            m?._id || m?.id || String(m?.value || m?.slug || m?.name || ""),
+          label:
+            m?.model ||
+            m?.name ||
+            m?.title ||
+            String(m?.label || m?.slug || m?._id || ""),
+        }))
+      : []),
+  ];
+
+  const dataUrlToFile = (dataUrl: string, filename: string) => {
+    const arr = dataUrl.split(",");
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+    const bstr = atob(arr[1] || "");
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const fd = new FormData();
+
+      const basicInformation: any = {
+        vehicleName: String(formData.vehicleName || ""),
+        brand: String(formData.brand || ""),
+        model: String(formData.model || ""),
+        vinNo: String(formData.vinNo || ""),
+        year: Number(formData.year || 0),
+        RegularPrice: Number(formData.regularPrice || 0),
+        OfferPrice: Number(formData.offerPrice || 0),
+        leasingRate: String(formData.leasingRate || ""),
+        condition: String(formData.condition || ""),
+        miles: Number(formData.mileage || 0),
+        MfkWarranty: String(formData.warranty || ""),
+        AccidentVehicle: String(formData.accident || ""),
+        BodyType: String(formData.bodyType || ""),
+      };
+      const technicalInformation: any = {
+        fuelType: String(formData.fuelType || ""),
+        driveType: String(formData.driveType || ""),
+        transmission: String(formData.transmission || ""),
+        performance: String(formData.performance || ""),
+        engineDisplacement: String(formData.engineDisplacement || ""),
+        cylinders: Number(formData.cylinders || 0),
+      };
+
+      const electricHybrid: any = {
+        batteryCapacityKWh: Number(formData.batteryCapacity || 0),
+        rangeKm: Number(formData.range || 0),
+        towingCapacity: Number(formData.towingCapacity || 0),
+        totalWeight: Number(formData.totalWeight || 0),
+        curbWeight: Number(formData.curbWeight || 0),
+      };
+
+      const features: string[] = Array.isArray(formData.equipmentFeatures)
+        ? formData.equipmentFeatures
+        : [];
+      const normalize = (s: string) =>
+        String(s || "")
+          .trim()
+          .toLowerCase();
+      const labelToKey: Record<string, string> = {
+        abs: "ABS",
+        "accesso e accensione senza chiave": "KeylessEntryStart",
+        "aiuti al parcheggio": "ParkingAssist",
+        altoparlante: "SoundSystem",
+        "alzacristalli elettrici": "ElectricWindows",
+        "android auto": "AndroidAuto",
+        "apple carplay": "AppleCarPlay",
+        "aria condizionata": "AirConditioning",
+        "climatizzatore automatico": "ClimateControl",
+        "assistente di corsia": "LaneAssist",
+        "assistente di frenata automatico": "AutomaticBrakeAssist",
+        "bloccaggio differenziale": "DifferentialLock",
+        "cerchi in lega": "AlloyWheels",
+        "controllo di velocità": "CruiseControl",
+        "controllo di velocità adattivo": "AdaptiveCruiseControl",
+        "controllo elettronico della stabilità (esp)": "StabilityControlESP",
+        "coperture dei sedili": "SeatCovers",
+        alcantara: "Alcantara",
+        "interni in tessuto": "FabricSeats",
+        "sedili in pelle": "LeatherSeats",
+        "dispositivo antifurto": "AntiTheftDevice",
+        "elementi cromati": "ChromeElements",
+        fari: "Headlights",
+        "fari allo laser": "LaserHeadlights",
+        "fari led": "LEDHeadlights",
+        "fari allo xeno": "XenonHeadlights",
+        "fari adattivi": "AdaptiveHeadlights",
+        "gancio traino": "Towbar",
+        "gancio di traino rimovibile": "DetachableTowbar",
+        "gancio di traino orientabile": "SwivelTowbar",
+        "gancio di traino fisso": "FixedTowbar",
+        "head-up display": "HeadUpDisplay",
+        "interfaccia bluetooth": "Bluetooth",
+        isofix: "Isofix",
+        pedana: "Footboard",
+        "pittura speciale": "SpecialPaint",
+        "porta scorrevole": "SlidingDoor",
+        portapacchi: "RoofRack",
+        "porte ad ali di gabbiano": "GullwingDoors",
+        "portellone posteriore elettrico": "ElectricTailgate",
+        "radio dab": "RadioDAB",
+        "regolazione elettrica dei sedili": "ElectricSeatAdjustment",
+        "ricarica rapida": "FastCharging",
+        "riscaldamento ausiliario": "AuxiliaryHeating",
+        schienale: "BackRest",
+        "sedili riscaldati": "HeatedSeats",
+        "sedili sportivi": "SportsSeats",
+        "sedili ventilati": "VentilatedSeats",
+        "sensori di parcheggio anteriori": "FrontParkingSensors",
+        "sensori di parcheggio posteriori": "RearParkingSensors",
+        "silenziatore personalizzato": "CustomMuffler",
+        "sistema di allarme": "AlarmSystem",
+        "sistema di monitoraggio angolo cieco": "BlindSpotMonitoring",
+        "sistema di navigazione": "NavigationSystem",
+        navigazione: "NavigationSystem",
+        "sistema di navigazione portatile": "PortableNavigation",
+        "sistema start-stop": "StartStopSystem",
+        "sospensioni pneumatiche": "AirSuspension",
+        "sospensioni rinforzate": "ReinforcedSuspension",
+        "strumentazione aggiuntiva": "AdditionalInstruments",
+        "telecamera a 360°": "Camera360",
+        "telecamera posteriore": "RearCamera",
+        "tetto panoramico": "PanoramicRoof",
+        "tetto rigido": "HardTop",
+        "tettuccio apribile": "Sunroof",
+        valigia: "Luggage",
+        vivavoce: "HandsFree",
+      };
+      const equipment: Record<string, boolean> = {};
+      features.forEach((label) => {
+        const key = labelToKey[normalize(label)];
+        if (key) equipment[key] = true;
+      });
+
+      const extras: any = {
+        tires: String(formData.tires || ""),
+        season: String(formData.summerWinter || ""),
+        handicapAccessible: String(formData.handicapAccessible || ""),
+        raceCar: String(formData.raceCar || ""),
+        tuning: String(formData.tuning || ""),
+      };
+
+      const colour: any = {
+        metallic: "",
+        interior: Array.isArray(formData.interiorColour)
+          ? formData.interiorColour
+          : [],
+        exterior: Array.isArray(formData.exteriorColour)
+          ? formData.exteriorColour
+          : [],
+      };
+
+      const seatsAndDoors: any = {
+        seats: Number(formData.seatsAndDoor || 0),
+        doors: Number(formData.door || 0),
+      };
+
+      const energyAndEnvironment: any = {
+        fuelConsumption: String(formData.fuelConsumption || ""),
+        coEmissions: String(formData.coEmissions || ""),
+        energyEfficiencyClass: String(formData.energyEfficiencyClass || ""),
+      };
+
+      const euroStandard: any = {
+        fuelType: String(formData.euroFuelType || ""),
+        transmission: String(formData.euroTransmission || ""),
+      };
+
+      fd.append("basicInformation", JSON.stringify(basicInformation));
+      fd.append("technicalInformation", JSON.stringify(technicalInformation));
+      fd.append("electricHybrid", JSON.stringify(electricHybrid));
+      fd.append("equipment", JSON.stringify(equipment));
+      fd.append("equipmentFeatures", JSON.stringify(features));
+      fd.append("extras", JSON.stringify(extras));
+      fd.append("colour", JSON.stringify(colour));
+      fd.append("seatsAndDoors", JSON.stringify(seatsAndDoors));
+      fd.append("energyAndEnvironment", JSON.stringify(energyAndEnvironment));
+      fd.append("euroStandard", JSON.stringify(euroStandard));
+      fd.append("description", String(formData.description || ""));
+
+      images.forEach((img, idx) => {
+        if (typeof img === "string" && img.startsWith("data:")) {
+          const file = dataUrlToFile(img, `image_${idx + 1}.png`);
+          fd.append("basicInformation[productImage]", file);
+        }
+      });
+
+      const res = await addCar(fd).unwrap();
+      const message = (res as any)?.message || "Vehicle added";
+      toast.success(message);
+    } catch (err: any) {
+      const msg = err?.data?.message || "Failed to add vehicle";
+      toast.error(msg);
+    }
   };
 
   return (
@@ -92,7 +325,7 @@ const AddCarsPage = () => {
           </div>
 
           {/* Main Form */}
-          <div className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Vehicle Images */}
             <FormSection title="Vehicle Images">
               <ImageUploader images={images} setImages={setImages} />
@@ -135,33 +368,15 @@ const AddCarsPage = () => {
 
                 <div>
                   <SelectDropdown
-                    id="categories"
-                    label="Categories"
-                    options={[
-                      { value: "Van", label: "Van" },
-                      { value: "SUV", label: "SUV" },
-                      { value: "Sedan", label: "Sedan" },
-                      { value: "Truck", label: "Truck" },
-                    ]}
-                    value={formData.categories}
-                    onChange={(e) =>
-                      handleInputChange("categories", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div>
-                  <SelectDropdown
                     id="brand"
                     label="Brand"
-                    options={[
-                      { value: "Audi", label: "Audi" },
-                      { value: "BMW", label: "BMW" },
-                      { value: "Mercedes", label: "Mercedes" },
-                      { value: "Toyota", label: "Toyota" },
-                    ]}
+                    options={brandOptions}
                     value={formData.brand}
-                    onChange={(e) => handleInputChange("brand", e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      handleInputChange("brand", val);
+                      handleInputChange("model", "");
+                    }}
                   />
                 </div>
 
@@ -169,12 +384,7 @@ const AddCarsPage = () => {
                   <SelectDropdown
                     id="model"
                     label="Model"
-                    options={[
-                      { value: "Audi", label: "Audi" },
-                      { value: "A4", label: "A4" },
-                      { value: "A6", label: "A6" },
-                      { value: "Q5", label: "Q5" },
-                    ]}
+                    options={modelOptions}
                     value={formData.model}
                     onChange={(e) => handleInputChange("model", e.target.value)}
                   />
@@ -350,7 +560,7 @@ const AddCarsPage = () => {
                 Add Vehicle
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </Container>
     </div>

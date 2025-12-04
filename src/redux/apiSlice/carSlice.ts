@@ -19,7 +19,18 @@ const carApi = api.injectEndpoints({
         };
       },
     }),
+
+    addCar: builder.mutation({
+      query: (data) => {
+        return {
+          method: "POST",
+          url: "/car",
+          body: data,
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetAllCarsQuery, useGetCarByIdQuery } = carApi;
+export const { useGetAllCarsQuery, useGetCarByIdQuery, useAddCarMutation } =
+  carApi;

@@ -11,8 +11,7 @@ import compareIcon from "@/assets/compareIcone.png";
 import heartIcon from "@/assets/heart.png";
 import addCarIcon from "@/assets/addCarIcon.png";
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { logout } from "@/lib/logout";
 import {
   useGetCompareCarsQuery,
   useGetBookmarkCarsQuery,
@@ -51,17 +50,8 @@ export default function Navbar() {
           0
       ) || 0;
 
-  const router = useRouter();
-
-  const handleLogout = () => {
-    const isHttps =
-      typeof window !== "undefined" && window.location.protocol === "https:";
-    document.cookie = `accessToken=; Path=/; Max-Age=0; SameSite=Lax${
-      isHttps ? "; Secure" : ""
-    }`;
-    toast.success("Logged out");
-    setIsProfileDropdownOpen(false);
-    router.push("/login");
+  const handleLogout = (): void => {
+    logout("/login");
   };
 
   // Close dropdown when clicking outside
