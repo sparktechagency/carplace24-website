@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SelectDropdown from "./SelectDropdown";
 import ImageUploader from "./ImageUploader";
 import FormSection from "./FormSection";
@@ -24,8 +24,11 @@ import {
   useGetAllBrandsQuery,
   useGetModelByBrandQuery,
 } from "@/redux/apiSlice/brandAndModalSlice";
+import { useProfileQuery } from "@/redux/apiSlice/authSlice";
+import { useRouter } from "next/navigation";
 
 const AddCarsPage = () => {
+  const router = useRouter();
   const [images, setImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     vehicleName: "",
@@ -80,6 +83,35 @@ const AddCarsPage = () => {
     useGetAllBrandsQuery(undefined);
   const { data: modelsData, isLoading: modelsLoading } =
     useGetModelByBrandQuery(formData.brand, { skip: !formData.brand });
+
+  const { data: userData, isLoading: userLoading } = useProfileQuery({});
+  const userDetails = (userData as any)?.data || (userData as any) || null;
+  const isSubscribed = useMemo(() => {
+    const u = userDetails || {};
+    if (u?.isSubscribed === true) return true;
+    if (String(u?.subscriptionStatus || "").toLowerCase() === "active")
+      return true;
+    if (
+      u?.subscription?.status &&
+      String(u.subscription.status).toLowerCase() === "active"
+    )
+      return true;
+    if (u?.currentPackage || u?.activePackage) return true;
+    if (Array.isArray(u?.packages) && u.packages.length > 0) return true;
+    return false;
+  }, [userDetails]);
+
+  const [showSubWarning, setShowSubWarning] = useState(false);
+
+  useEffect(() => {
+    let t: any;
+    if (!userLoading && !isSubscribed) {
+      t = setTimeout(() => setShowSubWarning(true), 1500);
+    }
+    return () => {
+      if (t) clearTimeout(t);
+    };
+  }, [userLoading, isSubscribed]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({
@@ -312,6 +344,36 @@ const AddCarsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {showSubWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white w-[95%] max-w-md rounded-lg shadow-lg border">
+            <div className="p-5">
+              <h3 className="text-lg font-semibold mb-2">
+                Subscription Required
+              </h3>
+              <p className="text-sm text-gray-600">
+                You are not subscribed. Please purchase a package to add cars.
+              </p>
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-2 cursor-pointer text-sm border rounded-md hover:bg-gray-50"
+                  onClick={() => router.push("/")}
+                >
+                  Go to Home
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 cursor-pointer text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  onClick={() => router.push("/pricing?buy=1&from=add-cars")}
+                >
+                  Go to Pricing
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <Container>
         <div className="px-4">
           {/* Header */}

@@ -1,10 +1,11 @@
 "use client";
 
 import { useUserUpdateMutation } from "@/redux/apiSlice/authSlice";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/getImageUrl";
+import ProfileMap from "./ProfileMap";
 
 const MyProfile = ({ userDetails }: { userDetails: any }) => {
   const [formData, setFormData] = useState({
@@ -20,12 +21,23 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
     city: userDetails?.city || "N/A",
     zipCode: userDetails?.zipCode || "N/A",
     country: userDetails?.country || "N/A",
+    latitude: userDetails?.latitude || "N/A",
+    longitude: userDetails?.longitude || "N/A",
+  });
+
+  const [coords, setCoords] = useState({
+    lat: Number(userDetails?.latitude) || null,
+    lng: Number(userDetails?.longitude) || null,
   });
 
   const [userUpdate, { isLoading }] = useUserUpdateMutation();
 
   const [tradeLicences, setTradeLicences] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [permissionState, setPermissionState] = useState<
+    "granted" | "denied" | "prompt" | "unsupported"
+  >("unsupported");
+  const [secure, setSecure] = useState(true);
 
   const existingTradeLicenceRaw =
     (userDetails?.tradeLicences ??
@@ -37,6 +49,30 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
   const existingTradeLicence = Array.isArray(existingTradeLicenceRaw)
     ? String(existingTradeLicenceRaw[0] || "")
     : String(existingTradeLicenceRaw || "");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setSecure(window.isSecureContext);
+    }
+    try {
+      const perms: any = (navigator as any).permissions;
+      if (perms?.query) {
+        perms
+          .query({ name: "geolocation" })
+          .then((status: any) => {
+            setPermissionState(status?.state || "unsupported");
+            if (status && "onchange" in status) {
+              status.onchange = () => setPermissionState(status.state);
+            }
+          })
+          .catch(() => setPermissionState("unsupported"));
+      } else {
+        setPermissionState("unsupported");
+      }
+    } catch {
+      setPermissionState("unsupported");
+    }
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -53,18 +89,28 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
     try {
       const fd = new FormData();
 
-      Object.entries(formData).forEach(([key, value]) => {
+      const finalData = {
+        ...formData,
+        latitude: coords.lat ?? "",
+        longitude: coords.lng ?? "",
+      };
+
+      Object.entries(finalData).forEach(([key, value]) => {
         if (key === "gender") {
           fd.append("gender", value);
           return;
         }
-        const val = value === "N/A" ? "" : String(value ?? "");
+        const val =
+          value === "N/A" || value === null || value === undefined
+            ? ""
+            : String(value ?? "");
         if (val === "") return;
         fd.append(key, val);
       });
       if (tradeLicences) {
         fd.append("tradeLicences", tradeLicences);
       }
+
       const res = await userUpdate(fd).unwrap();
       const msg = (res as any)?.message || "Profile updated successfully";
       toast.success(msg);
@@ -320,6 +366,57 @@ const MyProfile = ({ userDetails }: { userDetails: any }) => {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+
+          <div className="col-span-1 md:col-span-2">
+            <ProfileMap coords={coords} setCoords={setCoords} />
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!secure) {
+                  toast.error(
+                    "Location requires HTTPS or localhost. Please use a secure URL."
+                  );
+                  return;
+                }
+                if (!navigator.geolocation) {
+                  toast.error("Geolocation is not supported by your browser");
+                  return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => {
+                    setCoords({
+                      lat: pos.coords.latitude,
+                      lng: pos.coords.longitude,
+                    });
+                    setFormData((p) => ({
+                      ...p,
+                      latitude: pos.coords.latitude,
+                      longitude: pos.coords.longitude,
+                    }));
+                  },
+                  (err) => {
+                    const msg =
+                      err?.code === 1
+                        ? "Location permission denied"
+                        : err?.code === 2
+                        ? "Location position unavailable"
+                        : err?.code === 3
+                        ? "Location request timed out"
+                        : "Failed to get current location";
+                    toast.error(msg);
+                  },
+                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+                );
+              }}
+              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg shadow"
+            >
+              Use My Current Location
+            </button>
+            <div className="mt-2 text-xs text-gray-600">
+              Permission: {permissionState}; Secure: {secure ? "Yes" : "No"}
             </div>
           </div>
         </div>

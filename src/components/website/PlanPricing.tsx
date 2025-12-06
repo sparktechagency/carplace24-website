@@ -2,7 +2,12 @@
 
 import { FaCheck } from "react-icons/fa";
 import { useState } from "react";
-import { useGetAllSubscriptionsQuery } from "@/redux/apiSlice/subscriptionSlice";
+import { useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
+import {
+  useCreateSubscriptionCheckoutMutation,
+  useGetAllSubscriptionsQuery,
+} from "@/redux/apiSlice/subscriptionSlice";
 import CarLoader from "@/components/ui/loader/CarLoader";
 
 interface PlanFeature {
@@ -28,9 +33,14 @@ interface PlanData {
 
 const PlanPricing = () => {
   const [activeTab, setActiveTab] = useState<"private" | "dealer">("private");
+  const searchParams = useSearchParams();
+  const showBuy = (searchParams.get("buy") || "") === "1";
 
   const { data: subscriptions, isLoading } =
     useGetAllSubscriptionsQuery(undefined);
+
+  const [createSubscriptionCheckout] = useCreateSubscriptionCheckoutMutation();
+  const [creatingId, setCreatingId] = useState<string | null>(null);
 
   if (isLoading) {
     return <CarLoader />;
@@ -197,6 +207,50 @@ const PlanPricing = () => {
                   </span>
                 </div>
               ))}
+            </div>
+
+            <div className="h-[60px] flex items-center justify-center border-t">
+              {showBuy && (
+                <button
+                  onClick={async () => {
+                    const id = String(plan?._id || planIndex);
+                    if (creatingId && creatingId !== id) {
+                      toast.error(
+                        "Another purchase is processing. Please wait."
+                      );
+                      return;
+                    }
+                    setCreatingId(id);
+                    try {
+                      const res: any = await createSubscriptionCheckout({
+                        packageId: plan?._id,
+                      }).unwrap();
+                      const url = res?.data?.checkoutUrl || res?.checkoutUrl;
+                      if (url && typeof url === "string") {
+                        window.location.assign(url);
+                      } else {
+                        toast.error("Failed to get checkout URL");
+                        setCreatingId(null);
+                      }
+                    } catch (err: any) {
+                      const msg =
+                        err?.data?.message || "Failed to create checkout";
+                      toast.error(msg);
+                      setCreatingId(null);
+                    }
+                  }}
+                  disabled={creatingId === String(plan?._id || planIndex)}
+                  className={`px-4 cursor-pointer py-2 ${
+                    creatingId === String(plan?._id || planIndex)
+                      ? "bg-gray-400"
+                      : "bg-primary"
+                  } text-white rounded`}
+                >
+                  {creatingId === String(plan?._id || planIndex)
+                    ? "Processing..."
+                    : "Buy"}
+                </button>
+              )}
             </div>
           </div>
         ))}

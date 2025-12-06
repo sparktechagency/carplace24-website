@@ -10,7 +10,20 @@ const subscriptionApi = api.injectEndpoints({
         };
       },
     }),
+
+    createSubscriptionCheckout: builder.mutation({
+      query: (data) => {
+        return {
+          method: "POST",
+          url: "/payment/create-subscription-checkout",
+          body: data,
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetAllSubscriptionsQuery } = subscriptionApi;
+export const {
+  useGetAllSubscriptionsQuery,
+  useCreateSubscriptionCheckoutMutation,
+} = subscriptionApi;
