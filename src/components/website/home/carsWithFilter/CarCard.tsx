@@ -26,11 +26,10 @@ const CarCard = ({
   discountedPrice,
   isFavorite = false,
 }: CarCardProps) => {
-  console.log(image);
   return (
     <div className="rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
       <div className="relative">
-        <Image
+        <img
           src={getImageUrl(image)}
           alt={carName}
           width={300}
@@ -52,8 +51,8 @@ const CarCard = ({
 
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Image
-            src={dealerLogo}
+          <img
+            src={getImageUrl(dealerLogo)}
             alt={dealerName}
             width={40}
             height={40}
@@ -66,7 +65,7 @@ const CarCard = ({
         </div>
 
         <h3 className="font-medium text-lg">{carName}</h3>
-        <p className="text-sm text-gray-500 mb-2">{carCategory}</p>
+        <p className="text-sm text-gray-500 mb-2">{carCategory || "-"}</p>
 
         <div className="flex items-center gap-2">
           <span className="font-semibold">${originalPrice}</span>
