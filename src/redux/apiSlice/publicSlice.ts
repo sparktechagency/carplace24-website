@@ -28,6 +28,16 @@ const publicApi = api.injectEndpoints({
         };
       },
     }),
+
+    createContactMessage: builder.mutation({
+      query: (data) => {
+        return {
+          method: "POST",
+          url: "/contact",
+          body: data,
+        };
+      },
+    }),
   }),
 });
 
@@ -35,4 +45,5 @@ export const {
   useGetAboutUsQuery,
   useGetTermsAndConditionsQuery,
   useGetPrivacyPolicyQuery,
+  useCreateContactMessageMutation,
 } = publicApi;

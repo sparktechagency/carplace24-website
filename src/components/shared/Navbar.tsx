@@ -237,11 +237,11 @@ export default function Navbar() {
             </Link>
           </div>
           <div className="flex items-center space-x-2">
-            <select className="bg-transparent border-none outline-none font-medium text-gray-700 cursor-pointer">
+            {/* <select className="bg-transparent border-none outline-none font-medium text-gray-700 cursor-pointer">
               <option value="en">EN</option>
               <option value="de">DE</option>
               <option value="fr">FR</option>
-            </select>
+            </select> */}
             {user ? (
               <div className="flex items-center space-x-2 relative profile-dropdown-container">
                 <div

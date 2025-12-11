@@ -4,80 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, Search } from "lucide-react";
 import Image from "next/image";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
+import { useGetAllBrandsQuery } from "@/redux/apiSlice/brandAndModalSlice";
+import { getImageUrl } from "@/lib/getImageUrl";
 
-// Brand data with logos
-const popularBrands = [
-  {
-    id: "mercedes",
-    name: "Mercedes",
-    logo: "https://www.carlogos.org/car-logos/mercedes-benz-logo.png",
-  },
-  {
-    id: "bmw",
-    name: "BMW",
-    logo: "https://www.carlogos.org/car-logos/bmw-logo.png",
-  },
-  {
-    id: "audi",
-    name: "Audi",
-    logo: "https://www.carlogos.org/car-logos/audi-logo.png",
-  },
-  {
-    id: "volkswagen",
-    name: "Volkswagen",
-    logo: "https://www.carlogos.org/car-logos/volkswagen-logo.png",
-  },
-  {
-    id: "porsche",
-    name: "Porsche",
-    logo: "https://www.carlogos.org/car-logos/porsche-logo.png",
-  },
-  {
-    id: "toyota",
-    name: "Toyota",
-    logo: "https://www.carlogos.org/car-logos/toyota-logo.png",
-  },
-  {
-    id: "honda",
-    name: "Honda",
-    logo: "https://www.carlogos.org/car-logos/honda-logo.png",
-  },
-  {
-    id: "nissan",
-    name: "Nissan",
-    logo: "https://www.carlogos.org/car-logos/nissan-logo.png",
-  },
-  {
-    id: "ford",
-    name: "Ford",
-    logo: "https://www.carlogos.org/car-logos/ford-logo.png",
-  },
-  {
-    id: "chevrolet",
-    name: "Chevrolet",
-    logo: "https://www.carlogos.org/car-logos/chevrolet-logo.png",
-  },
-  {
-    id: "lamborghini",
-    name: "Lamborghini",
-    logo: "https://www.carlogos.org/car-logos/lamborghini-logo.png",
-  },
-  {
-    id: "ferrari",
-    name: "Ferrari",
-    logo: "https://www.carlogos.org/car-logos/ferrari-logo.png",
-  },
-];
-
-// All brands organized alphabetically
-const allBrands = [
-  { letter: "B", brands: ["Bentley", "BMW", "Bugatti"] },
-  { letter: "F", brands: ["Ferrari", "Fiat", "Ford"] },
-  { letter: "M", brands: ["Maserati", "Mazda", "Mercedes-Benz"] },
-  { letter: "P", brands: ["Peugeot", "Porsche"] },
-  { letter: "T", brands: ["Tesla", "Toyota"] },
-  { letter: "V", brands: ["Volkswagen", "Volvo"] },
-];
+interface Brand {
+  _id: string;
+  brand: string;
+  image?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+}
 
 interface BrandModelDropdownProps {
   onSelect: (brand: string) => void;
@@ -92,6 +29,9 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
     "BUGATTI",
   ]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch brands from API
+  const { data: brandsData, isLoading, isError } = useGetAllBrandsQuery({});
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -122,13 +62,37 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
     setIsOpen(false);
   };
 
+  // Get brands from API response
+  const brands: Brand[] = brandsData?.data || [];
+
+  // Get popular brands (first 12 brands or all if less)
+  const popularBrands = brands.slice(0, 12);
+
+  // Organize brands alphabetically
+  const organizedBrands = brands.reduce((acc, brand) => {
+    const firstLetter = brand.brand.charAt(0).toUpperCase();
+    if (!acc[firstLetter]) {
+      acc[firstLetter] = [];
+    }
+    acc[firstLetter].push(brand);
+    return acc;
+  }, {} as Record<string, Brand[]>);
+
+  // Convert to array format and sort
+  const allBrands = Object.entries(organizedBrands)
+    .map(([letter, brandsInGroup]) => ({
+      letter,
+      brands: brandsInGroup,
+    }))
+    .sort((a, b) => a.letter.localeCompare(b.letter));
+
   // Filter brands based on search term
   const filteredBrands = searchTerm
     ? allBrands
         .map((group) => ({
           letter: group.letter,
           brands: group.brands.filter((brand) =>
-            brand.toLowerCase().includes(searchTerm.toLowerCase())
+            brand.brand.toLowerCase().includes(searchTerm.toLowerCase())
           ),
         }))
         .filter((group) => group.brands.length > 0)
@@ -171,85 +135,94 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
             </div>
           </div>
 
+          {/* Loading state */}
+          {isLoading && (
+            <div className="p-6 text-center text-gray-500">
+              Loading brands...
+            </div>
+          )}
+
+          {/* Error state */}
+          {isError && (
+            <div className="p-6 text-center text-red-500">
+              Failed to load brands. Please try again.
+            </div>
+          )}
+
           {/* Popular brands */}
-          <div className="p-3 border-b">
-            <h3 className="text-xs font-medium text-gray-500 mb-2">
-              Most sought-after brands
-            </h3>
-            <div className="grid grid-cols-6 gap-2">
-              {popularBrands.map((brand) => (
-                <div
-                  key={brand.id}
-                  className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleBrandSelect(brand.name)}
-                >
-                  <Image
-                    width={32}
-                    height={32}
-                    src={brand.logo}
-                    alt={brand.name}
-                    className="w-8 h-8 object-contain"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent searches */}
-          <div className="p-3 border-b">
-            <h3 className="text-xs font-medium text-gray-500 mb-2">
-              Last search performed by you
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {recentSearches.map((brand, index) => (
-                <div
-                  key={index}
-                  className="px-4 py-2 bg-gray-100 rounded-full text-sm cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleBrandSelect(brand)}
-                >
-                  {brand}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* All brands */}
-          <div className="p-3 max-h-60 overflow-y-auto">
-            <h3 className="text-xs font-medium text-gray-500 mb-2">
-              All brands
-            </h3>
-            {filteredBrands.map((group) => (
-              <div key={group.letter} className="mb-3">
-                <div
-                  className="flex items-center justify-between p-2 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => handleBrandSelect(group.brands[0])}
-                >
-                  <span className="text-sm font-medium">{group.letter}.C</span>
-                  <div className="flex items-center">
-                    <span className="text-xs text-gray-500 mr-2">
-                      {group.brands.length}
-                    </span>
-                    <span className="text-gray-400">›</span>
-                  </div>
-                </div>
-                {group.brands.map((brand, idx) => (
+          {!isLoading && !isError && popularBrands.length > 0 && (
+            <div className="p-3 border-b">
+              <h3 className="text-xs font-medium text-gray-500 mb-2">
+                Most sought-after brands
+              </h3>
+              <div className="grid grid-cols-6 gap-2">
+                {popularBrands.map((brand) => (
                   <div
-                    key={idx}
-                    className="flex items-center justify-between p-2 pl-4 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => handleBrandSelect(brand)}
+                    key={brand._id}
+                    className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleBrandSelect(brand.brand)}
                   >
-                    <span className="text-sm">{brand}</span>
-                    <div className="flex items-center">
-                      <span className="text-xs text-gray-500 mr-2">
-                        {Math.floor(Math.random() * 20)}
-                      </span>
-                      <span className="text-gray-400">›</span>
-                    </div>
+                    {brand.image ? (
+                      <Image
+                        width={32}
+                        height={32}
+                        src={getImageUrl(brand.image)}
+                        alt={brand.brand}
+                        className="w-8 h-8 object-contain"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded text-xs font-medium">
+                        {brand.brand.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {/* Recent searches */}
+          {!isLoading && !isError && (
+            <div className="p-3 border-b">
+              <h3 className="text-xs font-medium text-gray-500 mb-2">
+                Last search performed by you
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {recentSearches.map((brand, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 bg-gray-100 rounded-full text-sm cursor-pointer hover:bg-gray-200"
+                    onClick={() => handleBrandSelect(brand)}
+                  >
+                    {brand}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All brands */}
+          {!isLoading && !isError && (
+            <div className="p-3 max-h-60 overflow-y-auto">
+              <h3 className="text-xs font-medium text-gray-500 mb-2">
+                All brands
+              </h3>
+              <div className="space-y-1">
+                {filteredBrands
+                  ?.flatMap((group) => group.brands)
+                  .map((brand) => (
+                    <div
+                      key={brand._id}
+                      className="flex items-center justify-between p-2 hover:bg-gray-50 cursor-pointer rounded"
+                      onClick={() => handleBrandSelect(brand.brand)}
+                    >
+                      <span className="text-sm">{brand.brand}</span>
+                      <span className="text-gray-400">›</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

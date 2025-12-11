@@ -11,6 +11,15 @@ const carApi = api.injectEndpoints({
       },
     }),
 
+    getCarsByBrandId: builder.query({
+      query: (id) => {
+        return {
+          method: "GET",
+          url: `/car/by-brand/${id}`,
+        };
+      },
+    }),
+
     getCarById: builder.query({
       query: (id) => {
         return {
@@ -29,8 +38,23 @@ const carApi = api.injectEndpoints({
         };
       },
     }),
+
+    addCarsBulk: builder.mutation({
+      query: (data) => {
+        return {
+          method: "POST",
+          url: "/bulk/upload",
+          body: data,
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetAllCarsQuery, useGetCarByIdQuery, useAddCarMutation } =
-  carApi;
+export const {
+  useGetAllCarsQuery,
+  useGetCarByIdQuery,
+  useAddCarMutation,
+  useGetCarsByBrandIdQuery,
+  useAddCarsBulkMutation,
+} = carApi;

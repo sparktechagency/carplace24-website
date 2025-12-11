@@ -18,7 +18,10 @@ import {
   Pricing,
 } from "./sections/FormSections";
 import Container from "@/components/ui/container";
-import { useAddCarMutation } from "@/redux/apiSlice/carSlice";
+import {
+  useAddCarMutation,
+  useAddCarsBulkMutation,
+} from "@/redux/apiSlice/carSlice";
 import toast from "react-hot-toast";
 import {
   useGetAllBrandsQuery,
@@ -26,6 +29,7 @@ import {
 } from "@/redux/apiSlice/brandAndModalSlice";
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
 import { useRouter } from "next/navigation";
+import { FileUp } from "lucide-react";
 
 const AddCarsPage = () => {
   const router = useRouter();
@@ -79,6 +83,10 @@ const AddCarsPage = () => {
   });
 
   const [addCar] = useAddCarMutation();
+  const [addCarsBulk] = useAddCarsBulkMutation();
+  const fileInputRef = useState<HTMLInputElement | null>(null)[1];
+  const [isUploadingBulk, setIsUploadingBulk] = useState(false);
+
   const { data: brandsData, isLoading: brandsLoading } =
     useGetAllBrandsQuery(undefined);
   const { data: modelsData, isLoading: modelsLoading } =
@@ -86,6 +94,7 @@ const AddCarsPage = () => {
 
   const { data: userData, isLoading: userLoading } = useProfileQuery({});
   const userDetails = (userData as any)?.data || (userData as any) || null;
+
   const isSubscribed = useMemo(() => {
     const u = userDetails || {};
     if (u?.isSubscribed === true) return true;
@@ -99,6 +108,15 @@ const AddCarsPage = () => {
     if (u?.currentPackage || u?.activePackage) return true;
     if (Array.isArray(u?.packages) && u.packages.length > 0) return true;
     return false;
+  }, [userDetails]);
+
+  // Check if user is a dealer
+  const isDealer = useMemo(() => {
+    const u = userDetails || {};
+    const role = String(
+      u?.subscribedPackage?.targetRole || u?.targetRole || ""
+    ).toUpperCase();
+    return role.includes("DELEAR") || role.includes("DELEAR");
   }, [userDetails]);
 
   const [showSubWarning, setShowSubWarning] = useState(false);
@@ -342,6 +360,43 @@ const AddCarsPage = () => {
     }
   };
 
+  const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = [
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text/csv",
+    ];
+    if (
+      !validTypes.includes(file.type) &&
+      !file.name.match(/\.(xlsx?|csv)$/i)
+    ) {
+      toast.error("Please upload a valid Excel or CSV file");
+      return;
+    }
+
+    setIsUploadingBulk(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await addCarsBulk(formData).unwrap();
+      const message = (res as any)?.message || "Vehicles uploaded successfully";
+      toast.success(message);
+
+      // Reset file input
+      if (e.target) e.target.value = "";
+    } catch (err: any) {
+      const msg = err?.data?.message || "Failed to upload vehicles";
+      toast.error(msg);
+    } finally {
+      setIsUploadingBulk(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       {showSubWarning && (
@@ -378,12 +433,47 @@ const AddCarsPage = () => {
         <div className="px-4">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Add New Vehicle
-            </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Fill in the details below to list your vehicle
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Add New Vehicle
+                </h1>
+                <p className="mt-2 text-sm text-gray-600">
+                  Fill in the details below to list your vehicle
+                </p>
+              </div>
+
+              {/* Bulk Upload Button - Only for Dealers */}
+              {isDealer && (
+                <div>
+                  <input
+                    type="file"
+                    ref={(ref) => (fileInputRef as any)(ref)}
+                    onChange={handleBulkUpload}
+                    accept=".xlsx,.xls,.csv"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.querySelector(
+                        'input[type="file"]'
+                      ) as HTMLInputElement;
+                      input?.click();
+                    }}
+                    disabled={isUploadingBulk}
+                    className={`flex items-center cursor-pointer gap-2 px-4 py-2.5 ${
+                      isUploadingBulk
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
+                    } text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                  >
+                    <FileUp className="w-5 h-5" />
+                    {isUploadingBulk ? "Uploading..." : "Bulk Upload (Excel)"}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Main Form */}

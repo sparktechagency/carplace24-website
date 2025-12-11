@@ -76,7 +76,7 @@ const CarImageGallery = ({ images, title }: Props) => {
               setActiveIndex(idx);
             }}
             className={
-              "rounded-md overflow-hidden border flex-shrink-0 w-16 h-16 md:w-full md:h-[120px] cursor-pointer" +
+              "rounded-md overflow-hidden border shrink-0 w-16 h-16 md:w-full md:h-[120px] cursor-pointer" +
               (activeIndex === idx ? " border-primary" : "")
             }
           >

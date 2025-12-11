@@ -1,17 +1,21 @@
 "use client";
 
+import { useCreateContactMessageMutation } from "@/redux/apiSlice/publicSlice";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const ContactUsPage = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
+    full_name: "",
     email: "",
-    contactNumber: "",
+    contact_number: "",
     message: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const [createContactMessage] = useCreateContactMessageMutation();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -26,19 +30,25 @@ const ContactUsPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitSuccess(false);
 
-    // Simulate form submission
     try {
-      // In a real application, you would send the form data to your backend
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await createContactMessage(formData).unwrap();
+      const message = (res as any)?.message || "Message sent successfully!";
+      toast.success(message);
       setSubmitSuccess(true);
+
+      // Reset form
       setFormData({
-        fullName: "",
+        full_name: "",
         email: "",
-        contactNumber: "",
+        contact_number: "",
         message: "",
       });
-    } catch (error) {
+    } catch (error: any) {
+      const msg =
+        error?.data?.message || "Failed to send message. Please try again.";
+      toast.error(msg);
       console.error("Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
@@ -76,8 +86,8 @@ const ContactUsPage = () => {
               <input
                 type="text"
                 id="fullName"
-                name="fullName"
-                value={formData.fullName}
+                name="full_name"
+                value={formData.full_name}
                 onChange={handleChange}
                 placeholder="Enter your full name"
                 className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -118,8 +128,8 @@ const ContactUsPage = () => {
                 <input
                   type="tel"
                   id="contactNumber"
-                  name="contactNumber"
-                  value={formData.contactNumber}
+                  name="contact_number"
+                  value={formData.contact_number}
                   onChange={handleChange}
                   placeholder="Enter your contact number"
                   className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
