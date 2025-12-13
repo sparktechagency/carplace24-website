@@ -1,5 +1,8 @@
 "use client";
 
+import CarLoader from "@/components/ui/loader/CarLoader";
+import { getImageUrl } from "@/lib/getImageUrl";
+import { useGetMyAddedCarsQuery } from "@/redux/apiSlice/carSlice";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,87 +18,35 @@ import {
   FaHourglassHalf,
   FaEye,
 } from "react-icons/fa";
+import moment from "moment";
 
 const MyCars = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("newest");
 
-  // Mock data for car listings
-  const allListings = [
-    {
-      id: 1,
-      title: "2021 BMW X5",
-      brand: "BMW",
-      model: "X5",
-      price: "$65,000",
-      location: "New York, NY",
-      image:
-        "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop",
-      status: "active",
-      remainingDays: 10,
-      date: "2023-10-15",
-      views: 245,
-      inquiries: 12,
-      features: ["Leather Seats", "Navigation", "Sunroof"],
-    },
-    {
-      id: 2,
-      title: "2020 Audi Q7",
-      brand: "Audi",
-      model: "Q7",
-      price: "$58,500",
-      location: "Boston, MA",
-      image:
-        "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=2070&auto=format&fit=crop",
-      status: "active",
-      remainingDays: 15,
-      date: "2023-09-22",
-      views: 187,
-      inquiries: 8,
-      features: ["AWD", "Premium Sound", "Heated Seats"],
-    },
-    {
-      id: 3,
-      title: "2019 Mercedes GLE",
-      brand: "Mercedes",
-      model: "GLE",
-      price: "$52,000",
-      location: "Chicago, IL",
-      remainingDays: 0,
-      image:
-        "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop",
-      status: "sold",
-      date: "2023-08-10",
-      views: 320,
-      inquiries: 15,
-      features: ["360 Camera", "Lane Assist", "Ventilated Seats"],
-    },
-    {
-      id: 4,
-      title: "2022 Tesla Model Y",
-      brand: "Tesla",
-      model: "Model Y",
-      price: "$59,900",
-      remainingDays: 20,
-      location: "Miami, FL",
-      image:
-        "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=1470&auto=format&fit=crop",
-      status: "pending",
-      date: "2023-11-05",
-      views: 412,
-      inquiries: 23,
-      features: ["Autopilot", "All-Electric", "Glass Roof"],
-    },
-  ];
+  const { data: getMyAddedCars, isLoading } = useGetMyAddedCarsQuery(undefined);
+
+  if (isLoading)
+    return (
+      <div>
+        <CarLoader />
+      </div>
+    );
+
+  const allListings = getMyAddedCars?.data;
 
   // Filter listings based on status and search term
-  const filteredListings = allListings.filter((listing) => {
+  const filteredListings = allListings.filter((listing: any) => {
     const matchesStatus =
       filterStatus === "all" || listing.status === filterStatus;
     const matchesSearch =
-      listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.location.toLowerCase().includes(searchTerm.toLowerCase());
+      listing?.basicInformation?.vehicleName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      listing?.basicInformation?.vehicleName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -116,14 +67,6 @@ const MyCars = () => {
     // Default: newest first
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
-
-  // Calculate statistics
-  const stats = {
-    total: allListings.length,
-    active: allListings.filter((l) => l.status === "active").length,
-    sold: allListings.filter((l) => l.status === "sold").length,
-    pending: allListings.filter((l) => l.status === "pending").length,
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -153,37 +96,10 @@ const MyCars = () => {
 
   return (
     <div>
-      {/* Header with stats */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-2">My Cars</h2>
-        <p className="text-gray-600 mb-6">Manage your car listings</p>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-500">Total Listings</p>
-            <p className="text-2xl font-bold">{stats.total}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-500">Active</p>
-            <p className="text-2xl font-bold text-green-600">{stats.active}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-500">Sold</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.sold}</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-500">Pending</p>
-            <p className="text-2xl font-bold text-yellow-600">
-              {stats.pending}
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Filters and actions */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          <div className="relative flex-grow max-w-md">
+          <div className="relative grow max-w-md">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <FaSearch className="text-gray-400" />
             </div>
@@ -292,9 +208,9 @@ const MyCars = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Listing Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Remaining
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -305,9 +221,11 @@ const MyCars = () => {
                 <tr key={listing.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="h-10 w-10 flex-shrink-0 mr-4 relative">
+                      <div className="h-10 w-10 shrink-0 mr-4 relative">
                         <Image
-                          src={listing.image}
+                          src={getImageUrl(
+                            listing?.basicInformation?.productImage?.[0]
+                          )}
                           alt={listing.title}
                           fill
                           className="rounded-md object-cover"
@@ -319,15 +237,19 @@ const MyCars = () => {
                         />
                       </div>
                       <div className="text-sm font-medium text-gray-900">
-                        {listing.title}
+                        {listing?.basicInformation?.vehicleName}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{listing.brand}</div>
+                    <div className="text-sm text-gray-900">
+                      {listing?.basicInformation?.brand?.brand}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{listing.model}</div>
+                    <div className="text-sm text-gray-900">
+                      {listing?.basicInformation?.model?.model}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -339,16 +261,18 @@ const MyCars = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{listing.date}</div>
+                    <div className="text-sm text-gray-500">
+                      {moment(listing.createdAt).format("DD-MM-YYYY")}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-center text-gray-500">
                       {listing.remainingDays}
                     </div>
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex justify-center gap-3">
-                      <Link href={`/seller/my-vehicles/${listing.id}`}>
+                      <Link href={`/seller/my-vehicles/${listing._id}`}>
                         <button
                           className="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100"
                           title="View"
@@ -356,12 +280,14 @@ const MyCars = () => {
                           <FaEye />
                         </button>
                       </Link>
-                      <button
-                        className="p-2 rounded-full bg-green-50 text-green-600 hover:bg-green-100"
-                        title="Edit"
-                      >
-                        <FaEdit />
-                      </button>
+                      <Link href={`/seller/edit-car/${listing._id}`}>
+                        <button
+                          className="p-2 rounded-full cursor-pointer bg-green-50 text-green-600 hover:bg-green-100"
+                          title="Edit"
+                        >
+                          <FaEdit />
+                        </button>
+                      </Link>
                       <button
                         className="p-2 rounded-full bg-red-50 text-red-600 hover:bg-red-100"
                         title="Delete"

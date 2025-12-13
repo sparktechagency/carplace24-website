@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import Container from "@/components/ui/container";
-import { CAR_DETAILS } from "./carData";
 
 type Details = any;
 
-const VehicleDetailsTabs = ({ details = CAR_DETAILS }: { details?: Details }) => {
+const VehicleDetailsTabs = ({ details }: { details?: Details }) => {
   const [activeTab, setActiveTab] = useState<"basic" | "hours" | "reviews">(
     "basic"
   );
@@ -174,7 +173,7 @@ const VehicleDetailsTabs = ({ details = CAR_DETAILS }: { details?: Details }) =>
                   Fuel Consumption
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.fuelConsumption.map((row, i) => (
+                  {details.fuelConsumption.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"
@@ -189,7 +188,7 @@ const VehicleDetailsTabs = ({ details = CAR_DETAILS }: { details?: Details }) =>
                   Euro Standard
                 </h3>
                 <div className="mt-3 text-sm">
-                  {CAR_DETAILS.euroStandard.map((row, i) => (
+                  {details.euroStandard.map((row: any, i: number) => (
                     <div
                       key={i}
                       className="flex justify-between border-b pb-2 mb-2"

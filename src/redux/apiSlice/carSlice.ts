@@ -48,6 +48,25 @@ const carApi = api.injectEndpoints({
         };
       },
     }),
+
+    getMyAddedCars: builder.query({
+      query: () => {
+        return {
+          method: "GET",
+          url: "/car/self-added",
+        };
+      },
+    }),
+
+    updateCar: builder.mutation({
+      query: ({ id, data }) => {
+        return {
+          method: "PATCH",
+          url: `/car/${id}`,
+          body: data,
+        };
+      },
+    }),
   }),
 });
 
@@ -57,4 +76,6 @@ export const {
   useAddCarMutation,
   useGetCarsByBrandIdQuery,
   useAddCarsBulkMutation,
+  useGetMyAddedCarsQuery,
+  useUpdateCarMutation,
 } = carApi;

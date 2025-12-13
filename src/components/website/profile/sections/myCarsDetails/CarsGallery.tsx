@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Container from "@/components/ui/container";
 import Image from "next/image";
-import { CAR_DETAILS } from "@/components/website/vehicles/singleVehicles/carData";
-const CarsGallery = () => {
-  const [activeImage, setActiveImage] = useState(CAR_DETAILS.images[0]);
+
+const CarsGallery = ({ carDetails }: { carDetails: any }) => {
+  const [activeImage, setActiveImage] = useState(carDetails?.images?.[0] || "");
   const [isTestDriveOpen, setIsTestDriveOpen] = useState(false);
+
+  useEffect(() => {
+    if (carDetails?.images?.length) {
+      setActiveImage(carDetails.images[0]);
+    }
+  }, [carDetails]);
 
   const handleTestDriveClick = () => {
     setIsTestDriveOpen(true);
@@ -16,6 +22,8 @@ const CarsGallery = () => {
     setIsTestDriveOpen(false);
   };
 
+  if (!carDetails) return null;
+
   return (
     <section className="py-8">
       <Container>
@@ -23,18 +31,20 @@ const CarsGallery = () => {
           <div className="flex flex-col md:flex-row gap-3">
             <div className="w-full md:w-5/6">
               <div className="rounded-lg overflow-hidden border h-full">
-                <Image
-                  src={activeImage}
-                  alt={CAR_DETAILS.title}
-                  className="w-full h-[300px] sm:h-[400px] md:h-[600px] object-cover"
-                  width={34341000}
-                  height={3434500}
-                />
+                {activeImage && (
+                  <Image
+                    src={activeImage}
+                    alt={carDetails.title || "Car Image"}
+                    className="w-full h-[300px] sm:h-[400px] md:h-[600px] object-fit"
+                    width={1000}
+                    height={600}
+                  />
+                )}
               </div>
             </div>
 
             <div className="w-full md:w-1/6 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[600px] scrollbar-thin">
-              {CAR_DETAILS.images.map((img, idx) => (
+              {carDetails.images?.map((img: string, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(img)}
@@ -47,8 +57,8 @@ const CarsGallery = () => {
                     src={img}
                     alt={`thumb-${idx}`}
                     className="w-full h-full object-cover"
-                    width={56100}
-                    height={66100}
+                    width={100}
+                    height={100}
                   />
                 </button>
               ))}
@@ -58,19 +68,21 @@ const CarsGallery = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h1 className="text-xl md:text-2xl font-semibold">
-                {CAR_DETAILS.title}
+                {carDetails.title}
               </h1>
-              <p className="text-gray-600 mt-1">{CAR_DETAILS.subtitle}</p>
+              <p className="text-gray-600 mt-1">{carDetails.subtitle}</p>
 
               <div className="mt-3 flex items-end gap-3">
                 <span className="text-2xl font-bold">
-                  ${CAR_DETAILS.price.current.toLocaleString()}
+                  ${carDetails.price?.current?.toLocaleString() || 0}
                 </span>
-                <span className="text-red-500 line-through">
-                  ${CAR_DETAILS.price.original.toLocaleString()}
-                </span>
+                {carDetails.price?.original > 0 && (
+                  <span className="text-red-500 line-through">
+                    ${carDetails.price?.original?.toLocaleString()}
+                  </span>
+                )}
                 <span className="text-blue-600 text-sm">
-                  {CAR_DETAILS.price.monthly}
+                  {carDetails.price?.monthly}
                 </span>
               </div>
             </div>

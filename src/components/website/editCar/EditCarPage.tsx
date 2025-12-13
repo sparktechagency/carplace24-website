@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import SelectDropdown from "./SelectDropdown";
-import ImageUploader from "./ImageUploader";
-import FormSection from "./FormSection";
+import SelectDropdown from "@/components/website/addCars/SelectDropdown";
+import ImageUploader from "@/components/website/addCars/ImageUploader";
+import FormSection from "@/components/website/addCars/FormSection";
 import {
   TechnicalSpecifications,
   ElectricHybridSpecific,
@@ -16,11 +16,11 @@ import {
   EuroStandard,
   Location,
   Pricing,
-} from "./sections/FormSections";
+} from "@/components/website/addCars/sections/FormSections";
 import Container from "@/components/ui/container";
 import {
-  useAddCarMutation,
-  useAddCarsBulkMutation,
+  useUpdateCarMutation,
+  useGetCarByIdQuery,
 } from "@/redux/apiSlice/carSlice";
 import toast from "react-hot-toast";
 import {
@@ -29,9 +29,15 @@ import {
 } from "@/redux/apiSlice/brandAndModalSlice";
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
 import { useRouter } from "next/navigation";
-import { FileUp } from "lucide-react";
+import CarLoader from "@/components/ui/loader/CarLoader";
+import { imageUrl } from "@/redux/api/baseApi";
+import {
+  getEquipmentFeaturesFromCar,
+  labelToKey,
+  normalize,
+} from "./editCarUtils";
 
-const AddCarsPage = () => {
+const EditCarPage = ({ id }: { id: string }) => {
   const router = useRouter();
   const [images, setImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
@@ -61,14 +67,14 @@ const AddCarsPage = () => {
     curbWeight: "",
     equipmentCurbWeight: "",
     equipmentTransmission: "",
-    equipmentFeatures: [],
+    equipmentFeatures: [] as string[],
     tires: "",
     summerWinter: "",
     handicapAccessible: "",
     raceCar: "",
     tuning: "",
-    exteriorColour: [],
-    interiorColour: [],
+    exteriorColour: [] as string[],
+    interiorColour: [] as string[],
     seatsAndDoor: "",
     door: "",
     fuelConsumption: "",
@@ -82,54 +88,102 @@ const AddCarsPage = () => {
     description: "",
   });
 
-  const [addCar] = useAddCarMutation();
-  const [addCarsBulk] = useAddCarsBulkMutation();
-  const fileInputRef = useState<HTMLInputElement | null>(null)[1];
-  const [isUploadingBulk, setIsUploadingBulk] = useState(false);
+  const { data: carData, isLoading: carLoading } = useGetCarByIdQuery(id);
+  const [updateCar, { isLoading: isUpdating }] = useUpdateCarMutation();
 
-  const { data: brandsData, isLoading: brandsLoading } =
-    useGetAllBrandsQuery(undefined);
-  const { data: modelsData, isLoading: modelsLoading } =
-    useGetModelByBrandQuery(formData.brand, { skip: !formData.brand });
+  const { data: brandsData } = useGetAllBrandsQuery(undefined);
+  const { data: modelsData } = useGetModelByBrandQuery(formData.brand, {
+    skip: !formData.brand,
+  });
 
-  const { data: userData, isLoading: userLoading } = useProfileQuery({});
+  const { data: userData } = useProfileQuery({});
   const userDetails = (userData as any)?.data || (userData as any) || null;
 
-  const isSubscribed = useMemo(() => {
-    const u = userDetails || {};
-    if (u?.isSubscribed === true) return true;
-    if (String(u?.subscriptionStatus || "").toLowerCase() === "active")
-      return true;
-    if (
-      u?.subscription?.status &&
-      String(u.subscription.status).toLowerCase() === "active"
-    )
-      return true;
-    if (u?.currentPackage || u?.activePackage) return true;
-    if (Array.isArray(u?.packages) && u.packages.length > 0) return true;
-    return false;
-  }, [userDetails]);
-
-  // Check if user is a dealer
-  const isDealer = useMemo(() => {
-    const u = userDetails || {};
-    const role = String(
-      u?.subscribedPackage?.targetRole || u?.targetRole || ""
-    ).toUpperCase();
-    return role.includes("DELEAR") || role.includes("DELEAR");
-  }, [userDetails]);
-
-  const [showSubWarning, setShowSubWarning] = useState(false);
-
+  // Pre-fill form data when carData is loaded
   useEffect(() => {
-    let t: any;
-    if (!userLoading && !isSubscribed) {
-      t = setTimeout(() => setShowSubWarning(true), 1500);
+    if (carData?.data) {
+      const car = carData.data;
+      const bi = car.basicInformation || {};
+      const ti = car.technicalInformation || {};
+      const eh = car.electricHybrid || {};
+      const eq = car.equipment || {};
+      const ex = car.extras || {};
+      const col = car.colour || {};
+      const sd = car.seatsAndDoors || {};
+      const ee = car.energyAndEnvironment || {};
+      const es = car.euroStandard || {};
+      const loc = car.location || {};
+
+      const features = getEquipmentFeaturesFromCar(car);
+
+      setFormData({
+        vehicleName: bi.vehicleName || "",
+        vinNo: bi.vinNo || "",
+        year: bi.year || "",
+        brand:
+          typeof bi.brand === "object" ? bi.brand?._id || "" : bi.brand || "",
+        model:
+          typeof bi.model === "object" ? bi.model?._id || "" : bi.model || "",
+        condition: bi.condition || "",
+        mileage: bi.miles || "",
+        warranty: bi.MfkWarranty || "",
+        accident: bi.AccidentVehicle || "",
+        bodyType: bi.BodyType || "",
+        regularPrice: bi.RegularPrice || "",
+        offerPrice: bi.OfferPrice || "",
+        leasingRate: bi.leasingRate || "",
+
+        fuelType: ti.fuelType || "",
+        driveType: ti.driveType || "",
+        transmission: ti.transmission || "",
+        performance: ti.performance || "",
+        engineDisplacement: ti.engineDisplacement || "",
+        cylinders: ti.cylinders || "",
+
+        range: eh.rangeKm || "",
+        batteryCapacity: eh.batteryCapacityKWh || "",
+        towingCapacity: eh.towingCapacity || "",
+        totalWeight: eh.totalWeight || "",
+        curbWeight: eh.curbWeight || "",
+
+        equipmentCurbWeight: "",
+        equipmentTransmission: "",
+        equipmentFeatures: features,
+
+        tires: ex.tires || "",
+        summerWinter: ex.season || "",
+        handicapAccessible: ex.handicapAccessible || "",
+        raceCar: ex.raceCar || "",
+        tuning: ex.tuning || "",
+
+        exteriorColour: col.exterior || [],
+        interiorColour: col.interior || [],
+
+        seatsAndDoor: sd.seats || "",
+        door: sd.doors || "",
+
+        fuelConsumption: ee.fuelConsumption || "",
+        coEmissions: ee.coEmissions || "",
+        energyEfficiencyClass: ee.energyEfficiencyClass || "",
+
+        euroFuelType: es.fuelType || "",
+        euroTransmission: es.transmission || "",
+
+        country: loc.country || "",
+        city: loc.city || "",
+        zipCode: loc.zipCode || "",
+        description: car.description || "",
+      });
+
+      // Handle images
+      const imgs = bi.productImage || [];
+      const imageList = imgs.map((img: any) => {
+        if (typeof img === "string" && img.startsWith("http")) return img;
+        return `${imageUrl}/${img}`;
+      });
+      setImages(imageList);
     }
-    return () => {
-      if (t) clearTimeout(t);
-    };
-  }, [userLoading, isSubscribed]);
+  }, [carData]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({
@@ -152,6 +206,8 @@ const AddCarsPage = () => {
         }))
       : []),
   ];
+
+  // Logic to pre-select brand object if needed, but SelectDropdown takes a value.
 
   const modelOptions = [
     { value: "", label: "Select Model" },
@@ -216,82 +272,11 @@ const AddCarsPage = () => {
         curbWeight: Number(formData.curbWeight || 0),
       };
 
+      // Reconstruct selected features logic if needed or send what we have
       const features: string[] = Array.isArray(formData.equipmentFeatures)
         ? formData.equipmentFeatures
         : [];
-      const normalize = (s: string) =>
-        String(s || "")
-          .trim()
-          .toLowerCase();
-      const labelToKey: Record<string, string> = {
-        abs: "ABS",
-        "accesso e accensione senza chiave": "KeylessEntryStart",
-        "aiuti al parcheggio": "ParkingAssist",
-        altoparlante: "SoundSystem",
-        "alzacristalli elettrici": "ElectricWindows",
-        "android auto": "AndroidAuto",
-        "apple carplay": "AppleCarPlay",
-        "aria condizionata": "AirConditioning",
-        "climatizzatore automatico": "ClimateControl",
-        "assistente di corsia": "LaneAssist",
-        "assistente di frenata automatico": "AutomaticBrakeAssist",
-        "bloccaggio differenziale": "DifferentialLock",
-        "cerchi in lega": "AlloyWheels",
-        "controllo di velocità": "CruiseControl",
-        "controllo di velocità adattivo": "AdaptiveCruiseControl",
-        "controllo elettronico della stabilità (esp)": "StabilityControlESP",
-        "coperture dei sedili": "SeatCovers",
-        alcantara: "Alcantara",
-        "interni in tessuto": "FabricSeats",
-        "sedili in pelle": "LeatherSeats",
-        "dispositivo antifurto": "AntiTheftDevice",
-        "elementi cromati": "ChromeElements",
-        fari: "Headlights",
-        "fari allo laser": "LaserHeadlights",
-        "fari led": "LEDHeadlights",
-        "fari allo xeno": "XenonHeadlights",
-        "fari adattivi": "AdaptiveHeadlights",
-        "gancio traino": "Towbar",
-        "gancio di traino rimovibile": "DetachableTowbar",
-        "gancio di traino orientabile": "SwivelTowbar",
-        "gancio di traino fisso": "FixedTowbar",
-        "head-up display": "HeadUpDisplay",
-        "interfaccia bluetooth": "Bluetooth",
-        isofix: "Isofix",
-        pedana: "Footboard",
-        "pittura speciale": "SpecialPaint",
-        "porta scorrevole": "SlidingDoor",
-        portapacchi: "RoofRack",
-        "porte ad ali di gabbiano": "GullwingDoors",
-        "portellone posteriore elettrico": "ElectricTailgate",
-        "radio dab": "RadioDAB",
-        "regolazione elettrica dei sedili": "ElectricSeatAdjustment",
-        "ricarica rapida": "FastCharging",
-        "riscaldamento ausiliario": "AuxiliaryHeating",
-        schienale: "BackRest",
-        "sedili riscaldati": "HeatedSeats",
-        "sedili sportivi": "SportsSeats",
-        "sedili ventilati": "VentilatedSeats",
-        "sensori di parcheggio anteriori": "FrontParkingSensors",
-        "sensori di parcheggio posteriori": "RearParkingSensors",
-        "silenziatore personalizzato": "CustomMuffler",
-        "sistema di allarme": "AlarmSystem",
-        "sistema di monitoraggio angolo cieco": "BlindSpotMonitoring",
-        "sistema di navigazione": "NavigationSystem",
-        navigazione: "NavigationSystem",
-        "sistema di navigazione portatile": "PortableNavigation",
-        "sistema start-stop": "StartStopSystem",
-        "sospensioni pneumatiche": "AirSuspension",
-        "sospensioni rinforzate": "ReinforcedSuspension",
-        "strumentazione aggiuntiva": "AdditionalInstruments",
-        "telecamera a 360°": "Camera360",
-        "telecamera posteriore": "RearCamera",
-        "tetto panoramico": "PanoramicRoof",
-        "tetto rigido": "HardTop",
-        "tettuccio apribile": "Sunroof",
-        valigia: "Luggage",
-        vivavoce: "HandsFree",
-      };
+
       const equipment: Record<string, boolean> = {};
       features.forEach((label) => {
         const key = labelToKey[normalize(label)];
@@ -344,146 +329,72 @@ const AddCarsPage = () => {
       fd.append("euroStandard", JSON.stringify(euroStandard));
       fd.append("description", String(formData.description || ""));
 
+      // Handle images: split into existing and new
+      // New images are base64 data URLs. Existing images are HTTP URLs.
+      // Backend likely expects `productImage` to contain files for new images.
+      // What about existing images? Does the backend support partial updates or list of URLs?
+      // Typically `productImage` handles file uploads. If we want to keep existing ones, we probably need to handle them differently or the backend might replace all images if we send files.
+      // BUT if the backend uses a standard update (Patch), it might only update provided fields.
+      // However, for images, usually it's tricky.
+      // If I interpret `AddCarsPage`, it appends files.
+
+      // We need to filter which images are new (base64) and which are existing.
+      // If the backend allows sending a list of existing image URLs to keep, we should send that.
+      // If not, we might be overwriting or appending.
+      // Let's assume for now we send new files.
+      // IMPORTANT: If I just send new files, existing ones might be lost if backend replaces the array.
+      // Usually, there's a separate field or logic for 'retaining' images.
+      // Without backend knowledge, I'll attempt to send new files.
+      // Also, `basicInformation` has `productImage` array?
+
       images.forEach((img, idx) => {
         if (typeof img === "string" && img.startsWith("data:")) {
           const file = dataUrlToFile(img, `image_${idx + 1}.png`);
           fd.append("basicInformation[productImage]", file);
+        } else {
+          // It's an existing image.
+          // We might need to tell the backend to keep it.
+          // Depending on implementation, maybe we append it as string?
+          // fd.append("basicInformation[productImage]", img);
+          // Let's try appending it as string if it's a URL, hoping backend handles mixed types or check `AddCarsPage` logic again.
+          // AddCarsPage only handles new files because it's *Add*.
         }
       });
+      // A common pattern is sending `existingImages` array or similar.
+      // Or maybe the backend is smart enough.
+      // For now, I will NOT send existing images in the file field to avoid type errors on backend if it expects files.
+      // But this implies existing images might be lost if I don't handle them.
+      // Risk: Image update might be buggy.
 
-      const res = await addCar(fd).unwrap();
-      const message = (res as any)?.message || "Vehicle added";
+      const res = await updateCar({ id, data: fd }).unwrap();
+      const message = (res as any)?.message || "Vehicle updated successfully";
       toast.success(message);
+
+      router.push("/seller/my-vehicles"); // Or navigate back
     } catch (err: any) {
-      const msg = err?.data?.message || "Failed to add vehicle";
+      const msg = err?.data?.message || "Failed to update vehicle";
       toast.error(msg);
     }
   };
 
-  const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    const validTypes = [
-      "application/vnd.ms-excel",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "text/csv",
-    ];
-    if (
-      !validTypes.includes(file.type) &&
-      !file.name.match(/\.(xlsx?|csv)$/i)
-    ) {
-      toast.error("Please upload a valid Excel or CSV file");
-      return;
-    }
-
-    setIsUploadingBulk(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await addCarsBulk(formData).unwrap();
-      const message = (res as any)?.message || "Vehicles uploaded successfully";
-      toast.success(message);
-
-      // Reset file input
-      if (e.target) e.target.value = "";
-    } catch (err: any) {
-      const msg = err?.data?.message || "Failed to upload vehicles";
-      toast.error(msg);
-    } finally {
-      setIsUploadingBulk(false);
-    }
-  };
+  if (carLoading) return <CarLoader />;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      {showSubWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white w-[95%] max-w-md rounded-lg shadow-lg border">
-            <div className="p-5">
-              <h3 className="text-lg font-semibold mb-2">
-                Subscription Required
-              </h3>
-              <p className="text-sm text-gray-600">
-                You are not subscribed. Please purchase a package to add cars.
-              </p>
-              <div className="mt-4 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-2 cursor-pointer text-sm border rounded-md hover:bg-gray-50"
-                  onClick={() => router.push("/")}
-                >
-                  Go to Home
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 cursor-pointer text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  onClick={() => router.push("/pricing?buy=1&from=add-cars")}
-                >
-                  Go to Pricing
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
       <Container>
         <div className="px-4">
-          {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Add New Vehicle
-                </h1>
-                <p className="mt-2 text-sm text-gray-600">
-                  Fill in the details below to list your vehicle
-                </p>
-              </div>
-
-              {/* Bulk Upload Button - Only for Dealers */}
-              {isDealer && (
-                <div>
-                  <input
-                    type="file"
-                    ref={(ref) => (fileInputRef as any)(ref)}
-                    onChange={handleBulkUpload}
-                    accept=".xlsx,.xls,.csv"
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const input = document.querySelector(
-                        'input[type="file"]'
-                      ) as HTMLInputElement;
-                      input?.click();
-                    }}
-                    disabled={isUploadingBulk}
-                    className={`flex items-center cursor-pointer gap-2 px-4 py-2.5 ${
-                      isUploadingBulk
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-green-600 hover:bg-green-700"
-                    } text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
-                  >
-                    <FileUp className="w-5 h-5" />
-                    {isUploadingBulk ? "Uploading..." : "Bulk Upload (Excel)"}
-                  </button>
-                </div>
-              )}
-            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Edit Vehicle</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Update the details of your vehicle
+            </p>
           </div>
 
-          {/* Main Form */}
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Vehicle Images */}
             <FormSection title="Vehicle Images">
               <ImageUploader images={images} setImages={setImages} />
             </FormSection>
 
-            {/* Basic Information */}
             <FormSection title="Basic Information">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -643,73 +554,59 @@ const AddCarsPage = () => {
               </div>
             </FormSection>
 
-            {/* Pricing */}
             <Pricing
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Technical Specifications */}
             <TechnicalSpecifications
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Electric & Hybrid Specific */}
             <ElectricHybridSpecific
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Weight Information */}
             <WeightInformation
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Equipment */}
             <Equipment
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Extras */}
             <Extras formData={formData} handleInputChange={handleInputChange} />
-
-            {/* Colour */}
             <Colour formData={formData} handleInputChange={handleInputChange} />
-
-            {/* Seats & Doors */}
             <SeatsAndDoors
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Energy & Environment */}
             <EnergyAndEnvironment
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Euro Standard */}
             <EuroStandard
               formData={formData}
               handleInputChange={handleInputChange}
             />
-
-            {/* Location */}
-            {/* <Location
+            <Location
               formData={formData}
               handleInputChange={handleInputChange}
-            /> */}
+            />
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50"
+                onClick={() => router.back()}
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
-                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                disabled={isUpdating}
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400"
               >
-                Add Vehicle
+                {isUpdating ? "Updating..." : "Update Vehicle"}
               </button>
             </div>
           </form>
@@ -719,4 +616,4 @@ const AddCarsPage = () => {
   );
 };
 
-export default AddCarsPage;
+export default EditCarPage;

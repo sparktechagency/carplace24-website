@@ -30,6 +30,16 @@ const brandAndModelSlice = api.injectEndpoints({
         };
       },
     }),
+
+    //colors
+    getAllColors: builder.query({
+      query: () => {
+        return {
+          method: "GET",
+          url: "/color",
+        };
+      },
+    }),
   }),
 });
 
@@ -39,4 +49,7 @@ export const {
   //models
   useGetAllModelsQuery,
   useGetModelByBrandQuery,
+
+  //colors
+  useGetAllColorsQuery,
 } = brandAndModelSlice;

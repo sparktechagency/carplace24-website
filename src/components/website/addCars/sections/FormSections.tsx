@@ -4,6 +4,8 @@ import SelectDropdown from "../SelectDropdown";
 import FormSection from "../FormSection";
 import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
+import { useGetAllColorsQuery } from "@/redux/apiSlice/brandAndModalSlice";
+import CarLoader from "@/components/ui/loader/CarLoader";
 
 interface FormSectionsProps {
   formData: any;
@@ -513,27 +515,21 @@ export const Extras = ({ formData, handleInputChange }: FormSectionsProps) => {
   );
 };
 
+import { getColorHex } from "@/utils/colorUtils";
+
+// ... (other imports)
+
 export const Colour = ({ formData, handleInputChange }: FormSectionsProps) => {
-  const COLORS: { label: string; hex: string }[] = [
-    { label: "Schwarz", hex: "#1f1f1f" },
-    { label: "Weiss", hex: "#ffffff" },
-    { label: "Gelb", hex: "#ffd800" },
-    { label: "Pink", hex: "#ff4fb3" },
-    { label: "Braun", hex: "#7b4f2e" },
-    { label: "Türkis", hex: "#3ddad7" },
-    { label: "Anthrazit", hex: "#3f4a54" },
-    { label: "Beige", hex: "#e8e2cf" },
-    { label: "Gold", hex: "#f4c542" },
-    { label: "Rot", hex: "#ff2f2f" },
-    { label: "Grün", hex: "#198a2b" },
-    { label: "Blau", hex: "#3b82f6" },
-    { label: "Grau", hex: "#9ca3af" },
-    { label: "Silber", hex: "#c0c0c0" },
-    { label: "Orange", hex: "#f59e0b" },
-    { label: "Bordeaux", hex: "#6b0f1a" },
-    { label: "Violett", hex: "#8b5cf6" },
-    { label: "sonstiges", hex: "#ffffff" },
-  ];
+  const { data: colors, isLoading } = useGetAllColorsQuery(undefined);
+
+  if (isLoading) return <CarLoader />;
+
+  const colorsData = colors?.data || [];
+
+  const dynamicColors = colorsData.map((c: any) => ({
+    label: c.color,
+    hex: getColorHex(c.color),
+  }));
 
   const extSelected: string[] = Array.isArray(formData.exteriorColour)
     ? formData.exteriorColour
@@ -568,14 +564,14 @@ export const Colour = ({ formData, handleInputChange }: FormSectionsProps) => {
             Exterior colour
           </label>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            {COLORS.map((c, idx) => {
+            {dynamicColors.map((c: any, idx: number) => {
               const id = `ext-${idx}`;
               const checked = extSelected.includes(c.label);
               return (
                 <label
                   key={id}
                   htmlFor={id}
-                  className="flex items-center text-gray-800"
+                  className="flex items-center text-gray-800 cursor-pointer"
                 >
                   <input
                     id={id}
@@ -597,14 +593,14 @@ export const Colour = ({ formData, handleInputChange }: FormSectionsProps) => {
             Interior colour
           </label>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            {COLORS.map((c, idx) => {
+            {dynamicColors.map((c: any, idx: number) => {
               const id = `int-${idx}`;
               const checked = intSelected.includes(c.label);
               return (
                 <label
                   key={id}
                   htmlFor={id}
-                  className="flex items-center text-gray-800"
+                  className="flex items-center text-gray-800 cursor-pointer"
                 >
                   <input
                     id={id}
