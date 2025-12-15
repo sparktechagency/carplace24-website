@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, Search } from "lucide-react";
 import Image from "next/image";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
@@ -17,21 +17,30 @@ interface Brand {
 }
 
 interface BrandModelDropdownProps {
-  onSelect: (brand: string) => void;
+  onSelect: (brandId: string) => void;
+  value?: string; // Brand ID
 }
 
-const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
+const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [recentSearches, setRecentSearches] = useState<string[]>([
-    "VW",
-    "BMW",
-    "BUGATTI",
-  ]);
+  const [recentSearches, setRecentSearches] = useState<
+    { id: string; name: string }[]
+  >([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch brands from API
   const { data: brandsData, isLoading, isError } = useGetAllBrandsQuery({});
+
+  // Get brands from API response
+  const brands: Brand[] = brandsData?.data || [];
+
+  // Find the selected brand name from the ID
+  const selectedBrandName = useMemo(() => {
+    if (!value) return "";
+    const found = brands.find((b) => b._id === value);
+    return found?.brand || "";
+  }, [value, brands]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -50,20 +59,20 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
     };
   }, []);
 
-  const handleBrandSelect = (brand: string) => {
-    onSelect(brand);
+  const handleBrandSelect = (brandId: string, brandName: string) => {
+    onSelect(brandId);
 
     // Add to recent searches if not already there
-    if (!recentSearches.includes(brand)) {
-      const updatedSearches = [brand, ...recentSearches.slice(0, 2)];
+    if (!recentSearches.find((r) => r.id === brandId)) {
+      const updatedSearches = [
+        { id: brandId, name: brandName },
+        ...recentSearches.slice(0, 2),
+      ];
       setRecentSearches(updatedSearches);
     }
 
     setIsOpen(false);
   };
-
-  // Get brands from API response
-  const brands: Brand[] = brandsData?.data || [];
 
   // Get popular brands (first 12 brands or all if less)
   const popularBrands = brands.slice(0, 12);
@@ -105,10 +114,26 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full cursor-pointer px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none"
       >
-        <span>Select brand</span>
-        <span className="text-gray-500">
-          <MdOutlineKeyboardArrowDown size={20} />
+        <span className={selectedBrandName ? "text-gray-900" : "text-gray-500"}>
+          {selectedBrandName || "Select brand"}
         </span>
+        <div className="flex items-center gap-1">
+          {value && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect("");
+              }}
+              className="text-gray-400 hover:text-gray-600 p-0.5"
+            >
+              ×
+            </button>
+          )}
+          <span className="text-gray-500">
+            <MdOutlineKeyboardArrowDown size={20} />
+          </span>
+        </div>
       </button>
 
       {isOpen && (
@@ -159,8 +184,12 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
                 {popularBrands.map((brand) => (
                   <div
                     key={brand._id}
-                    className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleBrandSelect(brand.brand)}
+                    className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer hover:bg-gray-50 ${
+                      value === brand._id
+                        ? "border-primary bg-primary/5"
+                        : "border-gray-200"
+                    }`}
+                    onClick={() => handleBrandSelect(brand._id, brand.brand)}
                   >
                     {brand.image ? (
                       <Image
@@ -182,19 +211,19 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
           )}
 
           {/* Recent searches */}
-          {!isLoading && !isError && (
+          {!isLoading && !isError && recentSearches.length > 0 && (
             <div className="p-3 border-b">
               <h3 className="text-xs font-medium text-gray-500 mb-2">
                 Last search performed by you
               </h3>
               <div className="flex flex-wrap gap-2">
-                {recentSearches.map((brand, index) => (
+                {recentSearches.map((recent) => (
                   <div
-                    key={index}
+                    key={recent.id}
                     className="px-4 py-2 bg-gray-100 rounded-full text-sm cursor-pointer hover:bg-gray-200"
-                    onClick={() => handleBrandSelect(brand)}
+                    onClick={() => handleBrandSelect(recent.id, recent.name)}
                   >
-                    {brand}
+                    {recent.name}
                   </div>
                 ))}
               </div>
@@ -213,8 +242,10 @@ const BrandModelDropdown = ({ onSelect }: BrandModelDropdownProps) => {
                   .map((brand) => (
                     <div
                       key={brand._id}
-                      className="flex items-center justify-between p-2 hover:bg-gray-50 cursor-pointer rounded"
-                      onClick={() => handleBrandSelect(brand.brand)}
+                      className={`flex items-center justify-between p-2 hover:bg-gray-50 cursor-pointer rounded ${
+                        value === brand._id ? "bg-primary/5" : ""
+                      }`}
+                      onClick={() => handleBrandSelect(brand._id, brand.brand)}
                     >
                       <span className="text-sm">{brand.brand}</span>
                       <span className="text-gray-400">›</span>

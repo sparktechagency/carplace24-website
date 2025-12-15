@@ -57,8 +57,8 @@ const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
   const basicInformation = [
     { name: "S.No", value: `#${car?._id || ""}` },
     { name: "Name", value: car?.basicInformation?.vehicleName || "" },
-    { name: "Model", value: String(car?.basicInformation?.model || "") },
-    { name: "Brand", value: String(car?.basicInformation?.brand || "") },
+    { name: "Model", value: String(car?.basicInformation?.model?.model || "") },
+    { name: "Brand", value: String(car?.basicInformation?.brand?.brand || "") },
     {
       name: "MFK Warranty",
       value: String(car?.basicInformation?.MfkWarranty || ""),

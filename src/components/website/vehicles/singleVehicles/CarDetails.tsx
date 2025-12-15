@@ -189,9 +189,9 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                     <Phone className="h-4 w-4" /> Contact
                   </button>
                 </div>
-                <div className="mt-2 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-2 w-full">
                   <button
-                    className={`px-3 h-9 rounded-md border text-sm cursor-pointer ${
+                    className={`px-3 h-9 w-1/3 rounded-md border text-sm cursor-pointer ${
                       isCompared ? "bg-blue-600 text-white border-blue-600" : ""
                     }`}
                     onClick={handleCompare}
@@ -204,13 +204,13 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                       : "Compare"}
                   </button>
                   <button
-                    className="px-3 h-9 rounded-md border text-sm cursor-pointer"
+                    className="px-3 h-9 w-1/3 rounded-md border text-sm cursor-pointer"
                     onClick={handleTestDriveClick}
                   >
                     Test Drive
                   </button>
                   <button
-                    className={`px-3 h-9 rounded-md border text-sm flex items-center gap-2 cursor-pointer ${
+                    className={`px-3 h-9 w-1/3 rounded-md border text-sm text-center flex items-center gap-2 cursor-pointer ${
                       isBookmarked ? "bg-red-600 text-white border-red-600" : ""
                     }`}
                     onClick={handleBookmark}
@@ -228,6 +228,7 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                   isOpen={isTestDriveOpen}
                   onClose={handleCloseTestDrive}
                   carName={details.title}
+                  carId={carId}
                 />
               </div>
             </div>

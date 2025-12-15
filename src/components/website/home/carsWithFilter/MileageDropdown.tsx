@@ -69,9 +69,13 @@ const MileageDropdown = ({
       }
     };
     document.addEventListener("mousedown", handlePointer as any);
-    document.addEventListener("touchstart", handlePointer as any, {
-      passive: true,
-    } as any);
+    document.addEventListener(
+      "touchstart",
+      handlePointer as any,
+      {
+        passive: true,
+      } as any
+    );
     document.addEventListener("keydown", handleKey);
     return () => {
       document.removeEventListener("mousedown", handlePointer as any);
@@ -101,13 +105,18 @@ const MileageDropdown = ({
   const handleMinChange = (v: number) => {
     const next = Math.min(v, max);
     setMin(next);
-    onSelect({ min: next, max });
+    // Don't call onSelect here - wait for mouseup
   };
 
   const handleMaxChange = (v: number) => {
     const next = Math.max(v, min);
     setMax(next);
-    onSelect({ min, max: next });
+    // Don't call onSelect here - wait for mouseup
+  };
+
+  // Called when slider interaction ends (mouseup or touchend)
+  const handleSliderRelease = () => {
+    onSelect({ min, max });
   };
 
   const restore = () => {
@@ -151,12 +160,15 @@ const MileageDropdown = ({
                 const height = Math.max(2, Math.round((b / maxBar) * 90));
                 // Determine if bin falls within selected range
                 const binStart = startMileage + (idx / bars.length) * totalSpan;
-                const binEnd = startMileage + ((idx + 1) / bars.length) * totalSpan;
+                const binEnd =
+                  startMileage + ((idx + 1) / bars.length) * totalSpan;
                 const active = binEnd >= min && binStart <= max;
                 return (
                   <div
                     key={idx}
-                    className={`w-[4px] ${active ? "bg-gray-600" : "bg-gray-300"}`}
+                    className={`w-[4px] ${
+                      active ? "bg-gray-600" : "bg-gray-300"
+                    }`}
                     style={{ height }}
                   />
                 );
@@ -204,6 +216,8 @@ const MileageDropdown = ({
                 max={endMileage}
                 value={min}
                 onChange={(e) => handleMinChange(Number(e.target.value))}
+                onMouseUp={handleSliderRelease}
+                onTouchEnd={handleSliderRelease}
                 className={`range-track-transparent range-thumb w-full appearance-none bg-transparent absolute left-0 right-0 top-1/3 -translate-y-1/3 z-20 ${
                   activeHandle === "min"
                     ? "pointer-events-auto cursor-pointer"
@@ -216,6 +230,8 @@ const MileageDropdown = ({
                 max={endMileage}
                 value={max}
                 onChange={(e) => handleMaxChange(Number(e.target.value))}
+                onMouseUp={handleSliderRelease}
+                onTouchEnd={handleSliderRelease}
                 className={`range-track-transparent range-thumb w-full appearance-none bg-transparent absolute left-0 right-0 top-1/3 -translate-y-1/3 z-20 ${
                   activeHandle === "max"
                     ? "pointer-events-auto cursor-pointer"

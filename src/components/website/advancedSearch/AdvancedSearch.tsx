@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Container from "@/components/ui/container";
 import { AdvancedSearchForm } from "./types";
 import {
   categories,
-  brands,
-  models,
   conditions,
   buyLease,
   driveTypes,
@@ -48,6 +47,7 @@ import LocationRadiusSection from "./sections/LocationRadiusSection";
 import EquipmentSection from "./sections/EquipmentSection";
 
 const AdvancedSearch = () => {
+  const router = useRouter();
   const [form, setForm] = useState<AdvancedSearchForm>({
     search: "",
     category: "",
@@ -140,7 +140,85 @@ const AdvancedSearch = () => {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("advanced_search_form", form);
+
+    // Build API params from form - only include non-empty/non-default values
+    const params = new URLSearchParams();
+
+    // String fields - map to API param names
+    if (form.search) params.set("searchTerm", form.search);
+    if (form.brand) params.set("brand", form.brand);
+    if (form.model) params.set("model", form.model);
+    if (form.category) params.set("BodyType", form.category);
+    if (form.condition) params.set("condition", form.condition);
+    if (form.driveType) params.set("driveType", form.driveType);
+    if (form.fuel) params.set("fuelType", form.fuel);
+    if (form.transmission) params.set("transmission", form.transmission);
+    if (form.warranty) params.set("MfkWarranty", form.warranty);
+    if (form.accident) params.set("AccidentVehicle", form.accident);
+    if (form.interiorColor) params.set("interior", form.interiorColor);
+    if (form.exteriorColor) params.set("exterior", form.exteriorColor);
+    if (form.metallic) params.set("metallic", form.metallic);
+    if (form.seats) params.set("seatsFrom", form.seats);
+    if (form.doors) params.set("doorsFrom", form.doors);
+    if (form.country) params.set("country", form.country);
+    if (form.city) params.set("city", form.city);
+    if (form.performance) params.set("performance", form.performance);
+
+    // Year range
+    if (form.year.min !== 2010) params.set("yearFrom", String(form.year.min));
+    if (form.year.max !== 2025) params.set("yearTo", String(form.year.max));
+
+    // Price range
+    if (form.price.min !== 1000)
+      params.set("priceFrom", String(form.price.min));
+    if (form.price.max !== 2000) params.set("priceTo", String(form.price.max));
+
+    // Mileage range
+    if (form.mileage.min !== 0)
+      params.set("milesFrom", String(form.mileage.min));
+    if (form.mileage.max !== 20000)
+      params.set("milesTo", String(form.mileage.max));
+
+    // Range (EV)
+    if (form.rangeKm !== 500) params.set("rangeFrom", String(form.rangeKm));
+
+    // Equipment - map to boolean flags
+    const equipmentMapping: Record<string, string> = {
+      ABS: "ABS",
+      Camera: "Camera",
+      "Adaptive Cruise Control": "AdaptiveCruiseControl",
+      "Alarm System": "AlarmSystem3",
+      "Electric Seat Adjustment": "ElectricSeatAdjustment",
+      Towbar: "Towbar",
+      "Leather/Alcantara Seats": "LeatherAlcantaraFabricSeats",
+      "Heated/Ventilated Seats": "HeatedVentilatedSeats",
+      "Sunroof/Panoramic Roof": "SunroofPanoramicRoof",
+      "Android Auto": "AndroidAuto",
+      "Navigation System": "NavigationSystem",
+      "Parking Sensors": "ParkingSensors",
+      "Head-Up Display": "HeadUpDisplay",
+      "Xenon/LED Headlights": "XenonLEDHeadlights3",
+      "Keyless Entry/Start": "KeylessEntryStart",
+      ISOFIX: "Isofix",
+      "Start/Stop System": "StartStopSystem",
+      "Theft Protection": "TheftProtection",
+      "Climate Control": "ClimateControl",
+      "Sports Seats": "SportsSeats",
+      "Speed Limiter": "SpeedLimiter",
+      ESP: "StabilityControlESP",
+      "Sound System": "SoundSystem",
+    };
+
+    form.equipment.forEach((eq) => {
+      const apiKey = equipmentMapping[eq];
+      if (apiKey) {
+        params.set(apiKey, "true");
+      }
+    });
+
+    // Navigate to vehicles page with params
+    const queryString = params.toString();
+    router.push(queryString ? `/vehicles?${queryString}` : "/vehicles");
   };
 
   return (
@@ -164,7 +242,7 @@ const AdvancedSearch = () => {
               model: form.model,
             }}
             onChange={(f, v) => setField(f, v)}
-            options={{ categories, brands, models }}
+            options={{ categories }}
           />
 
           <SecondarySelectors

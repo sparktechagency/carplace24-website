@@ -71,9 +71,13 @@ const PriceDropdown = ({
       }
     };
     document.addEventListener("mousedown", handlePointer as any);
-    document.addEventListener("touchstart", handlePointer as any, {
-      passive: true,
-    } as any);
+    document.addEventListener(
+      "touchstart",
+      handlePointer as any,
+      {
+        passive: true,
+      } as any
+    );
     document.addEventListener("keydown", handleKey);
     return () => {
       document.removeEventListener("mousedown", handlePointer as any);
@@ -118,13 +122,18 @@ const PriceDropdown = ({
   const handleMinChange = (v: number) => {
     const next = Math.max(startPrice, Math.min(v, max));
     setMin(next);
-    onSelect({ min: next, max });
+    // Don't call onSelect here - wait for mouseup
   };
 
   const handleMaxChange = (v: number) => {
     const next = Math.min(endPrice, Math.max(v, min));
     setMax(next);
-    onSelect({ min, max: next });
+    // Don't call onSelect here - wait for mouseup
+  };
+
+  // Called when slider interaction ends (mouseup or touchend)
+  const handleSliderRelease = () => {
+    onSelect({ min, max });
   };
 
   const label = `${currency} ${formatCHF(min)} – ${currency} ${formatCHF(max)}${
@@ -170,7 +179,9 @@ const PriceDropdown = ({
                 return (
                   <div
                     key={idx}
-                    className={`${active ? "bg-gray-600" : "bg-gray-300"} flex-1`}
+                    className={`${
+                      active ? "bg-gray-600" : "bg-gray-300"
+                    } flex-1`}
                     style={{ height: h }}
                   />
                 );
@@ -215,6 +226,8 @@ const PriceDropdown = ({
                 max={endPrice}
                 value={min}
                 onChange={(e) => handleMinChange(Number(e.target.value))}
+                onMouseUp={handleSliderRelease}
+                onTouchEnd={handleSliderRelease}
                 className={`range-track-transparent range-thumb w-full appearance-none bg-transparent absolute left-0 right-0 top-1/3 -translate-y-1/3 z-20 ${
                   activeHandle === "min"
                     ? "pointer-events-auto cursor-pointer"
@@ -227,6 +240,8 @@ const PriceDropdown = ({
                 max={endPrice}
                 value={max}
                 onChange={(e) => handleMaxChange(Number(e.target.value))}
+                onMouseUp={handleSliderRelease}
+                onTouchEnd={handleSliderRelease}
                 className={`range-track-transparent range-thumb w-full appearance-none bg-transparent absolute left-0 right-0 top-1/3 -translate-y-1/3 z-20 ${
                   activeHandle === "max"
                     ? "pointer-events-auto cursor-pointer"

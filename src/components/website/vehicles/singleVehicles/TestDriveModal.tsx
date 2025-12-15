@@ -7,17 +7,25 @@ import {
   DialogOverlay,
   DialogClose,
 } from "@/components/ui/dialog";
-import { X, Calendar } from "lucide-react";
+import { X, Calendar, Loader2 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useApplyTestDriveMutation } from "@/redux/apiSlice/carSlice";
+import toast from "react-hot-toast";
 
 interface TestDriveModalProps {
   isOpen: boolean;
   onClose: () => void;
   carName: string;
+  carId: string;
 }
 
-const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
+const TestDriveModal = ({
+  isOpen,
+  onClose,
+  carName,
+  carId,
+}: TestDriveModalProps) => {
   const [formData, setFormData] = useState({
     name: "",
     contactNumber: "",
@@ -25,6 +33,9 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
     date: "",
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const [applyTestDrive, { isLoading }] = useApplyTestDriveMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,21 +44,54 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
 
   const handleDateChange = (date: Date | null) => {
     if (date) {
+      setSelectedDate(date);
+      // Format date as YYYY-MM-DD (ISO format for MongoDB)
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`;
+
       setFormData((prev) => ({
         ...prev,
-        date: date.toLocaleDateString(),
+        date: formattedDate,
       }));
       setShowDatePicker(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Test drive appointment:", formData);
-    onClose();
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      contactNumber: "",
+      email: "",
+      date: "",
+    });
+    setSelectedDate(null);
   };
 
-  console.log(carName);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const body = {
+        car: carId,
+        name: formData.name,
+        email: formData.email,
+        date: formData.date,
+        contactNumber: formData.contactNumber,
+      };
+
+      await applyTestDrive(body).unwrap();
+      toast.success("Test drive appointment booked successfully!");
+      resetForm();
+      onClose();
+    } catch (error: any) {
+      console.error("Test drive error:", error);
+      toast.error(
+        error?.data?.message || "Failed to book test drive. Please try again."
+      );
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -61,7 +105,8 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
           <div className="p-6">
             <h2 className="text-2xl font-medium text-gray-800">Test Drive</h2>
             <p className="text-sm text-gray-500 mt-1">
-              you can set a appointment for test drive
+              Book a test drive for{" "}
+              <span className="font-medium">{carName}</span>
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -140,7 +185,7 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
                       placeholder="Select a date"
                       className="w-full p-3 border border-gray-300 rounded-md pr-10"
                       value={formData.date}
-                      onChange={handleChange}
+                      readOnly
                       required
                       onClick={() => setShowDatePicker(true)}
                     />
@@ -153,11 +198,10 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
                     {showDatePicker && (
                       <div className="absolute left-0 top-full z-50 mt-1 bg-white shadow-lg rounded-md border">
                         <DatePicker
-                          selected={
-                            formData.date ? new Date(formData.date) : null
-                          }
+                          selected={selectedDate}
                           onChange={handleDateChange}
                           inline
+                          minDate={new Date()}
                           onClickOutside={() => setShowDatePicker(false)}
                         />
                       </div>
@@ -168,9 +212,17 @@ const TestDriveModal = ({ isOpen, onClose, carName }: TestDriveModalProps) => {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-md font-medium"
+                disabled={isLoading}
+                className="w-full bg-blue-600 text-white py-3 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Confirm Test Drive
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Booking...
+                  </>
+                ) : (
+                  "Confirm Test Drive"
+                )}
               </button>
             </form>
           </div>

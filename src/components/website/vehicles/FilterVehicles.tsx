@@ -9,66 +9,40 @@ import YearDropdown from "../home/carsWithFilter/YearDropdown";
 import PriceDropdown from "../home/carsWithFilter/PriceDropdown";
 import MileageDropdown from "../home/carsWithFilter/MileageDropdown";
 import FuelDropdown from "../home/carsWithFilter/FuelDropdown";
+import { VehicleFilters } from "@/lib/useVehicleFilters";
 
-// Filter options for Vehicles page (category removed)
-const filterOptions = [
-  {
-    id: "body",
-    label: "Body type",
-    options: ["All", "Sedan", "SUV", "Hatchback", "Coupe", "Convertible"],
-  },
-  {
-    id: "condition",
-    label: "Condition",
-    options: ["All", "New", "Used", "Certified Pre-Owned"],
-  },
-  { id: "buyLease", label: "Buy/Lease", options: ["All", "Buy", "Lease"] },
-  {
-    id: "year",
-    label: "Year",
-    options: ["All"],
-  },
-  {
-    id: "price",
-    label: "Price Range",
-    options: [
-      "All",
-      "$0-$10,000",
-      "$10,000-$20,000",
-      "$20,000-$30,000",
-      "$30,000+",
-    ],
-  },
-  {
-    id: "mileage",
-    label: "Mileage",
-    options: ["All", "0-5k", "5k-20k", "20k-50k", "50k+"],
-  },
-  {
-    id: "fuel",
-    label: "Fuel",
-    options: ["All", "Gasoline", "Diesel", "Electric", "Hybrid"],
-  },
-  { id: "gearbox", label: "Gearbox", options: ["All", "Automatic", "Manual"] },
+// Filter options for Vehicles page
+const bodyTypeOptions = [
+  "All",
+  "Sedan",
+  "SUV",
+  "Hatchback",
+  "Coupe",
+  "Convertible",
 ];
+const conditionOptions = ["All", "New", "Used", "Certified Pre-Owned"];
+const transmissionOptions = ["All", "Automatic", "Manual"];
+const fuelOptions = ["All", "Gasoline", "Diesel", "Electric", "Hybrid"];
 
 // Reusable Dropdown component
 const Dropdown = ({
   label,
   options,
+  value,
   onChange,
 }: {
   label: string;
   options: string[];
+  value: string;
   onChange: (option: string) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(options?.[0] ?? "All");
+  const displayValue = value || options[0];
 
   const handleSelect = (option: string) => {
-    setSelectedOption(option);
     setIsOpen(false);
-    if (onChange) onChange(option);
+    // If "All" is selected, clear the filter
+    onChange(option === "All" ? "" : option);
   };
 
   return (
@@ -78,7 +52,7 @@ const Dropdown = ({
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full cursor-pointer px-3 py-2 text-sm bg-white border border-gray-200 rounded-md focus:outline-none"
       >
-        <span>{selectedOption}</span>
+        <span>{displayValue || "All"}</span>
         <ChevronDown className="w-4 h-4 text-gray-500" />
       </button>
 
@@ -87,7 +61,11 @@ const Dropdown = ({
           {options.map((option, index) => (
             <div
               key={index}
-              className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+              className={`px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer ${
+                (option === "All" && !value) || option === value
+                  ? "bg-gray-100"
+                  : ""
+              }`}
               onClick={() => handleSelect(option)}
             >
               {option}
@@ -99,20 +77,24 @@ const Dropdown = ({
   );
 };
 
-const FilterVehicles = () => {
-  const [yearRange, setYearRange] = useState<{ min: number; max: number }>({
-    min: 1950,
-    max: new Date().getFullYear(),
-  });
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({
-    min: 0,
-    max: 200000,
-  });
-  const [mileageRange, setMileageRange] = useState<{ min: number; max: number}>(
-    { min: 0, max: 400000 }
-  );
-  const [selectedFuels, setSelectedFuels] = useState<string[]>([]);
+interface FilterVehiclesProps {
+  filters: VehicleFilters;
+  setFilter: <K extends keyof VehicleFilters>(
+    key: K,
+    value: VehicleFilters[K]
+  ) => void;
+  setFilters: (newFilters: Partial<VehicleFilters>) => void;
+  resetFilters: () => void;
+  hasActiveFilters: boolean;
+}
+
+const FilterVehicles = ({
+  filters,
+  setFilter,
+  setFilters,
+  resetFilters,
+  hasActiveFilters,
+}: FilterVehiclesProps) => {
   const fuelCounts: Record<string, number> = {
     All: 100000,
     Gasoline: 73418,
@@ -120,6 +102,7 @@ const FilterVehicles = () => {
     Hybrid: 36695,
     Electric: 15184,
   };
+
   return (
     <div className="bg-white shadow-2xl rounded-md">
       <Container>
@@ -133,13 +116,21 @@ const FilterVehicles = () => {
                   type="text"
                   placeholder="Find your choice"
                   className="w-full bg-transparent text-sm focus:outline-none"
+                  value={filters.searchTerm}
+                  onChange={(e) => setFilter("searchTerm", e.target.value)}
                 />
               </div>
             </div>
 
             <div className="h-8 w-px bg-gray-200" />
 
-            <button className="flex items-center gap-1 text-green-600">
+            <button
+              className={`flex items-center gap-1 ${
+                hasActiveFilters ? "text-green-600" : "text-gray-400"
+              }`}
+              onClick={resetFilters}
+              title="Reset all filters"
+            >
               <RotateCcw className="w-4 h-4" />
             </button>
             <Link href={"/advanced-search"}>
@@ -150,120 +141,112 @@ const FilterVehicles = () => {
             </Link>
           </div>
 
-          {/* Filters: single column on mobile; two rows on desktop with separators only between items */}
           {/* Mobile: single column */}
           <div className="lg:hidden flex flex-col gap-4">
             {/* Brand & Model combined dropdown */}
             <BrandModelDropdown
-              onSelect={(brand) => {
-                setSelectedBrand(brand);
-                console.log("Selected brand:", brand);
+              value={filters.brand}
+              onSelect={(brandId) => setFilter("brand", brandId)}
+            />
+
+            {/* Body Type */}
+            <Dropdown
+              label="Body type"
+              options={bodyTypeOptions}
+              value={filters.BodyType}
+              onChange={(option) => setFilter("BodyType", option)}
+            />
+
+            {/* Condition */}
+            <Dropdown
+              label="Condition"
+              options={conditionOptions}
+              value={filters.condition}
+              onChange={(option) => setFilter("condition", option)}
+            />
+
+            {/* Year */}
+            <YearDropdown
+              value={{ min: filters.yearFrom, max: filters.yearTo }}
+              onSelect={(range) => {
+                setFilters({ yearFrom: range.min, yearTo: range.max });
+              }}
+              startYear={1950}
+              endYear={new Date().getFullYear()}
+            />
+
+            {/* Price */}
+            <PriceDropdown
+              value={{ min: filters.priceFrom, max: filters.priceTo }}
+              onSelect={(range) => {
+                setFilters({ priceFrom: range.min, priceTo: range.max });
               }}
             />
 
-            {/* Filters */}
-            {filterOptions.map((filter, index) => (
-              <div key={`mobile-${filter.id}-${index}`}>
-                {filter.id === "year" ? (
-                  <YearDropdown
-                    value={yearRange}
-                    onSelect={(range) => {
-                      setYearRange(range);
-                      console.log(
-                        `Selected year range: ${range.min}-${range.max}`
-                      );
-                    }}
-                    startYear={1950}
-                    endYear={new Date().getFullYear()}
-                  />
-                ) : filter.id === "price" ? (
-                  <PriceDropdown
-                    value={priceRange}
-                    onSelect={(range) => {
-                      setPriceRange(range);
-                      console.log(
-                        `Selected price range: ${range.min}-${range.max}`
-                      );
-                    }}
-                  />
-                ) : filter.id === "mileage" ? (
-                  <MileageDropdown
-                    value={mileageRange}
-                    onSelect={(range) => {
-                      setMileageRange(range);
-                      console.log(
-                        `Selected mileage range: ${range.min}-${range.max}`
-                      );
-                    }}
-                  />
-                ) : filter.id === "fuel" ? (
-                  <FuelDropdown
-                    options={filter.options}
-                    value={selectedFuels}
-                    counts={fuelCounts}
-                    onSelect={(items) => {
-                      setSelectedFuels(items);
-                      console.log("Selected fuels:", items);
-                    }}
-                  />
-                ) : (
-                  <Dropdown
-                    label={filter.label}
-                    options={filter.options}
-                    onChange={(option) =>
-                      console.log(`Selected ${filter.id}:`, option)
-                    }
-                  />
-                )}
-              </div>
-            ))}
+            {/* Mileage */}
+            <MileageDropdown
+              value={{ min: filters.milesFrom, max: filters.milesTo }}
+              onSelect={(range) => {
+                setFilters({ milesFrom: range.min, milesTo: range.max });
+              }}
+            />
+
+            {/* Fuel */}
+            <Dropdown
+              label="Fuel Type"
+              options={fuelOptions}
+              value={filters.fuelType}
+              onChange={(option) => setFilter("fuelType", option)}
+            />
+
+            {/* Transmission */}
+            <Dropdown
+              label="Transmission"
+              options={transmissionOptions}
+              value={filters.transmission}
+              onChange={(option) => setFilter("transmission", option)}
+            />
           </div>
 
-          {/* Desktop: two rows, separators only between items (no far-left/right lines) */}
+          {/* Desktop: two rows */}
           <div className="hidden lg:flex lg:flex-col lg:gap-4">
-            {/* First row: BrandModel | Body | Condition | Buy/Lease | Year */}
+            {/* First row: BrandModel | Body | Condition | Fuel | Year */}
             <div className="flex divide-x">
               <div className="flex-1 px-4">
                 <BrandModelDropdown
-                  onSelect={(brand) => {
-                    setSelectedBrand(brand);
-                    console.log("Selected brand:", brand);
-                  }}
+                  value={filters.brand}
+                  onSelect={(brandId) => setFilter("brand", brandId)}
                 />
               </div>
               <div className="flex-1 px-4">
                 <Dropdown
-                  label={filterOptions[0].label}
-                  options={filterOptions[0].options}
-                  onChange={(option) => console.log(`Selected body:`, option)}
+                  label="Body type"
+                  options={bodyTypeOptions}
+                  value={filters.BodyType}
+                  onChange={(option) => setFilter("BodyType", option)}
                 />
               </div>
               <div className="flex-1 px-4">
                 <Dropdown
-                  label={filterOptions[1].label}
-                  options={filterOptions[1].options}
-                  onChange={(option) =>
-                    console.log(`Selected condition:`, option)
-                  }
+                  label="Condition"
+                  options={conditionOptions}
+                  value={filters.condition}
+                  onChange={(option) => setFilter("condition", option)}
                 />
               </div>
               <div className="flex-1 px-4">
                 <Dropdown
-                  label={filterOptions[2].label}
-                  options={filterOptions[2].options}
-                  onChange={(option) =>
-                    console.log(`Selected buyLease:`, option)
-                  }
+                  label="Fuel Type"
+                  options={fuelOptions}
+                  value={filters.fuelType}
+                  onChange={(option) => setFilter("fuelType", option)}
                 />
               </div>
               <div className="flex-1 px-4">
                 <YearDropdown
-                  value={yearRange}
+                  value={{ min: filters.yearFrom, max: filters.yearTo }}
                   onSelect={(range) => {
-                    setYearRange(range);
-                    console.log(
-                      `Selected year range: ${range.min}-${range.max}`
-                    );
+                    setFilters({ yearFrom: range.min, yearTo: range.max });
                   }}
                   startYear={1950}
                   endYear={new Date().getFullYear()}
@@ -271,52 +254,40 @@ const FilterVehicles = () => {
               </div>
             </div>
 
-            {/* Second row: Price | Mileage | Fuel | Gearbox | spacer */}
+            {/* Second row: Price | Mileage | Transmission | Drive Type | spacer */}
             <div className="flex divide-x">
               <div className="flex-1 px-4">
                 <PriceDropdown
-                  value={priceRange}
+                  value={{ min: filters.priceFrom, max: filters.priceTo }}
                   onSelect={(range) => {
-                    setPriceRange(range);
-                    console.log(
-                      `Selected price range: ${range.min}-${range.max}`
-                    );
+                    setFilters({ priceFrom: range.min, priceTo: range.max });
                   }}
                 />
               </div>
               <div className="flex-1 px-4">
                 <MileageDropdown
-                  value={mileageRange}
+                  value={{ min: filters.milesFrom, max: filters.milesTo }}
                   onSelect={(range) => {
-                    setMileageRange(range);
-                    console.log(
-                      `Selected mileage range: ${range.min}-${range.max}`
-                    );
+                    setFilters({ milesFrom: range.min, milesTo: range.max });
                   }}
                 />
               </div>
               <div className="flex-1 px-4">
-                <FuelDropdown
-                  options={filterOptions[6].options}
-                  value={selectedFuels}
-                  counts={fuelCounts}
-                  onSelect={(items) => {
-                    setSelectedFuels(items);
-                    console.log("Selected fuels:", items);
-                  }}
+                <Dropdown
+                  label="Transmission"
+                  options={transmissionOptions}
+                  value={filters.transmission}
+                  onChange={(option) => setFilter("transmission", option)}
                 />
               </div>
-              {filterOptions[7] && (
-                <div className="flex-1 px-4">
-                  <Dropdown
-                    label={filterOptions[7].label}
-                    options={filterOptions[7].options}
-                    onChange={(option) =>
-                      console.log(`Selected gearbox:`, option)
-                    }
-                  />
-                </div>
-              )}
+              <div className="flex-1 px-4">
+                <Dropdown
+                  label="Drive Type"
+                  options={["All", "FWD", "RWD", "AWD", "4WD"]}
+                  value={filters.driveType}
+                  onChange={(option) => setFilter("driveType", option)}
+                />
+              </div>
               {/* Spacer to keep 5 items per row visually */}
               <div className="flex-1 px-4" />
             </div>

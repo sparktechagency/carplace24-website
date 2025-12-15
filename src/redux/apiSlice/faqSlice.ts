@@ -16,7 +16,16 @@ const faqApi = api.injectEndpoints({
         };
       },
     }),
+
+    getTestDriveRequests: builder.query({
+      query: () => {
+        return {
+          method: "GET",
+          url: "/reservation/seller",
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetFaqQuery } = faqApi;
+export const { useGetFaqQuery, useGetTestDriveRequestsQuery } = faqApi;

@@ -15,7 +15,6 @@ import MyProfile from "./sections/MyProfile";
 import Favorites from "./sections/Favorites";
 import Settings from "./sections/Settings";
 import MyCars from "./sections/MyCars";
-import Inquiries from "./sections/Inquiries";
 import { BsQuestionOctagonFill } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -26,19 +25,20 @@ import {
 import { getImageUrl } from "@/lib/getImageUrl";
 import CarLoader from "@/components/ui/loader/CarLoader";
 import { logout } from "@/lib/logout";
+import TestDrive from "./sections/TestDrive";
 
 interface MainProfileLayoutProps {
   children?: ReactNode;
   initialTab?: string;
-  initialRole?: "buyer" | "seller";
+  initialRole?: "BUYER" | "SELLER";
 }
 
-type UserRole = "buyer" | "seller";
+type UserRole = "BUYER" | "SELLER";
 
 const MainProfileLayout = ({
   children,
   initialTab = "profile",
-  initialRole = "buyer",
+  initialRole = "BUYER",
 }: MainProfileLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -87,7 +87,9 @@ const MainProfileLayout = ({
   }
 
   const userDetails = userData?.data;
-  console.log(userDetails);
+
+  // Check if user is only a buyer (no seller role)
+  const isBuyerOnly = userDetails?.role === "BUYER";
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -133,15 +135,20 @@ const MainProfileLayout = ({
       component: <MyCars />,
     },
     {
-      id: "inquiries",
-      label: "Inquiries",
+      id: "testDriveRequests",
+      label: "Test Drive Requests",
       icon: <BsQuestionOctagonFill className="mr-2" />,
-      component: <Inquiries />,
+      component: <TestDrive />,
     },
     sharedComponents.settings,
   ];
 
-  const menuItems = activeRole === "buyer" ? buyerMenuItems : sellerMenuItems;
+  // If user is buyer only, always show buyer menu. Otherwise, show based on active role.
+  const menuItems = isBuyerOnly
+    ? buyerMenuItems
+    : activeRole === "BUYER"
+    ? buyerMenuItems
+    : sellerMenuItems;
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
@@ -156,39 +163,41 @@ const MainProfileLayout = ({
         </button>
       </div>
 
-      {/* Role Switcher */}
-      <div className="flex justify-center mb-6">
-        <div className="inline-flex rounded-md shadow-sm" role="group">
-          <button
-            type="button"
-            className={`px-6 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${
-              activeRole === "buyer"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-900 hover:bg-gray-100"
-            }`}
-            onClick={() => {
-              setActiveRole("buyer");
-              setActiveTab("profile");
-            }}
-          >
-            Buyer Profile
-          </button>
-          <button
-            type="button"
-            className={`px-6 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${
-              activeRole === "seller"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-900 hover:bg-gray-100"
-            }`}
-            onClick={() => {
-              setActiveRole("seller");
-              setActiveTab("profile");
-            }}
-          >
-            Seller Profile
-          </button>
+      {/* Role Switcher - Only show if user is not buyer only */}
+      {!isBuyerOnly && (
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex rounded-md shadow-sm" role="group">
+            <button
+              type="button"
+              className={`px-6 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${
+                activeRole === "BUYER"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-900 hover:bg-gray-100"
+              }`}
+              onClick={() => {
+                setActiveRole("BUYER");
+                setActiveTab("profile");
+              }}
+            >
+              Buyer Profile
+            </button>
+            <button
+              type="button"
+              className={`px-6 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${
+                activeRole === "SELLER"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-900 hover:bg-gray-100"
+              }`}
+              onClick={() => {
+                setActiveRole("SELLER");
+                setActiveTab("profile");
+              }}
+            >
+              Seller Profile
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="flex flex-col lg:flex-row md:min-h-[700px] gap-8">
         {/* Sidebar */}

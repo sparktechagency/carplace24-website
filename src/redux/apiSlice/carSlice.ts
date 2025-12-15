@@ -77,6 +77,16 @@ const carApi = api.injectEndpoints({
         };
       },
     }),
+
+    applyTestDrive: builder.mutation({
+      query: (data) => {
+        return {
+          method: "POST",
+          url: `/reservation`,
+          body: data,
+        };
+      },
+    }),
   }),
 });
 
@@ -88,4 +98,6 @@ export const {
   useAddCarsBulkMutation,
   useGetMyAddedCarsQuery,
   useUpdateCarMutation,
+  useGetFilteredCarsQuery,
+  useApplyTestDriveMutation,
 } = carApi;
