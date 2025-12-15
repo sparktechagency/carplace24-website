@@ -67,6 +67,16 @@ const carApi = api.injectEndpoints({
         };
       },
     }),
+
+    getFilteredCars: builder.query({
+      query: (data) => {
+        return {
+          method: "GET",
+          url: `/car/filter`,
+          params: data,
+        };
+      },
+    }),
   }),
 });
 

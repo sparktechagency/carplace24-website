@@ -270,7 +270,7 @@ export default function Navbar() {
                 </div>
 
                 {isProfileDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-72 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 transform -translate-x-0">
+                  <div className="absolute top-full right-0 mt-2 w-72 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 transform translate-x-0">
                     <div className="border-t border-gray-100">
                       <Link
                         href="/profile"
