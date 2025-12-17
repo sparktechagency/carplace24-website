@@ -20,7 +20,7 @@ const DealerCarCard = ({ car }: Props) => {
     <Link href={`/vehicles/${car._id}`} className="h-full">
       <div className="rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group h-full flex flex-col">
         {/* Car Image */}
-        <div className="relative overflow-hidden flex-shrink-0">
+        <div className="relative overflow-hidden shrink-0">
           <img
             src={getCarImage()}
             alt={basicInformation.vehicleName}

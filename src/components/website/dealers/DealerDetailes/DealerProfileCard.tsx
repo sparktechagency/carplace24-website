@@ -21,7 +21,7 @@ const DealerProfileCard = ({ dealer }: Props) => {
     <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Profile Image */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <Image
             src={getImageUrl(dealer.profile)}
             alt={dealer.name}
