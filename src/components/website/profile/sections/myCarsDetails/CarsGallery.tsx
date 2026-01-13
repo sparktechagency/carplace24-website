@@ -50,7 +50,7 @@ const CarsGallery = ({ carDetails }: { carDetails: any }) => {
                   onClick={() => setActiveImage(img)}
                   className={
                     "rounded-md overflow-hidden border shrink-0 w-16 h-16 md:w-full md:h-[80px] cursor-pointer" +
-                    (activeImage === img ? " border-primary" : "")
+                    (activeImage === img ? "border-primary" : "")
                   }
                 >
                   <Image
