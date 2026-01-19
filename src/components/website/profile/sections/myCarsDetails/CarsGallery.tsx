@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Container from "@/components/ui/container";
 import Image from "next/image";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const CarsGallery = ({ carDetails }: { carDetails: any }) => {
   const [activeImage, setActiveImage] = useState(carDetails?.images?.[0] || "");
@@ -24,6 +25,7 @@ const CarsGallery = ({ carDetails }: { carDetails: any }) => {
 
   if (!carDetails) return null;
 
+  // console.log("carDetails", carDetails);
   return (
     <section className="py-8">
       <Container>
@@ -33,7 +35,7 @@ const CarsGallery = ({ carDetails }: { carDetails: any }) => {
               <div className="rounded-lg overflow-hidden border h-full">
                 {activeImage && (
                   <Image
-                    src={activeImage}
+                    src={getImageUrl(activeImage)}
                     alt={carDetails.title || "Car Image"}
                     className="w-full h-[300px] sm:h-[400px] md:h-[600px] object-fit"
                     width={1000}
@@ -54,7 +56,7 @@ const CarsGallery = ({ carDetails }: { carDetails: any }) => {
                   }
                 >
                   <Image
-                    src={img}
+                    src={getImageUrl(img)}
                     alt={`thumb-${idx}`}
                     className="w-full h-full object-cover"
                     width={100}

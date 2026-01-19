@@ -9,6 +9,7 @@ const carApi = api.injectEndpoints({
           url: "/car",
         };
       },
+      providesTags: ["cars"],
     }),
 
     getCarsByBrandId: builder.query({
@@ -18,6 +19,7 @@ const carApi = api.injectEndpoints({
           url: `/car/by-brand/${id}`,
         };
       },
+      providesTags: ["cars"],
     }),
 
     getCarById: builder.query({
@@ -27,6 +29,7 @@ const carApi = api.injectEndpoints({
           url: `/car/${id}`,
         };
       },
+      providesTags: ["cars"],
     }),
 
     addCar: builder.mutation({
@@ -37,6 +40,7 @@ const carApi = api.injectEndpoints({
           body: data,
         };
       },
+      invalidatesTags: ["cars"],
     }),
 
     addCarsBulk: builder.mutation({
@@ -47,6 +51,7 @@ const carApi = api.injectEndpoints({
           body: data,
         };
       },
+      invalidatesTags: ["cars"],
     }),
 
     getMyAddedCars: builder.query({
@@ -56,16 +61,28 @@ const carApi = api.injectEndpoints({
           url: "/car/self-added",
         };
       },
+      providesTags: ["cars"],
     }),
 
     updateCar: builder.mutation({
       query: ({ id, data }) => {
         return {
-          method: "PATCH",
+          method: "PUT",
           url: `/car/${id}`,
           body: data,
         };
       },
+      invalidatesTags: ["cars"],
+    }),
+
+    deleteCar: builder.mutation({
+      query: (id) => {
+        return {
+          method: "DELETE",
+          url: `/car/permanent/${id}`,
+        };
+      },
+      invalidatesTags: ["cars"],
     }),
 
     getFilteredCars: builder.query({
@@ -76,6 +93,7 @@ const carApi = api.injectEndpoints({
           params: data,
         };
       },
+      providesTags: ["cars"],
     }),
 
     applyTestDrive: builder.mutation({
@@ -97,6 +115,7 @@ export const {
   useGetCarsByBrandIdQuery,
   useAddCarsBulkMutation,
   useGetMyAddedCarsQuery,
+  useDeleteCarMutation,
   useUpdateCarMutation,
   useGetFilteredCarsQuery,
   useApplyTestDriveMutation,

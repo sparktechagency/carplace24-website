@@ -370,7 +370,7 @@ const EditCarPage = ({ id }: { id: string }) => {
       const message = (res as any)?.message || "Vehicle updated successfully";
       toast.success(message);
 
-      router.push("/seller/my-vehicles"); // Or navigate back
+      router.back(); // Or navigate back
     } catch (err: any) {
       const msg = err?.data?.message || "Failed to update vehicle";
       toast.error(msg);

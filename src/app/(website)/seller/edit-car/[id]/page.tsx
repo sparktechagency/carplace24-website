@@ -1,7 +1,8 @@
 import EditCarPage from "@/components/website/editCar/EditCarPage";
 
-const Page = ({ params }: { params: { id: string } }) => {
-  return <EditCarPage id={params.id} />;
+const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+  return <EditCarPage id={id} />;
 };
 
 export default Page;

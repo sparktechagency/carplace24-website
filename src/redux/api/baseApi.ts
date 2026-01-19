@@ -13,7 +13,7 @@ const baseQuery = fetchBaseQuery({
     if (typeof document !== "undefined") {
       const cookies = document.cookie.split(";");
       const accessTokenCookie = cookies.find((cookie) =>
-        cookie.trim().startsWith("accessToken=")
+        cookie.trim().startsWith("accessToken="),
       );
 
       if (accessTokenCookie) {
@@ -54,7 +54,7 @@ const api = createApi({
   reducerPath: "api",
   baseQuery: customBaseQuery,
   endpoints: () => ({}),
-  tagTypes: ["AdminData", "Compare", "Bookmark"],
+  tagTypes: ["AdminData", "Compare", "Bookmark", "cars"],
 });
 
 export const { reducer } = api;

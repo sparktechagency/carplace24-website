@@ -2,7 +2,10 @@
 
 import CarLoader from "@/components/ui/loader/CarLoader";
 import { getImageUrl } from "@/lib/getImageUrl";
-import { useGetMyAddedCarsQuery } from "@/redux/apiSlice/carSlice";
+import {
+  useDeleteCarMutation,
+  useGetMyAddedCarsQuery,
+} from "@/redux/apiSlice/carSlice";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -19,6 +22,7 @@ import {
   FaEye,
 } from "react-icons/fa";
 import moment from "moment";
+import toast from "react-hot-toast";
 
 const MyCars = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -26,6 +30,7 @@ const MyCars = () => {
   const [sortBy, setSortBy] = useState<string>("newest");
 
   const { data: getMyAddedCars, isLoading } = useGetMyAddedCarsQuery(undefined);
+  const [deleteCar] = useDeleteCarMutation();
 
   if (isLoading)
     return (
@@ -67,6 +72,19 @@ const MyCars = () => {
     // Default: newest first
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
+
+  const handleDeleteACar = async (id: string) => {
+    try {
+      const res = await deleteCar(id).unwrap();
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -224,7 +242,7 @@ const MyCars = () => {
                       <div className="h-10 w-10 shrink-0 mr-4 relative">
                         <Image
                           src={getImageUrl(
-                            listing?.basicInformation?.productImage?.[0]
+                            listing?.basicInformation?.productImage?.[0],
                           )}
                           alt={listing.title}
                           fill
@@ -254,7 +272,7 @@ const MyCars = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(
-                        listing.status
+                        listing.status,
                       )}`}
                     >
                       {getStatusIcon(listing.status)} {listing.status}
@@ -289,6 +307,7 @@ const MyCars = () => {
                         </button>
                       </Link>
                       <button
+                        onClick={() => handleDeleteACar(listing._id)}
                         className="p-2 rounded-full bg-red-50 text-red-600 hover:bg-red-100"
                         title="Delete"
                       >
