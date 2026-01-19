@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "@/assets/Carplace24Logo.png";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,6 +16,8 @@ import {
   useGetCompareCarsQuery,
   useGetBookmarkCarsQuery,
 } from "@/redux/apiSlice/compareSlice";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,7 +33,7 @@ export default function Navbar() {
   const compareCount = Array.isArray(compareItems)
     ? compareItems.length
     : Number(
-        (compareData as any)?.data?.count || (compareData as any)?.count || 0
+        (compareData as any)?.data?.count || (compareData as any)?.count || 0,
       ) || 0;
 
   const favoriteItems =
@@ -47,15 +49,24 @@ export default function Navbar() {
         (bookmarkData as any)?.data?.count ||
           (bookmarkData as any)?.count ||
           (bookmarkData as any)?.data?.total ||
-          0
+          0,
       ) || 0;
 
   const handleLogout = (): void => {
     logout("/login");
   };
 
+  // Prevent scrolling when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMenuOpen]);
+
   // Close dropdown when clicking outside
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       // Close profile dropdown when clicking outside
@@ -91,7 +102,7 @@ export default function Navbar() {
 
   return (
     <header className="w-full py-4 bg-gray-50 fixed top-0 left-0 z-50 overflow-visible">
-      <div className="w-[1350px] mx-auto flex items-center justify-between px-4 overflow-visible">
+      <div className="w-full max-w-[1350px] mx-auto flex items-center justify-between px-4 overflow-visible">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image src={logo} alt="Carplace24 Logo" width={120} height={100} />
@@ -328,81 +339,198 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden"
+          className="md:hidden z-50 relative"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            {isMenuOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
+          {isMenuOpen ? null : <Menu className="h-6 w-6 text-gray-700" />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden px-4 py-2 bg-white border-t">
-          <nav className="flex flex-col space-y-3">
-            {navItems.map((item) => (
-              <NavItem
-                key={item.href}
-                href={item.href}
-                label={item.label}
-                mobileView={true}
-              />
-            ))}
-          </nav>
-          <div className="mt-4 flex items-center justify-between">
-            <Button variant="ghost" className="font-medium">
-              EN
-            </Button>
-            {user ? (
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-sm font-medium">
-                    {(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}
-                  </span>
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMenuOpen(false)}
+              className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
+            />
+
+            {/* Drawer Panel */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-[85%] max-w-[320px] bg-white shadow-2xl z-50 md:hidden flex flex-col overflow-y-auto"
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <Link href="/" onClick={() => setIsMenuOpen(false)}>
+                  <Image
+                    src={logo}
+                    alt="Carplace24 Logo"
+                    width={100}
+                    height={80}
+                  />
+                </Link>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-6 w-6 text-gray-600" />
+                </button>
+              </div>
+
+              <div className="flex-1 py-4 px-2">
+                <nav className="flex flex-col space-y-1">
+                  {navItems.map((item) => (
+                    <div key={item.href} onClick={() => setIsMenuOpen(false)}>
+                      <NavItem
+                        href={item.href}
+                        label={item.label}
+                        mobileView={true}
+                      />
+                    </div>
+                  ))}
+                </nav>
+
+                <div className="mt-6 px-4">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Account
+                  </h3>
+                  {user ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-lg font-semibold text-primary">
+                            {(
+                              user?.name?.[0] ||
+                              user?.email?.[0] ||
+                              "U"
+                            ).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="text-sm font-medium truncate">
+                            {user?.name || user?.email}
+                          </span>
+                          <span className="text-xs text-gray-500 capitalize">
+                            {user?.role || "User"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Button variant="outline" className="w-full text-xs">
+                            Profile
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          className="w-full text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => {
+                            handleLogout();
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          Logout
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                        <Button variant="outline" className="w-full">
+                          Login
+                        </Button>
+                      </Link>
+                      <Link
+                        href="/register"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Button className="w-full">Register</Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">
-                    {user?.name || user?.email}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {user?.role || "User"}
-                  </span>
+
+                <div className="mt-6 px-4">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Quick Links
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Link href="/compare" onClick={() => setIsMenuOpen(false)}>
+                      <div className="flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div className="relative">
+                          <Image
+                            src={compareIcon}
+                            alt="Compare"
+                            width={24}
+                            height={24}
+                          />
+                          {compareCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                              {compareCount}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] mt-1 text-gray-600">
+                          Compare
+                        </span>
+                      </div>
+                    </Link>
+                    <Link
+                      href="/favorites"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div className="relative">
+                          <Image
+                            src={heartIcon}
+                            alt="Favorites"
+                            width={24}
+                            height={24}
+                          />
+                          {favoriteCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                              {favoriteCount}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] mt-1 text-gray-600">
+                          Saved
+                        </span>
+                      </div>
+                    </Link>
+                    <Link
+                      href="/seller/add-cars"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <Image
+                          src={addCarIcon}
+                          alt="Sell"
+                          width={24}
+                          height={24}
+                        />
+                        <span className="text-[10px] mt-1 text-gray-600">
+                          Sell
+                        </span>
+                      </div>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Link href="/login">
-                  <Button className="h-9">Login</Button>
-                </Link>
-                <Link href="/register" className="text-sm text-primary">
-                  Register
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

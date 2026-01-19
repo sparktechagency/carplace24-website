@@ -37,13 +37,13 @@ const BannerSlider = () => {
         >
           {bannerImages.map((image, index) => (
             <SwiperSlide key={index} className="rounded-b-xl">
-              <div className="relative w-full h-[700px] rounded-b-xl">
+              <div className="relative w-full md:h-[700px] h-[600px] rounded-b-xl">
                 <Image
                   src={image}
                   alt={`Banner ${index}`}
                   width={75751920}
                   height={67571080}
-                  className="w-full h-full object-cover rounded-b-xl"
+                  className="w-full md:h-full object-contain rounded-b-xl"
                 />
                 <div className="absolute inset-0 bg-black/10"></div>
               </div>
