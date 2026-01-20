@@ -236,7 +236,7 @@ const MyCars = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {sortedListings.map((listing) => (
-                <tr key={listing.id} className="hover:bg-gray-50">
+                <tr key={listing._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 shrink-0 mr-4 relative">
@@ -244,7 +244,10 @@ const MyCars = () => {
                           src={getImageUrl(
                             listing?.basicInformation?.productImage?.[0],
                           )}
-                          alt={listing.title}
+                          alt={
+                            listing?.basicInformation?.vehicleName ||
+                            "Car image"
+                          }
                           fill
                           className="rounded-md object-cover"
                           onError={(e) => {

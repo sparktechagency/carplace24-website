@@ -190,16 +190,21 @@ const PlanPricing = () => {
           {/* Price row */}
           <div className="h-[60px] flex items-center px-5 border-t">Price</div>
           {/* Feature rows */}
-          {FEATURE_LABELS.map((label, index) => (
-            <div
-              key={`feature-${index}`}
-              className={`h-[80px] flex px-5 items-center ${
-                index % 2 === 0 ? "bg-gray-100" : ""
-              }`}
-            >
-              <span className="text-gray-700">{label}</span>
-            </div>
-          ))}
+          {FEATURE_LABELS.map((label, index) => {
+            const isDescription = label === "Description";
+            return (
+              <div
+                key={`feature-${index}`}
+                className={`${
+                  isDescription ? "h-[140px]" : "h-[80px]"
+                } flex px-5 items-center ${
+                  index % 2 === 0 ? "bg-gray-100" : ""
+                }`}
+              >
+                <span className="text-gray-700">{label}</span>
+              </div>
+            );
+          })}
           {/* Empty space for the Buy button */}
           <div className="h-[60px]"></div>
         </div>
@@ -250,18 +255,31 @@ const PlanPricing = () => {
 
             {/* Desktop: Feature values only (labels are in first column) */}
             <div className="hidden lg:block pt-3">
-              {FEATURE_LABELS.map((label, index) => (
-                <div
-                  key={`desktop-${planIndex}-${index}`}
-                  className={`h-[80px] px-2 flex items-center justify-center ${
-                    index % 2 === 0 ? "bg-gray-100" : ""
-                  }`}
-                >
-                  <span className="font-medium">
-                    {renderValue(getFeatureValue(plan, label))}
-                  </span>
-                </div>
-              ))}
+              {FEATURE_LABELS.map((label, index) => {
+                const isDescription = label === "Description";
+                const value = getFeatureValue(plan, label);
+
+                return (
+                  <div
+                    key={`desktop-${planIndex}-${index}`}
+                    className={`${
+                      isDescription ? "h-[140px] py-2" : "h-[80px]"
+                    } px-2 flex items-center justify-center ${
+                      index % 2 === 0 ? "bg-gray-100" : ""
+                    }`}
+                  >
+                    <span
+                      className={`font-medium ${
+                        isDescription
+                          ? "text-sm leading-relaxed text-center line-clamp-5 overflow-hidden"
+                          : ""
+                      }`}
+                    >
+                      {renderValue(value)}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Buy Button Row */}

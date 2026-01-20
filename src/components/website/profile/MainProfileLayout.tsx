@@ -40,6 +40,7 @@ const MainProfileLayout = ({
   initialTab = "profile",
   initialRole = "BUYER",
 }: MainProfileLayoutProps) => {
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
@@ -47,6 +48,8 @@ const MainProfileLayout = ({
   const {
     data: userData,
     isLoading,
+    isError,
+    error,
     refetch: refetchProfile,
   } = useProfileQuery(undefined);
   const [userUpdate, { isLoading: isUpdating }] = useUserUpdateMutation();
@@ -54,6 +57,18 @@ const MainProfileLayout = ({
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isAvatarDragging, setIsAvatarDragging] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (isError) {
+      const err = error as any;
+      // Check for 401 Unauthorized error
+      if (err?.status === 401 || err?.originalStatus === 401) {
+        toast.error("Please login to access your profile");
+        router.push("/login");
+      }
+    }
+  }, [isError, error, router]);
 
   useEffect(() => {
     if (avatarFile) {
@@ -83,6 +98,11 @@ const MainProfileLayout = ({
   };
 
   if (isLoading || isUpdating) {
+    return <CarLoader />;
+  }
+
+  // If there's an auth error, show loading while redirecting
+  if (isError) {
     return <CarLoader />;
   }
 
@@ -147,8 +167,8 @@ const MainProfileLayout = ({
   const menuItems = isBuyerOnly
     ? buyerMenuItems
     : activeRole === "BUYER"
-    ? buyerMenuItems
-    : sellerMenuItems;
+      ? buyerMenuItems
+      : sellerMenuItems;
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
