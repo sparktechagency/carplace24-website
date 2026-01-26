@@ -3,8 +3,10 @@ import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 
 // const API_BASE_URL = "http://10.10.7.72:5000/api/v1";
 // const IMAGE_BASE_URL = "http://10.10.7.72:5000";
-const API_BASE_URL = "http://83.228.197.97:5000/api/v1";
-const IMAGE_BASE_URL = "http://83.228.197.97:5000";
+// const API_BASE_URL = "http://83.228.197.97:5000/api/v1";
+// const IMAGE_BASE_URL = "http://83.228.197.97:5000";
+const API_BASE_URL = "http://api.carplace24.ch/api/v1";
+const IMAGE_BASE_URL = "http://api.carplace24.ch";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
