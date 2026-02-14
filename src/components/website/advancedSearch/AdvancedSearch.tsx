@@ -255,12 +255,12 @@ const AdvancedSearch = () => {
             options={{ conditions, buyLease, driveTypes }}
           />
 
-          <SlidersSection
+          {/* <SlidersSection
             price={form.price}
             year={form.year}
             mileage={form.mileage}
             onChange={(f, v) => setField(f, v)}
-          />
+          /> */}
 
           <PowertrainSection
             values={{
@@ -365,7 +365,7 @@ const AdvancedSearch = () => {
                 "equipment",
                 form.equipment.includes(label)
                   ? form.equipment.filter((l) => l !== label)
-                  : [...form.equipment, label]
+                  : [...form.equipment, label],
               )
             }
           />
