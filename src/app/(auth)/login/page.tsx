@@ -16,6 +16,24 @@ export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
+  const getErrorMessage = (err: any): string => {
+    if (!err) return "Login failed";
+    if (typeof err === "string") return err;
+    const data = err?.data || err;
+    if (data && typeof data === "object") {
+      if (data?.message) return data.message as string;
+      if (
+        Array.isArray(data?.errorMessages) &&
+        data.errorMessages.length > 0 &&
+        data.errorMessages[0]?.message
+      ) {
+        return data.errorMessages[0].message as string;
+      }
+    }
+    if (err?.message) return err.message as string;
+    return "Login failed";
+  };
+
   const handleLogin = async (email: string, password: string) => {
     try {
       const data = {
@@ -24,7 +42,7 @@ export default function LoginPage() {
       };
       const res = await login(data).unwrap();
       if (res?.success) {
-        toast.success("Logged in successfully");
+        toast.success(res?.message || "Logged in successfully");
         const { accessToken } = res?.data || {};
         const isHttps =
           typeof window !== "undefined" &&
@@ -34,10 +52,12 @@ export default function LoginPage() {
         }; Path=/; SameSite=Lax; Max-Age=604800${isHttps ? "; Secure" : ""}`;
         router.replace("/profile");
       } else {
-        toast.error(res?.message || "Login failed");
+        const msg = getErrorMessage(res);
+        toast.error(msg);
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || "Login failed");
+      const msg = getErrorMessage(err);
+      toast.error(msg);
     }
   };
 

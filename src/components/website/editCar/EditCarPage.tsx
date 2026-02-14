@@ -16,7 +16,7 @@ import {
   EuroStandard,
   Location,
   Pricing,
-} from "@/components/website/addCars/sections/FormSections";
+} from "@/components/website/addCars/FormSections";
 import Container from "@/components/ui/container";
 import {
   useUpdateCarMutation,
@@ -86,6 +86,7 @@ const EditCarPage = ({ id }: { id: string }) => {
     city: "",
     zipCode: "",
     description: "",
+    aboutCar: "",
   });
 
   const { data: carData, isLoading: carLoading } = useGetCarByIdQuery(id);
@@ -173,6 +174,7 @@ const EditCarPage = ({ id }: { id: string }) => {
         city: loc.city || "",
         zipCode: loc.zipCode || "",
         description: car.description || "",
+        aboutCar: bi.aboutCar || car.aboutCar || "",
       });
 
       // Handle images
@@ -254,6 +256,7 @@ const EditCarPage = ({ id }: { id: string }) => {
         MfkWarranty: String(formData.warranty || ""),
         AccidentVehicle: String(formData.accident || ""),
         BodyType: String(formData.bodyType || ""),
+        aboutCar: String(formData.aboutCar || ""),
       };
       const technicalInformation: any = {
         fuelType: String(formData.fuelType || ""),
@@ -558,6 +561,23 @@ const EditCarPage = ({ id }: { id: string }) => {
               formData={formData}
               handleInputChange={handleInputChange}
             />
+
+            {/* About Car */}
+            <FormSection title="About Car">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  About Car
+                </label>
+                <textarea
+                  placeholder="Tell us more about this car..."
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[150px]"
+                  value={formData.aboutCar}
+                  onChange={(e) =>
+                    handleInputChange("aboutCar", e.target.value)
+                  }
+                />
+              </div>
+            </FormSection>
             <TechnicalSpecifications
               formData={formData}
               handleInputChange={handleInputChange}
@@ -585,10 +605,6 @@ const EditCarPage = ({ id }: { id: string }) => {
               handleInputChange={handleInputChange}
             />
             <EuroStandard
-              formData={formData}
-              handleInputChange={handleInputChange}
-            />
-            <Location
               formData={formData}
               handleInputChange={handleInputChange}
             />

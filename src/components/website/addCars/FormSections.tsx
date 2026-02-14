@@ -1,7 +1,7 @@
 "use client";
 
-import SelectDropdown from "../SelectDropdown";
-import FormSection from "../FormSection";
+import SelectDropdown from "./SelectDropdown";
+import FormSection from "./FormSection";
 import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { useGetAllColorsQuery } from "@/redux/apiSlice/brandAndModalSlice";
@@ -359,7 +359,7 @@ export const Equipment = ({
   const columns = 4;
   const perCol = Math.ceil(filteredOptions.length / columns);
   const chunked = Array.from({ length: columns }, (_, i) =>
-    filteredOptions.slice(i * perCol, i * perCol + perCol)
+    filteredOptions.slice(i * perCol, i * perCol + perCol),
   );
 
   const toggleOption = (label: string) => {
@@ -409,9 +409,9 @@ export const Equipment = ({
                     onChange={() => toggleOption(label)}
                   />
                   <span className="flex-1 text-sm md:text-base">{label}</span>
-                  <span className="text-xs text-gray-500">
+                  {/* <span className="text-xs text-gray-500">
                     {count.toLocaleString()}
-                  </span>
+                  </span> */}
                 </label>
               );
             })}
@@ -540,7 +540,7 @@ export const Colour = ({ formData, handleInputChange }: FormSectionsProps) => {
 
   const toggle = (
     field: "exteriorColour" | "interiorColour",
-    label: string
+    label: string,
   ) => {
     const current = field === "exteriorColour" ? extSelected : intSelected;
     const next = current.includes(label)
