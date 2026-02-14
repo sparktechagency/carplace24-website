@@ -27,8 +27,8 @@ const CarCard = ({
   isFavorite = false,
 }: CarCardProps) => {
   return (
-    <div className="rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
-      <div className="relative">
+    <div className="rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+      <div className="relative shrink-0">
         <img
           src={getImageUrl(image)}
           alt={carName}
@@ -49,7 +49,7 @@ const CarCard = ({
         </Button>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         <div className="flex items-center gap-2 mb-2">
           <img
             src={getImageUrl(dealerLogo)}
@@ -64,13 +64,19 @@ const CarCard = ({
           </div>
         </div>
 
-        <h3 className="font-medium text-lg">{carName}</h3>
-        <p className="text-sm text-gray-500 mb-2">{carCategory || "-"}</p>
+        <div className="mb-4">
+          <h3 className="font-medium text-lg leading-tight line-clamp-2 h-11 mb-1">
+            {carName}
+          </h3>
+          <p className="text-sm text-gray-500">{carCategory || "-"}</p>
+        </div>
 
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">${originalPrice}</span>
+        <div className="mt-auto flex items-center gap-2">
+          <span className="font-semibold text-lg text-primary">
+            ${originalPrice.toLocaleString()}
+          </span>
           {discountedPrice > 0 && (
-            <span className="text-red-500 line-through">
+            <span className="text-red-500 line-through text-sm">
               ${discountedPrice.toLocaleString()}
             </span>
           )}
