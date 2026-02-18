@@ -15,26 +15,25 @@ declare global {
 type LatLng = { lat: number; lng: number };
 
 interface SellerMapSectionProps {
-  seller?: LatLng;
-  buyer?: LatLng;
+  seller: LatLng;
+  buyer: LatLng;
   height?: number;
 }
 
-const defaultSeller: LatLng = { lat: 37.6264, lng: -77.378 }; // Mechanicsville, VA
-const defaultBuyer: LatLng = { lat: 37.67067523916521, lng: -92.655622129894 }; // Richmond, VA
-
 const SellerMapSection = ({
-  seller = defaultSeller,
-  buyer = defaultBuyer,
+  seller,
+  buyer,
   height = 580,
 }: SellerMapSectionProps) => {
+  const hasValidCoords =
+    seller.lat !== 0 && seller.lng !== 0 && buyer.lat !== 0 && buyer.lng !== 0;
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(
-    null
+    null,
   );
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(
-    null
+    null,
   );
   const [isLoaded, setIsLoaded] = useState(false);
   const [routeError, setRouteError] = useState<string | null>(null);
@@ -136,7 +135,7 @@ const SellerMapSection = ({
           setRouteError("Could not calculate driving directions");
           console.error("Directions request failed:", status);
         }
-      }
+      },
     );
   };
 
@@ -154,10 +153,10 @@ const SellerMapSection = ({
   }, []);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && hasValidCoords) {
       initializeMap();
     }
-  }, [isLoaded, buyer, seller]);
+  }, [isLoaded, buyer, seller, hasValidCoords]);
 
   return (
     <>
@@ -194,10 +193,11 @@ const SellerMapSection = ({
               Loading Google Maps...
             </div>
           )}
-          <div className="text-xs text-gray-500 mt-2">
-            Debug: API Key present:{" "}
-            {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? "Yes" : "No"}
-          </div>
+          {!hasValidCoords && (
+            <div className="text-sm text-muted-foreground mt-2 p-2 bg-yellow-50 rounded">
+              Location coordinates are not available for the seller or buyer.
+            </div>
+          )}
         </Container>
       </div>
     </>

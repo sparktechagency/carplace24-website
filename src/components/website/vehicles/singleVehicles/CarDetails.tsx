@@ -27,7 +27,7 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
         (c) =>
           c?._id === details.id ||
           c?.carId === details.id ||
-          c?.id === details.id
+          c?.id === details.id,
       )
     : false;
   const [isCompared, setIsCompared] = useState(alreadyCompared);
@@ -129,6 +129,9 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                   {details.price.monthly}
                 </span>
               </div>
+              <div>
+                <p className="mt-3">{details.aboutCar}</p>
+              </div>
             </div>
 
             <div>
@@ -200,8 +203,8 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                     {isCompared
                       ? "Added to Compare"
                       : comparing
-                      ? "Comparing..."
-                      : "Compare"}
+                        ? "Comparing..."
+                        : "Compare"}
                   </button>
                   <button
                     className="px-3 h-9 w-1/3 rounded-md border text-sm cursor-pointer"
@@ -220,8 +223,8 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                     {isBookmarked
                       ? "Favorited"
                       : togglingBookmark
-                      ? "Processing..."
-                      : "Favorite"}
+                        ? "Processing..."
+                        : "Favorite"}
                   </button>
                 </div>
                 <TestDriveModal

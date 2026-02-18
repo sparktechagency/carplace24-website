@@ -73,11 +73,11 @@ const CarCard = ({
 
         <div className="mt-auto flex items-center gap-2">
           <span className="font-semibold text-lg text-primary">
-            ${originalPrice.toLocaleString()}
+            ${(originalPrice ?? 0).toLocaleString()}
           </span>
           {discountedPrice > 0 && (
             <span className="text-red-500 line-through text-sm">
-              ${discountedPrice.toLocaleString()}
+              ${(discountedPrice ?? 0).toLocaleString()}
             </span>
           )}
         </div>

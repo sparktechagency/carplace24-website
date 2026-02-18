@@ -5,6 +5,7 @@ import RelatedCars from "./RelatedCars";
 import SellerMapSection from "./SellerMapSection";
 import VehicleDetailsTabs from "./VehicleDetailsTabs";
 import { useGetCarByIdQuery } from "@/redux/apiSlice/carSlice";
+import { useProfileQuery } from "@/redux/apiSlice/authSlice";
 import { imageUrl } from "@/redux/api/baseApi";
 import { Gauge, Fuel, Cog, Car } from "lucide-react";
 
@@ -12,11 +13,23 @@ const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
   const { data } = useGetCarByIdQuery(params.id);
   const car = (data?.data || {}) as any;
 
+  const sellerCoordinates = {
+    lat: Number(car?.createdBy?.latitude) || 0,
+    lng: Number(car?.createdBy?.longitude) || 0,
+  };
+
+  const { data: profileData } = useProfileQuery(undefined);
+  const profile = profileData?.data;
+  const buyerCoordinates = {
+    lat: Number(profile?.latitude) || 0,
+    lng: Number(profile?.longitude) || 0,
+  };
+
   const images = (car?.basicInformation?.productImage || []).map(
     (src: string) =>
       typeof src === "string" && src.startsWith("http")
         ? src
-        : `${imageUrl}/${src}`
+        : `${imageUrl}/${src}`,
   );
   const title = car?.basicInformation?.vehicleName || "";
   const subtitle = [
@@ -25,6 +38,7 @@ const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
   ]
     .filter(Boolean)
     .join(" • ");
+  const aboutCar = car?.basicInformation?.aboutCar || "";
   const price = {
     original: Number(car?.basicInformation?.RegularPrice) || 0,
     current: Number(car?.basicInformation?.OfferPrice) || 0,
@@ -162,6 +176,7 @@ const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
   const details = {
     id: car?._id,
     title,
+    aboutCar,
     subtitle,
     price,
     images,
@@ -183,7 +198,7 @@ const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
     <div>
       <CarDetails details={details} />
       <VehicleDetailsTabs details={details} />
-      <SellerMapSection seller={car?.location?.coordinates} />
+      <SellerMapSection seller={sellerCoordinates} buyer={buyerCoordinates} />
       <RelatedCars />
     </div>
   );

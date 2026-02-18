@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Container from "@/components/ui/container";
 import { AdvancedSearchForm } from "./types";
+import { useGetAllColorsQuery } from "@/redux/apiSlice/brandAndModalSlice";
 import {
   categories,
   conditions,
@@ -17,9 +18,7 @@ import {
   cylinders,
   warranties,
   accidents,
-  interiorColors,
   metallicOptions,
-  exteriorColors,
   seatsOptions,
   doorsOptions,
   fuelConsumptionOptions,
@@ -48,6 +47,16 @@ import EquipmentSection from "./sections/EquipmentSection";
 
 const AdvancedSearch = () => {
   const router = useRouter();
+  const { data: colorsResponse } = useGetAllColorsQuery(undefined);
+  const colorOptions = useMemo(() => {
+    const allOption = { value: "", label: "All" };
+    const colorsData = colorsResponse?.data || [];
+    const dynamicOptions = colorsData.map((c: any) => ({
+      value: c.color,
+      label: c.color,
+    }));
+    return [allOption, ...dynamicOptions];
+  }, [colorsResponse]);
   const [form, setForm] = useState<AdvancedSearchForm>({
     search: "",
     category: "",
@@ -73,8 +82,8 @@ const AdvancedSearch = () => {
     metallic: "",
     exteriorColor: "",
     towingKg: 50,
-    curbKg: 25680,
-    totalKg: 25680,
+    curbKg: 1000,
+    totalKg: 1000,
     seats: "",
     doors: "",
     fuelConsumption: "",
@@ -121,8 +130,8 @@ const AdvancedSearch = () => {
       metallic: "",
       exteriorColor: "",
       towingKg: 50,
-      curbKg: 25680,
-      totalKg: 25680,
+      curbKg: 1000,
+      totalKg: 1000,
       seats: "",
       doors: "",
       fuelConsumption: "",
@@ -296,7 +305,7 @@ const AdvancedSearch = () => {
             }}
             onNumberChange={(f, v) => setField(f, v)}
             onSelectChange={(f, v) => setField(f, v)}
-            options={{ batteryOptions, interiorColors }}
+            options={{ batteryOptions, interiorColors: colorOptions }}
           />
 
           <AppearanceTowingSection
@@ -307,7 +316,7 @@ const AdvancedSearch = () => {
             }}
             onNumberChange={(f, v) => setField(f, v)}
             onSelectChange={(f, v) => setField(f, v)}
-            options={{ metallicOptions, exteriorColors }}
+            options={{ metallicOptions, exteriorColors: colorOptions }}
           />
 
           <WeightsSeatsSection
