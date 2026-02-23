@@ -45,7 +45,7 @@ const FavoriteCarsPage = () => {
         .includes(searchTerm.toLowerCase()) ||
       car?.car?.basicInformation?.model?.model
         ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
+        .includes(searchTerm.toLowerCase()),
   );
 
   // Remove car from favorites
@@ -71,9 +71,9 @@ const FavoriteCarsPage = () => {
   return (
     <div className="py-8 min-h-screen">
       <Container>
-        <div className="space-y-6">
+        <div className="space-y-6 flex items-center justify-center min-h-[calc(100vh-100px)]">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold flex items-center gap-2">
                 <FaHeart className="text-red-500" /> My Favorite Cars
@@ -84,7 +84,6 @@ const FavoriteCarsPage = () => {
               </p>
             </div>
 
-            {/* Search */}
             <div className="relative w-full md:w-80">
               <input
                 type="text"
@@ -95,7 +94,7 @@ const FavoriteCarsPage = () => {
               />
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
-          </div>
+          </div> */}
 
           {/* No favorites message */}
           {favoriteCount === 0 && (
@@ -108,7 +107,9 @@ const FavoriteCarsPage = () => {
                 Browse cars and click the heart icon to add them to your
                 favorites
               </p>
-              <Button className="mt-4">Browse Cars</Button>
+              <Link href="/vehicles">
+                <Button className="mt-4 cursor-pointer">Browse Cars</Button>
+              </Link>
             </div>
           )}
 
@@ -126,7 +127,7 @@ const FavoriteCarsPage = () => {
                       width={500}
                       height={300}
                       src={getImageUrl(
-                        car?.car?.basicInformation?.productImage?.[0]
+                        car?.car?.basicInformation?.productImage?.[0],
                       )}
                       alt={car?.car?.basicInformation?.vehicleName}
                       className="w-full h-full object-cover"
@@ -148,7 +149,7 @@ const FavoriteCarsPage = () => {
                     </h3>
                     <div className="flex justify-between items-center mt-2">
                       <span className="font-semibold text-lg">
-                        $
+                        CHF{" "}
                         {car?.car?.basicInformation?.OfferPrice?.toLocaleString()}
                       </span>
                       <span className="text-gray-500">

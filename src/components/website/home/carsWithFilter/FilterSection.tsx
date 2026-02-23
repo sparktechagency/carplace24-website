@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
 import BrandModelDropdown from "./BrandModelDropdown";
+import ModelDropdown from "./ModelDropdown";
 import YearDropdown from "./YearDropdown";
 import PriceDropdown from "./PriceDropdown";
 import { FaCar } from "react-icons/fa";
@@ -72,16 +73,18 @@ const FilterSection = () => {
 
   // Filter state
   const [brand, setBrand] = useState<string>("");
+  const [model, setModel] = useState<string>("");
   const [yearRange, setYearRange] = useState<{ min: number; max: number }>(
-    defaultYearRange
+    defaultYearRange,
   );
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>(
-    defaultPriceRange
+    defaultPriceRange,
   );
 
   // Reset all filters
   const handleReset = () => {
     setBrand("");
+    setModel("");
     setYearRange(defaultYearRange);
     setPriceRange(defaultPriceRange);
   };
@@ -89,6 +92,7 @@ const FilterSection = () => {
   // Check if any filters are active
   const hasActiveFilters =
     brand !== "" ||
+    model !== "" ||
     yearRange.min !== defaultYearRange.min ||
     yearRange.max !== defaultYearRange.max ||
     priceRange.min !== defaultPriceRange.min ||
@@ -98,9 +102,12 @@ const FilterSection = () => {
   const handleSearch = () => {
     const params = new URLSearchParams();
 
-    // Add brand if selected
+    // Add brand and model if selected
     if (brand) {
       params.set("brand", brand);
+    }
+    if (model) {
+      params.set("model", model);
     }
 
     // Add year range if different from default
@@ -165,12 +172,23 @@ const FilterSection = () => {
 
           {/* Filter Dropdowns and Search Button in a single row */}
           <div className="flex flex-col lg:flex-row lg:items-end gap-4 lg:gap-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
-              {/* Brand & Model Custom Dropdown */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1">
+              {/* Brand Custom Dropdown */}
               <div className="lg:border-r lg:pr-4">
                 <BrandModelDropdown
                   value={brand}
-                  onSelect={(brandId) => setBrand(brandId)}
+                  onSelect={(brandId) => {
+                    setBrand(brandId);
+                    setModel("");
+                  }}
+                />
+              </div>
+              {/* Model Custom Dropdown */}
+              <div className="lg:border-r lg:pr-4">
+                <ModelDropdown
+                  brandId={brand}
+                  value={model}
+                  onSelect={(modelName) => setModel(modelName)}
                 />
               </div>
               {/* Year free-entry selector */}

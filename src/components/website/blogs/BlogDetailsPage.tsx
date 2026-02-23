@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useGetBlogByIdQuery } from "@/redux/apiSlice/blogSlice";
-import { imageUrl } from "@/redux/api/baseApi";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const relatedPosts = [
   {
@@ -50,11 +50,8 @@ const BlogDetailsPage = ({ id }: { id: string }) => {
     readTime: "5 min read",
     tags: (b?.tags || []) as string[],
     imageUrl:
-      typeof b?.image === "string" && b.image.startsWith("http")
-        ? b.image
-        : b?.image
-        ? `${imageUrl}/${b.image}`
-        : "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2071&auto=format&fit=crop",
+      getImageUrl(b?.image) ||
+      "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2071&auto=format&fit=crop",
     content: {
       introduction: b?.description || "",
       body: b?.description || "",
@@ -127,10 +124,7 @@ const BlogDetailsPage = ({ id }: { id: string }) => {
         <h2 className="text-2xl font-semibold mb-6">Related Posts</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {related.map((post) => {
-            const img =
-              typeof post.image === "string" && post.image.startsWith("http")
-                ? post.image
-                : `${imageUrl}/${post.image}`;
+            const img = getImageUrl(post.image);
             return (
               <div
                 key={post._id}

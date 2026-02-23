@@ -7,7 +7,7 @@ type Details = any;
 
 const VehicleDetailsTabs = ({ details }: { details?: Details }) => {
   const [activeTab, setActiveTab] = useState<"basic" | "hours" | "reviews">(
-    "basic"
+    "basic",
   );
   const [expanded, setExpanded] = useState(false);
 
@@ -229,13 +229,6 @@ const VehicleDetailsTabs = ({ details }: { details?: Details }) => {
               >
                 {expanded ? "Show Less" : "Show More Information"}
               </button>
-            </div>
-
-            <h3 className="mt-6 text-sm text-green-600 font-medium">
-              Description
-            </h3>
-            <div className="mt-3 text-sm text-gray-700">
-              <p>{details.description}</p>
             </div>
           </div>
         )}

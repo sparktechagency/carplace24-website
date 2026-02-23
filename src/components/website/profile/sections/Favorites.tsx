@@ -92,7 +92,7 @@ const Favorites = () => {
                 {car?.car?.basicInformation?.vehicleName}
               </h3>
               <p className="font-semibold text-blue-600 mb-2">
-                $
+                CHF{" "}
                 {car?.car?.basicInformation?.OfferPrice?.toLocaleString?.() ||
                   car?.car?.basicInformation?.OfferPrice ||
                   ""}

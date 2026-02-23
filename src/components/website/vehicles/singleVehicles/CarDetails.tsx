@@ -116,12 +116,12 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
 
               <div className="mt-3 flex items-end gap-3">
                 <span className="text-2xl font-bold">
-                  $
+                  CHF{" "}
                   {details.price.current?.toLocaleString?.() ||
                     details.price.current}
                 </span>
                 <span className="text-red-500 line-through">
-                  $
+                  CHF{" "}
                   {details.price.original?.toLocaleString?.() ||
                     details.price.original}
                 </span>
@@ -130,6 +130,9 @@ const CarDetails = ({ details = CAR_DETAILS }: { details?: Details }) => {
                 </span>
               </div>
               <div>
+                <h3 className="mt-6 text-sm text-green-600 font-medium">
+                  Description
+                </h3>
                 <p className="mt-3">{details.aboutCar}</p>
               </div>
             </div>

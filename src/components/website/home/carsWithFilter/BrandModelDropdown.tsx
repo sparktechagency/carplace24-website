@@ -78,14 +78,17 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
   const popularBrands = brands.slice(0, 12);
 
   // Organize brands alphabetically
-  const organizedBrands = brands.reduce((acc, brand) => {
-    const firstLetter = brand.brand.charAt(0).toUpperCase();
-    if (!acc[firstLetter]) {
-      acc[firstLetter] = [];
-    }
-    acc[firstLetter].push(brand);
-    return acc;
-  }, {} as Record<string, Brand[]>);
+  const organizedBrands = brands.reduce(
+    (acc, brand) => {
+      const firstLetter = brand.brand.charAt(0).toUpperCase();
+      if (!acc[firstLetter]) {
+        acc[firstLetter] = [];
+      }
+      acc[firstLetter].push(brand);
+      return acc;
+    },
+    {} as Record<string, Brand[]>,
+  );
 
   // Convert to array format and sort
   const allBrands = Object.entries(organizedBrands)
@@ -101,7 +104,7 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
         .map((group) => ({
           letter: group.letter,
           brands: group.brands.filter((brand) =>
-            brand.brand.toLowerCase().includes(searchTerm.toLowerCase())
+            brand.brand.toLowerCase().includes(searchTerm.toLowerCase()),
           ),
         }))
         .filter((group) => group.brands.length > 0)
@@ -110,8 +113,11 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
   return (
     <div className="relative" ref={dropdownRef}>
       <h1 className="text-xs text-gray-500 mb-1">Brand & Model</h1>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(e) => e.key === "Enter" && setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full cursor-pointer px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none"
       >
         <span className={selectedBrandName ? "text-gray-900" : "text-gray-500"}>
@@ -134,7 +140,7 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
             <MdOutlineKeyboardArrowDown size={20} />
           </span>
         </div>
-      </button>
+      </div>
 
       {isOpen && (
         <div className="absolute z-50 w-[400px] mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">

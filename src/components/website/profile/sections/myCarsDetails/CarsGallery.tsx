@@ -76,11 +76,11 @@ const CarsGallery = ({ carDetails }: { carDetails: any }) => {
 
               <div className="mt-3 flex items-end gap-3">
                 <span className="text-2xl font-bold">
-                  ${carDetails.price?.current?.toLocaleString() || 0}
+                  CHF {carDetails.price?.current?.toLocaleString() || 0}
                 </span>
                 {carDetails.price?.original > 0 && (
                   <span className="text-red-500 line-through">
-                    ${carDetails.price?.original?.toLocaleString()}
+                    CHF {carDetails.price?.original?.toLocaleString()}
                   </span>
                 )}
                 <span className="text-blue-600 text-sm">

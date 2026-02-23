@@ -5,6 +5,7 @@ import { ChevronDown, RotateCcw, Search, Settings2 } from "lucide-react";
 import Container from "@/components/ui/container";
 import Link from "next/link";
 import BrandModelDropdown from "../home/carsWithFilter/BrandModelDropdown";
+import ModelDropdown from "../home/carsWithFilter/ModelDropdown";
 import YearDropdown from "../home/carsWithFilter/YearDropdown";
 import PriceDropdown from "../home/carsWithFilter/PriceDropdown";
 import MileageDropdown from "../home/carsWithFilter/MileageDropdown";
@@ -81,7 +82,7 @@ interface FilterVehiclesProps {
   filters: VehicleFilters;
   setFilter: <K extends keyof VehicleFilters>(
     key: K,
-    value: VehicleFilters[K]
+    value: VehicleFilters[K],
   ) => void;
   setFilters: (newFilters: Partial<VehicleFilters>) => void;
   resetFilters: () => void;
@@ -146,7 +147,14 @@ const FilterVehicles = ({
             {/* Brand & Model combined dropdown */}
             <BrandModelDropdown
               value={filters.brand}
-              onSelect={(brandId) => setFilter("brand", brandId)}
+              onSelect={(brandId) => setFilters({ brand: brandId, model: "" })}
+            />
+
+            {/* Model dropdown */}
+            <ModelDropdown
+              brandId={filters.brand}
+              value={filters.model}
+              onSelect={(modelName) => setFilter("model", modelName)}
             />
 
             {/* Body Type */}
@@ -210,12 +218,21 @@ const FilterVehicles = ({
 
           {/* Desktop: two rows */}
           <div className="hidden lg:flex lg:flex-col lg:gap-4">
-            {/* First row: BrandModel | Body | Condition | Fuel | Year */}
+            {/* First row: Brand | Model | Body | Condition | Fuel */}
             <div className="flex divide-x">
               <div className="flex-1 px-4">
                 <BrandModelDropdown
                   value={filters.brand}
-                  onSelect={(brandId) => setFilter("brand", brandId)}
+                  onSelect={(brandId) =>
+                    setFilters({ brand: brandId, model: "" })
+                  }
+                />
+              </div>
+              <div className="flex-1 px-4">
+                <ModelDropdown
+                  brandId={filters.brand}
+                  value={filters.model}
+                  onSelect={(modelName) => setFilter("model", modelName)}
                 />
               </div>
               <div className="flex-1 px-4">
@@ -242,6 +259,10 @@ const FilterVehicles = ({
                   onChange={(option) => setFilter("fuelType", option)}
                 />
               </div>
+            </div>
+
+            {/* Second row: Year | Price | Mileage | Transmission | Drive Type */}
+            <div className="flex divide-x">
               <div className="flex-1 px-4">
                 <YearDropdown
                   value={{ min: filters.yearFrom, max: filters.yearTo }}
@@ -252,10 +273,6 @@ const FilterVehicles = ({
                   endYear={new Date().getFullYear()}
                 />
               </div>
-            </div>
-
-            {/* Second row: Price | Mileage | Transmission | Drive Type | spacer */}
-            <div className="flex divide-x">
               <div className="flex-1 px-4">
                 <PriceDropdown
                   value={{ min: filters.priceFrom, max: filters.priceTo }}
@@ -288,8 +305,6 @@ const FilterVehicles = ({
                   onChange={(option) => setFilter("driveType", option)}
                 />
               </div>
-              {/* Spacer to keep 5 items per row visually */}
-              <div className="flex-1 px-4" />
             </div>
           </div>
         </div>

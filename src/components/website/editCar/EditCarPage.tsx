@@ -30,7 +30,7 @@ import {
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
 import { useRouter } from "next/navigation";
 import CarLoader from "@/components/ui/loader/CarLoader";
-import { imageUrl } from "@/redux/api/baseApi";
+import { getImageUrl } from "@/lib/getImageUrl";
 import {
   getEquipmentFeaturesFromCar,
   labelToKey,
@@ -179,10 +179,7 @@ const EditCarPage = ({ id }: { id: string }) => {
 
       // Handle images
       const imgs = bi.productImage || [];
-      const imageList = imgs.map((img: any) => {
-        if (typeof img === "string" && img.startsWith("http")) return img;
-        return `${imageUrl}/${img}`;
-      });
+      const imageList = imgs.map((img: any) => getImageUrl(img));
       setImages(imageList);
     }
   }, [carData]);

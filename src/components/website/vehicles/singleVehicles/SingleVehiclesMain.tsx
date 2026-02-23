@@ -6,8 +6,8 @@ import SellerMapSection from "./SellerMapSection";
 import VehicleDetailsTabs from "./VehicleDetailsTabs";
 import { useGetCarByIdQuery } from "@/redux/apiSlice/carSlice";
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
-import { imageUrl } from "@/redux/api/baseApi";
 import { Gauge, Fuel, Cog, Car } from "lucide-react";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
   const { data } = useGetCarByIdQuery(params.id);
@@ -26,10 +26,7 @@ const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
   };
 
   const images = (car?.basicInformation?.productImage || []).map(
-    (src: string) =>
-      typeof src === "string" && src.startsWith("http")
-        ? src
-        : `${imageUrl}/${src}`,
+    (src: string) => getImageUrl(src),
   );
   const title = car?.basicInformation?.vehicleName || "";
   const subtitle = [

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Container from "@/components/ui/container";
 import { useGetAllBlogsQuery } from "@/redux/apiSlice/blogSlice";
-import { imageUrl } from "@/redux/api/baseApi";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 type BlogCardData = {
   id: string | number;
@@ -28,8 +28,8 @@ const BlogCard = ({ blog }: { blog: BlogCardData }) => {
             blog.size === "large"
               ? "700px"
               : blog.size === "medium"
-              ? "342px"
-              : "342px",
+                ? "342px"
+                : "342px",
         }}
       >
         {/* Dark overlay */}
@@ -42,8 +42,8 @@ const BlogCard = ({ blog }: { blog: BlogCardData }) => {
               blog.size === "large"
                 ? "text-xl sm:text-2xl"
                 : blog.size === "medium"
-                ? "text-lg sm:text-xl"
-                : "text-base sm:text-lg"
+                  ? "text-lg sm:text-xl"
+                  : "text-base sm:text-lg"
             }`}
           >
             {blog.title}
@@ -77,12 +77,7 @@ const BlogSectionHome = () => {
     id: b?._id || i + 1,
     title: b?.title || "",
     description: b?.description || "",
-    image:
-      typeof b?.image === "string" && b.image.startsWith("http")
-        ? b.image
-        : b?.image
-        ? `${imageUrl}/${b.image}`
-        : "",
+    image: getImageUrl(b?.image),
     size: sizes[i],
     linkText: "Visit Now",
   }));
@@ -98,7 +93,7 @@ const BlogSectionHome = () => {
             Popular Blog Posts
           </h2>
           <Link
-            href="#"
+            href="/blogs"
             className="text-blue-600 hover:text-blue-800 text-sm sm:text-base"
           >
             View All

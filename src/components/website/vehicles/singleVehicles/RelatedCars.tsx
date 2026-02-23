@@ -17,8 +17,8 @@ const items: CarItem[] = [
     id: "1",
     title: "KIA Sportage 1.6T PHEV",
     subtitle: "Sportage 1.6T/SUV/Jeep/Audi",
-    price: "$15,000",
-    originalPrice: "$16,000",
+    price: "CHF 15,000",
+    originalPrice: "CHF 16,000",
     imageSrc:
       "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop",
   },
@@ -26,8 +26,8 @@ const items: CarItem[] = [
     id: "2",
     title: "KIA Sportage 1.6T PHEV",
     subtitle: "Sportage 1.6T/SUV/Jeep/Audi",
-    price: "$15,000",
-    originalPrice: "$16,000",
+    price: "CHF 15,000",
+    originalPrice: "CHF 16,000",
     imageSrc:
       "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070&auto=format&fit=crop",
   },
@@ -35,8 +35,8 @@ const items: CarItem[] = [
     id: "3",
     title: "KIA Sportage 1.6T PHEV",
     subtitle: "Sportage 1.6T/SUV/Jeep/Audi",
-    price: "$15,000",
-    originalPrice: "$16,000",
+    price: "CHF 15,000",
+    originalPrice: "CHF 16,000",
     imageSrc:
       "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop",
   },

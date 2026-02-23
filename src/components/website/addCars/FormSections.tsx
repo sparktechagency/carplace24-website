@@ -25,13 +25,13 @@ export const Pricing = ({ formData, handleInputChange }: FormSectionsProps) => {
           </label>
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-              $
+              CHF
             </span>
             <input
               type="text"
               id="regularPrice"
               placeholder="0.00"
-              className="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.regularPrice || ""}
               onChange={(e) =>
                 handleInputChange("regularPrice", e.target.value)
@@ -48,13 +48,13 @@ export const Pricing = ({ formData, handleInputChange }: FormSectionsProps) => {
           </label>
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-              $
+              CHF
             </span>
             <input
               type="text"
               id="offerPrice"
               placeholder="0.00"
-              className="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.offerPrice || ""}
               onChange={(e) => handleInputChange("offerPrice", e.target.value)}
             />
@@ -69,13 +69,13 @@ export const Pricing = ({ formData, handleInputChange }: FormSectionsProps) => {
           </label>
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-              $
+              CHF
             </span>
             <input
               type="text"
               id="leasingRate"
               placeholder="0.00"
-              className="w-full pl-8 pr-20 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-20 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.leasingRate || ""}
               onChange={(e) => handleInputChange("leasingRate", e.target.value)}
             />

@@ -5,7 +5,7 @@ import CarsGallery from "./CarsGallery";
 import { useGetCarByIdQuery } from "@/redux/apiSlice/carSlice";
 import CarLoader from "@/components/ui/loader/CarLoader";
 import { Gauge, Fuel, Cog, Car } from "lucide-react";
-import { imageUrl } from "@/redux/api/baseApi";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const MyCarsDetailsPage = ({ id }: { id: string }) => {
   const { data: getCarDetails, isLoading } = useGetCarByIdQuery(id);
@@ -18,10 +18,7 @@ const MyCarsDetailsPage = ({ id }: { id: string }) => {
 
   // Data mapping logic from SingleVehiclesMain
   const images = (car?.basicInformation?.productImage || []).map(
-    (src: string) =>
-      typeof src === "string" && src.startsWith("http")
-        ? src
-        : `${imageUrl}/${src}`,
+    (src: string) => getImageUrl(src),
   );
 
   const title = car?.basicInformation?.vehicleName || "";

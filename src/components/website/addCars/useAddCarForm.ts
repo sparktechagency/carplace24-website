@@ -260,6 +260,7 @@ export const useAddCarForm = () => {
       const res = await addCar(fd).unwrap();
       const message = (res as any)?.message || "Vehicle added";
       toast.success(message);
+      router.push("/profile");
     } catch (err: any) {
       const msg = err?.data?.message || "Failed to add vehicle";
       toast.error(msg);

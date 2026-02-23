@@ -3,6 +3,7 @@ import nearestDealersImg from "@/assets/nearestDealerImg.png";
 import nearestDealersArrow from "@/assets/nearestDealerArrow.png";
 import Image from "next/image";
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 const FindNearestDealers = () => {
   return (
@@ -35,10 +36,12 @@ const FindNearestDealers = () => {
 
           {/* Search button */}
           <div className="w-fit">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 transition-colors">
-              <Search className="w-5 h-5" />
-              Find dealers
-            </button>
+            <Link href="/dealers">
+              <button className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center gap-2 transition-colors">
+                <Search className="w-5 h-5" />
+                Find dealers
+              </button>
+            </Link>
           </div>
         </div>
       </Container>

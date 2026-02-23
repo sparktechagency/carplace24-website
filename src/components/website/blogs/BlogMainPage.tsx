@@ -4,7 +4,7 @@ import { useState } from "react";
 import { BlogPost } from "./blogData";
 import BlogCard from "./BlogCard";
 import { useGetAllBlogsQuery } from "@/redux/apiSlice/blogSlice";
-import { imageUrl } from "@/redux/api/baseApi";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const BlogMainPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,10 +30,7 @@ const BlogMainPage = () => {
     date: b.createdAt ? new Date(b.createdAt).toLocaleDateString() : "",
     category: b.type || "",
     tags: b.tags || [],
-    imageUrl:
-      typeof b.image === "string" && b.image.startsWith("http")
-        ? b.image
-        : `${imageUrl}/${b.image}`,
+    imageUrl: getImageUrl(b.image),
     readTime: "5 min read",
   }));
 

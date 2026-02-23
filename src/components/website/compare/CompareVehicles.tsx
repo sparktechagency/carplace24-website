@@ -5,11 +5,14 @@ import Container from "@/components/ui/container";
 import { COMPARE_CARS, CompareCarType } from "./compareData";
 import { AlertCircle, Star, X } from "lucide-react";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
 import {
   useDeleteCompareCarMutation,
   useGetCompareCarsQuery,
 } from "@/redux/apiSlice/compareSlice";
 import { imageUrl } from "@/redux/api/baseApi";
+import Link from "next/link";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const CompareVehicles = () => {
   const [compareCars, setCompareCars] = useState<CompareCarType[]>([]);
@@ -32,14 +35,7 @@ const CompareVehicles = () => {
         const euro = car?.euroStandard || {};
         const loc = car?.location || {};
 
-        const imageSrc = (() => {
-          const first = (b.productImage || [])[0];
-          if (!first)
-            return "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop";
-          return typeof first === "string" && first.startsWith("http")
-            ? first
-            : `${imageUrl}/${first}`;
-        })();
+        const imageSrc = getImageUrl((b.productImage || [])[0]);
 
         const price = Number(b.OfferPrice ?? b.RegularPrice ?? 0) || 0;
         const oldPrice = Number(b.RegularPrice ?? price) || 0;
@@ -124,17 +120,26 @@ const CompareVehicles = () => {
     return <div>Loading...</div>;
   }
 
-  const removeCar = (id: string) => {
-    setCompareCars(compareCars.filter((car) => car.id !== id));
+  const removeCar = async (id: string) => {
+    try {
+      const res = await removeCompare(id).unwrap();
+      if (res.success) {
+        toast.success(res.message || "Vehicle removed from comparison");
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || "Failed to remove vehicle from comparison",
+      );
+    }
   };
 
   if (compareCars.length === 0) {
     return (
-      <div className="py-8">
+      <div className="py-8 flex items-center justify-center min-h-[calc(100vh-100px)]">
         <Container>
-          <h1 className="text-2xl font-semibold mb-6">
+          {/* <h1 className="text-2xl font-semibold mb-6">
             You can compare your selected vehicles
-          </h1>
+          </h1> */}
 
           <div className="flex flex-col items-center justify-center p-10 border rounded-md bg-gray-50">
             <AlertCircle className="h-12 w-12 text-amber-500 mb-4" />
@@ -145,9 +150,11 @@ const CompareVehicles = () => {
               Please add vehicles to your comparison list to see detailed
               comparisons.
             </p>
-            <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
-              Browse Vehicles
-            </button>
+            <Link href="/vehicles">
+              <button className="px-4 py-2 cursor-pointer bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+                Browse Vehicles
+              </button>
+            </Link>
           </div>
         </Container>
       </div>
@@ -199,14 +206,14 @@ const CompareVehicles = () => {
                   <div className="flex justify-between items-center mt-2">
                     <div>
                       <span className="font-semibold">
-                        ${car.price.toLocaleString()}
+                        CHF {car.price.toLocaleString()}
                       </span>
                       <span className="text-sm text-red-500 line-through ml-1">
-                        ${car.oldPrice.toLocaleString()}
+                        CHF {car.oldPrice.toLocaleString()}
                       </span>
                     </div>
                     <div className="text-sm text-gray-500">
-                      ${(car.price / 12).toFixed(0)}/m
+                      CHF {(car.price / 12).toFixed(0)}/m
                     </div>
                   </div>
 

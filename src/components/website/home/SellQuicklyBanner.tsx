@@ -18,7 +18,7 @@ const SellQuicklyBanner = () => {
                 Turn your car into cash in just a few easy steps.
               </p>
               <Link
-                href="#"
+                href="/seller/add-cars"
                 className="inline-flex items-center bg-yellow-400 hover:bg-yellow-500 text-navy-900 font-medium py-3 px-6 rounded-md transition-colors"
               >
                 Sell Now <span className="ml-2">→</span>
