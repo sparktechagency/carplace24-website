@@ -1,4 +1,10 @@
-import Image from "next/image";
+import {
+  toggleFavorite,
+  isInFavorites,
+  VEHICLE_STORAGE_EVENT,
+} from "@/lib/vehicleStorage";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getImageUrl } from "@/lib/getImageUrl";
@@ -12,7 +18,7 @@ interface CarCardProps {
   carCategory: string;
   originalPrice: number;
   discountedPrice: number;
-  isFavorite?: boolean;
+  car?: any;
 }
 
 const CarCard = ({
@@ -24,8 +30,41 @@ const CarCard = ({
   carCategory,
   originalPrice,
   discountedPrice,
-  isFavorite = false,
+  car,
 }: CarCardProps) => {
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const carId = car?._id || car?.id;
+
+  useEffect(() => {
+    const checkFavorite = () => {
+      if (carId) {
+        setIsBookmarked(isInFavorites(carId));
+      }
+    };
+
+    checkFavorite();
+
+    window.addEventListener(VEHICLE_STORAGE_EVENT, checkFavorite);
+    window.addEventListener("storage", checkFavorite);
+
+    return () => {
+      window.removeEventListener(VEHICLE_STORAGE_EVENT, checkFavorite);
+      window.removeEventListener("storage", checkFavorite);
+    };
+  }, [carId]);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!car) {
+      toast.error("Car data missing");
+      return;
+    }
+    const res = toggleFavorite(car);
+    setIsBookmarked(res.isAdded);
+    toast.success(res.message);
+  };
+
   return (
     <div className="rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
       <div className="relative shrink-0">
@@ -40,10 +79,11 @@ const CarCard = ({
           variant="ghost"
           size="icon"
           className="absolute top-3 right-3 bg-white/80 rounded-full hover:bg-white"
+          onClick={handleFavoriteClick}
         >
           <Heart
             className={`h-5 w-5 ${
-              isFavorite ? "fill-primary text-primary" : "text-gray-500"
+              isBookmarked ? "fill-primary text-primary" : "text-gray-500"
             }`}
           />
         </Button>

@@ -3,7 +3,6 @@ import CarCard from "./CarCard";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/getImageUrl";
 
-
 const YouMayLike = ({
   carsData,
   isLoading,
@@ -23,7 +22,7 @@ const YouMayLike = ({
                 <CarCard
                   key={car._id}
                   image={getImageUrl(
-                    car.basicInformation?.productImage?.[0] || ""
+                    car.basicInformation?.productImage?.[0] || "",
                   )}
                   dealerLogo={car.createdBy?.profile}
                   dealerName={car.createdBy?.name}
@@ -32,6 +31,7 @@ const YouMayLike = ({
                   carCategory={car.basicInformation?.BodyType}
                   originalPrice={car.basicInformation?.RegularPrice}
                   discountedPrice={car.basicInformation?.OfferPrice}
+                  car={car}
                 />
               </Link>
             ))}

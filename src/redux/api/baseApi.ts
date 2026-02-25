@@ -57,7 +57,7 @@ const api = createApi({
   reducerPath: "api",
   baseQuery: customBaseQuery,
   endpoints: () => ({}),
-  tagTypes: ["AdminData", "Compare", "Bookmark", "cars"],
+  tagTypes: ["AdminData", "cars"],
 });
 
 export const { reducer } = api;

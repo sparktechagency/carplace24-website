@@ -1,71 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import Container from "../ui/container";
-import { Button } from "../ui/button";
-import { FaHeart, FaSearch, FaTrash, FaEye } from "react-icons/fa";
-import Image from "next/image";
-import {
-  useGetBookmarkCarsQuery,
-  useToggleBookmarkCarMutation,
-} from "@/redux/apiSlice/compareSlice";
-import CarLoader from "../ui/loader/CarLoader";
+import { getFavoriteCars, toggleFavorite } from "@/lib/vehicleStorage";
 import { getImageUrl } from "@/lib/getImageUrl";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import Container from "../ui/container";
+import { Button } from "../ui/button";
+import Image from "next/image";
+import { FaHeart, FaSearch, FaTrash, FaEye } from "react-icons/fa";
 
 const FavoriteCarsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [favoriteCars, setFavoriteCars] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const {
-    data: getFavoriteCars,
-    isLoading,
-    refetch,
-  } = useGetBookmarkCarsQuery({});
-  const [toggleBookmark, { isLoading: toggling }] =
-    useToggleBookmarkCarMutation();
+  const loadFavorites = () => {
+    const data = getFavoriteCars();
+    setFavoriteCars(data || []);
+    setLoading(false);
+  };
 
-  if (isLoading) {
-    return <CarLoader />;
+  useEffect(() => {
+    loadFavorites();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  const favoriteCars = getFavoriteCars?.data || [];
-  console.log(favoriteCars);
-
-  const favoriteCount = Array.isArray(favoriteCars) ? favoriteCars.length : 0;
+  const favoriteCount = favoriteCars.length;
 
   // Filter cars based on search term
   const filteredCars = favoriteCars?.filter(
     (car: any) =>
-      car?.car?.basicInformation?.vehicleName
+      car?.basicInformation?.vehicleName
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      car?.car?.basicInformation?.brand?.brand
+      car?.basicInformation?.brand?.brand
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      car?.car?.basicInformation?.model?.model
+      car?.basicInformation?.model?.model
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()),
   );
 
   // Remove car from favorites
-  const removeFavorite = async (favItem: any) => {
-    const carId = favItem?.car?._id || favItem?.carId || favItem?.id;
-    if (!carId) {
-      toast.error("Missing car id");
-      return;
-    }
-    try {
-      const res = await toggleBookmark({ car: carId }).unwrap();
-      if (res?.success) {
-        toast.success("Removed from favorites");
-        refetch();
-      } else {
-        toast.error(res?.message || "Failed to remove");
-      }
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to remove");
-    }
+  const removeFavorite = (car: any) => {
+    toggleFavorite(car);
+    toast.success("Removed from favorites");
+    loadFavorites();
   };
 
   return (
@@ -118,7 +102,7 @@ const FavoriteCarsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCars?.map((car: any) => (
                 <div
-                  key={car._id}
+                  key={car._id || car.id}
                   className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
                 >
                   {/* Car image */}
@@ -127,16 +111,15 @@ const FavoriteCarsPage = () => {
                       width={500}
                       height={300}
                       src={getImageUrl(
-                        car?.car?.basicInformation?.productImage?.[0],
+                        car?.basicInformation?.productImage?.[0],
                       )}
-                      alt={car?.car?.basicInformation?.vehicleName}
+                      alt={car?.basicInformation?.vehicleName}
                       className="w-full h-full object-cover"
                     />
                     <button
                       onClick={() => removeFavorite(car)}
                       className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors"
                       title="Remove from favorites"
-                      disabled={toggling}
                     >
                       <FaTrash className="text-red-500" />
                     </button>
@@ -145,53 +128,31 @@ const FavoriteCarsPage = () => {
                   {/* Car details */}
                   <div className="p-4">
                     <h3 className="font-bold text-lg">
-                      {car?.car?.basicInformation?.vehicleName}
+                      {car?.basicInformation?.vehicleName}
                     </h3>
                     <div className="flex justify-between items-center mt-2">
                       <span className="font-semibold text-lg">
                         CHF{" "}
-                        {car?.car?.basicInformation?.OfferPrice?.toLocaleString()}
+                        {car?.basicInformation?.OfferPrice?.toLocaleString()}
                       </span>
-                      <span className="text-gray-500">
-                        {/* {car?.car?.basicInformation?.location} */}
-                      </span>
+                      <span className="text-gray-500"></span>
                     </div>
 
                     {/* Car specs */}
                     <div className="grid grid-cols-2 gap-2 mt-3 text-sm text-gray-600">
-                      <div>Year: {car?.car?.basicInformation?.year}</div>
+                      <div>Year: {car?.basicInformation?.year}</div>
                       <div>
                         Horspower:{" "}
-                        {car?.car?.technicalInformation?.engineDisplacement}
+                        {car?.technicalInformation?.engineDisplacement}
                       </div>
-                      <div>Fuel: {car.car?.technicalInformation?.fuelType}</div>
+                      <div>Fuel: {car?.technicalInformation?.fuelType}</div>
                       <div>
-                        Transmission:{" "}
-                        {car?.car?.technicalInformation?.transmission}
+                        Transmission: {car?.technicalInformation?.transmission}
                       </div>
                     </div>
 
-                    {/* Features */}
-                    {/* <div className="mt-3 flex flex-wrap gap-1">
-                      {car?.features
-                        ?.slice(0, 3)
-                        ?.map((feature: string, index: number) => (
-                          <span
-                            key={index}
-                            className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
-                          >
-                            {feature}
-                          </span>
-                        ))}
-                      {car.features.length > 3 && (
-                        <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
-                          +{car.features.length - 3} more
-                        </span>
-                      )}
-                    </div> */}
-
                     {/* Action button */}
-                    <Link href={`/vehicles/${car?.car?._id}`}>
+                    <Link href={`/vehicles/${car?._id || car?.id}`}>
                       <Button
                         className="w-full mt-4 flex items-center cursor-pointer justify-center gap-2"
                         variant="outline"

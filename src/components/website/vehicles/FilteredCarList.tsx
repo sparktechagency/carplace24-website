@@ -88,7 +88,7 @@ const FilteredCarList = ({
                 <CarCard
                   key={car._id}
                   image={getImageUrl(
-                    car.basicInformation?.productImage?.[0] || ""
+                    car.basicInformation?.productImage?.[0] || "",
                   )}
                   dealerLogo={car.createdBy?.profile}
                   dealerName={car.createdBy?.name}
@@ -97,6 +97,7 @@ const FilteredCarList = ({
                   carCategory={car.basicInformation?.BodyType}
                   originalPrice={car.basicInformation?.RegularPrice}
                   discountedPrice={car.basicInformation?.OfferPrice}
+                  car={car}
                 />
               </Link>
             ))}
@@ -136,7 +137,7 @@ const FilteredCarList = ({
                         {page}
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                  ),
                 )}
 
                 <PaginationItem>

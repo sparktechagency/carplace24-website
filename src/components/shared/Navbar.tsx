@@ -13,9 +13,10 @@ import addCarIcon from "@/assets/addCarIcon.png";
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
 import { logout } from "@/lib/logout";
 import {
-  useGetCompareCarsQuery,
-  useGetBookmarkCarsQuery,
-} from "@/redux/apiSlice/compareSlice";
+  getComparedCars,
+  getFavoriteCars,
+  VEHICLE_STORAGE_EVENT,
+} from "@/lib/vehicleStorage";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
@@ -23,34 +24,34 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [compareCount, setCompareCount] = useState(0);
+  const [favoriteCount, setFavoriteCount] = useState(0);
 
   const { data: userDetails, isLoading } = useProfileQuery(undefined);
-  const { data: compareData } = useGetCompareCarsQuery(undefined);
-  const { data: bookmarkData } = useGetBookmarkCarsQuery(undefined);
+
+  useEffect(() => {
+    const updateCounts = () => {
+      setCompareCount(getComparedCars().length);
+      setFavoriteCount(getFavoriteCars().length);
+    };
+
+    updateCounts();
+
+    // Listen for custom event (same tab)
+    window.addEventListener(VEHICLE_STORAGE_EVENT, updateCounts);
+    // Listen for storage changes (cross tab)
+    window.addEventListener("storage", updateCounts);
+    // Refresh on focus
+    window.addEventListener("focus", updateCounts);
+
+    return () => {
+      window.removeEventListener(VEHICLE_STORAGE_EVENT, updateCounts);
+      window.removeEventListener("storage", updateCounts);
+      window.removeEventListener("focus", updateCounts);
+    };
+  }, []);
 
   const user = userDetails?.data;
-  const compareItems = (compareData?.data || compareData?.items || []) as any[];
-  const compareCount = Array.isArray(compareItems)
-    ? compareItems.length
-    : Number(
-        (compareData as any)?.data?.count || (compareData as any)?.count || 0,
-      ) || 0;
-
-  const favoriteItems =
-    (bookmarkData as any)?.data?.data ||
-    (bookmarkData as any)?.data ||
-    (bookmarkData as any)?.items ||
-    (bookmarkData as any)?.bookmarks ||
-    (bookmarkData as any)?.results ||
-    [];
-  const favoriteCount = Array.isArray(favoriteItems)
-    ? favoriteItems.length
-    : Number(
-        (bookmarkData as any)?.data?.count ||
-          (bookmarkData as any)?.count ||
-          (bookmarkData as any)?.data?.total ||
-          0,
-      ) || 0;
 
   const handleLogout = (): void => {
     logout("/login");

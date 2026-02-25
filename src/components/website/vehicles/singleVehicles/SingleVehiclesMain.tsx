@@ -8,17 +8,22 @@ import { useGetCarByIdQuery } from "@/redux/apiSlice/carSlice";
 import { useProfileQuery } from "@/redux/apiSlice/authSlice";
 import { Gauge, Fuel, Cog, Car } from "lucide-react";
 import { getImageUrl } from "@/lib/getImageUrl";
+import CarLoader from "@/components/ui/loader/CarLoader";
 
 const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
-  const { data } = useGetCarByIdQuery(params.id);
+  const { data, isLoading: isCarLoading } = useGetCarByIdQuery(params.id);
+  const { data: profileData } = useProfileQuery(undefined);
   const car = (data?.data || {}) as any;
+
+  if (isCarLoading) {
+    return <CarLoader />;
+  }
 
   const sellerCoordinates = {
     lat: Number(car?.createdBy?.latitude) || 0,
     lng: Number(car?.createdBy?.longitude) || 0,
   };
 
-  const { data: profileData } = useProfileQuery(undefined);
   const profile = profileData?.data;
   const buyerCoordinates = {
     lat: Number(profile?.latitude) || 0,
@@ -188,12 +193,12 @@ const SingleVehiclesMain = ({ params }: { params: { id: string } }) => {
     seatsAndDoors,
     fuelConsumption,
     euroStandard,
-    description,
+    rawCar: car,
   };
 
   return (
     <div>
-      <CarDetails details={details} />
+      <CarDetails details={details} rawCar={car} />
       <VehicleDetailsTabs details={details} />
       <SellerMapSection seller={sellerCoordinates} buyer={buyerCoordinates} />
       <RelatedCars />

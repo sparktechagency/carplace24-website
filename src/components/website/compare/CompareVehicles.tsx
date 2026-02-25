@@ -6,131 +6,124 @@ import { COMPARE_CARS, CompareCarType } from "./compareData";
 import { AlertCircle, Star, X } from "lucide-react";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
-import {
-  useDeleteCompareCarMutation,
-  useGetCompareCarsQuery,
-} from "@/redux/apiSlice/compareSlice";
+import { getComparedCars, removeFromCompare } from "@/lib/vehicleStorage";
 import { imageUrl } from "@/redux/api/baseApi";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/getImageUrl";
 
 const CompareVehicles = () => {
   const [compareCars, setCompareCars] = useState<CompareCarType[]>([]);
-  const { data: compareData, isLoading } = useGetCompareCarsQuery(undefined);
-  const [removeCompare, { isLoading: isRemoving }] =
-    useDeleteCompareCarMutation();
+  const [loading, setLoading] = useState(true);
+
+  const loadComparedCars = () => {
+    const rawData = getComparedCars();
+    const apiItems = (rawData || []) as any[];
+
+    const mapped: CompareCarType[] = apiItems.map((car: any) => {
+      const b = car?.basicInformation || {};
+      const t = car?.technicalInformation || {};
+      const eh = car?.electricHybrid || {};
+      const eq = car?.equipment || {};
+      const ex = car?.extras || {};
+      const col = car?.colour || {};
+      const sd = car?.seatsAndDoors || {};
+      const env = car?.energyAndEnvironment || {};
+      const euro = car?.euroStandard || {};
+      const loc = car?.location || {};
+
+      const imageSrc = getImageUrl((b.productImage || [])[0]);
+
+      const price = Number(b.OfferPrice ?? b.RegularPrice ?? 0) || 0;
+      const oldPrice = Number(b.RegularPrice ?? price) || 0;
+
+      return {
+        id: car?._id || car?.id || "",
+        title: String(b.vehicleName || ""),
+        sportage: String(b.BodyType || ""),
+        brands: [
+          String(b.brand?.brand || b.brand || ""),
+          String(b.model?.model || b.model || ""),
+        ].filter(Boolean),
+        price,
+        oldPrice,
+        rating: 4.5,
+        reviews: 180,
+        location: [loc.address, loc.city, loc.country]
+          .filter(Boolean)
+          .join(", "),
+        basicInfo: {
+          name: String(b.vehicleName || ""),
+          model: String(b.model?.model || b.vehicleName || ""),
+          categories: String(b.BodyType || b.condition || ""),
+          brand: String(b.brand?.brand || b.brand || ""),
+          mfkWarranty: String(b.MfkWarranty || ""),
+          accidentVehicle: String(b.AccidentVehicle || ""),
+          bodyType: String(b.BodyType || ""),
+        },
+        technicalInfo: {
+          fuelType: String(t.fuelType || ""),
+          transmission: String(t.transmission || ""),
+          performance: String(t.performance || ""),
+          driveType: String(t.driveType || ""),
+          engineDisplacement: String(t.engineDisplacement || ""),
+          cylinders: String(t.cylinders || ""),
+          year: String(b.year || ""),
+        },
+        colorInfo: {
+          exteriorColour: (col.exterior || []).join(", "),
+          interiorColour: (col.interior || []).join(", "),
+        },
+        electricHybridInfo: {
+          range: String(eh.rangeKm || ""),
+          batteryCapacity: String(eh.batteryCapacityKWh || ""),
+          towingCapacity: String(eh.towingCapacity || ""),
+          totalWeight: String(eh.totalWeight || ""),
+          curbWeight: String(eh.curbWeight || ""),
+        },
+        equipment: {
+          abs: eq.ABS ? "Yes" : "No",
+          adaptiveHeadlights: eq.XenonLEDHeadlights ? "Yes" : "No",
+        },
+        extras: {
+          wellType: String(ex.tires || ""),
+          summerWinter: String(ex.season || ""),
+          handicapAccessible: String(ex.handicapAccessible || ""),
+          raceCar: String(ex.raceCar || ""),
+          tuning: String(ex.tuning || ""),
+        },
+        seatsAndDoors: {
+          seats: String(sd.seats || ""),
+          door: String(sd.doors || ""),
+        },
+        fuelConsumption: {
+          consumption: String(env.fuelConsumption || ""),
+          coEmissions: String(env.coEmissions || ""),
+          energyEfficiencyClass: String(env.energyEfficiencyClass || ""),
+        },
+        euroStandard: {
+          fuelType: String(euro.fuelType || ""),
+          transmission: String(euro.transmission || ""),
+        },
+        description: String(car.description || ""),
+        image: imageSrc,
+      } as CompareCarType;
+    });
+    setCompareCars(mapped);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const apiItems = (compareData?.data || compareData?.items || []) as any[];
-    if (Array.isArray(apiItems)) {
-      const mapped: CompareCarType[] = apiItems.map((car: any) => {
-        const b = car?.basicInformation || {};
-        const t = car?.technicalInformation || {};
-        const eh = car?.electricHybrid || {};
-        const eq = car?.equipment || {};
-        const ex = car?.extras || {};
-        const col = car?.colour || {};
-        const sd = car?.seatsAndDoors || {};
-        const env = car?.energyAndEnvironment || {};
-        const euro = car?.euroStandard || {};
-        const loc = car?.location || {};
+    loadComparedCars();
+  }, []);
 
-        const imageSrc = getImageUrl((b.productImage || [])[0]);
-
-        const price = Number(b.OfferPrice ?? b.RegularPrice ?? 0) || 0;
-        const oldPrice = Number(b.RegularPrice ?? price) || 0;
-
-        return {
-          id: car?._id || "",
-          title: String(b.vehicleName || ""),
-          sportage: String(b.BodyType || ""),
-          brands: [
-            String(b.brand?.brand || b.brand || ""),
-            String(b.model?.model || b.model || ""),
-          ].filter(Boolean),
-          price,
-          oldPrice,
-          rating: 4.5,
-          reviews: 180,
-          location: [loc.address, loc.city, loc.country]
-            .filter(Boolean)
-            .join(", "),
-          basicInfo: {
-            name: String(b.vehicleName || ""),
-            model: String(b.model?.model || b.vehicleName || ""),
-            categories: String(b.BodyType || b.condition || ""),
-            brand: String(b.brand?.brand || b.brand || ""),
-            mfkWarranty: String(b.MfkWarranty || ""),
-            accidentVehicle: String(b.AccidentVehicle || ""),
-            bodyType: String(b.BodyType || ""),
-          },
-          technicalInfo: {
-            fuelType: String(t.fuelType || ""),
-            transmission: String(t.transmission || ""),
-            performance: String(t.performance || ""),
-            driveType: String(t.driveType || ""),
-            engineDisplacement: String(t.engineDisplacement || ""),
-            cylinders: String(t.cylinders || ""),
-            year: String(b.year || ""),
-          },
-          colorInfo: {
-            exteriorColour: (col.exterior || []).join(", "),
-            interiorColour: (col.interior || []).join(", "),
-          },
-          electricHybridInfo: {
-            range: String(eh.rangeKm || ""),
-            batteryCapacity: String(eh.batteryCapacityKWh || ""),
-            towingCapacity: String(eh.towingCapacity || ""),
-            totalWeight: String(eh.totalWeight || ""),
-            curbWeight: String(eh.curbWeight || ""),
-          },
-          equipment: {
-            abs: eq.ABS ? "Yes" : "No",
-            adaptiveHeadlights: eq.XenonLEDHeadlights ? "Yes" : "No",
-          },
-          extras: {
-            wellType: String(ex.tires || ""),
-            summerWinter: String(ex.season || ""),
-            handicapAccessible: String(ex.handicapAccessible || ""),
-            raceCar: String(ex.raceCar || ""),
-            tuning: String(ex.tuning || ""),
-          },
-          seatsAndDoors: {
-            seats: String(sd.seats || ""),
-            door: String(sd.doors || ""),
-          },
-          fuelConsumption: {
-            consumption: String(env.fuelConsumption || ""),
-            coEmissions: String(env.coEmissions || ""),
-            energyEfficiencyClass: String(env.energyEfficiencyClass || ""),
-          },
-          euroStandard: {
-            fuelType: String(euro.fuelType || ""),
-            transmission: String(euro.transmission || ""),
-          },
-          description: String(car.description || ""),
-          image: imageSrc,
-        } as CompareCarType;
-      });
-      setCompareCars(mapped);
-    }
-  }, [compareData]);
-
-  if (isLoading) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
-  const removeCar = async (id: string) => {
-    try {
-      const res = await removeCompare(id).unwrap();
-      if (res.success) {
-        toast.success(res.message || "Vehicle removed from comparison");
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.data?.message || "Failed to remove vehicle from comparison",
-      );
-    }
+  const removeCar = (id: string) => {
+    removeFromCompare(id);
+    toast.success("Vehicle removed from comparison");
+    loadComparedCars();
   };
 
   if (compareCars.length === 0) {

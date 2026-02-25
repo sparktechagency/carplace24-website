@@ -88,7 +88,7 @@ const PopularCars = ({
                 carCategory={car.basicInformation?.BodyType}
                 originalPrice={car.basicInformation?.RegularPrice}
                 discountedPrice={car.basicInformation?.OfferPrice}
-                isFavorite={car.isFavorite}
+                car={car}
               />
             </Link>
           ))}

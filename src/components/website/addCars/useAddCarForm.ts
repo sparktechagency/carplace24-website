@@ -103,16 +103,6 @@ export const useAddCarForm = () => {
 
   const [showSubWarning, setShowSubWarning] = useState(false);
 
-  useEffect(() => {
-    let t: any;
-    if (!userLoading && !isSubscribed) {
-      t = setTimeout(() => setShowSubWarning(true), 1500);
-    }
-    return () => {
-      if (t) clearTimeout(t);
-    };
-  }, [userLoading, isSubscribed]);
-
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -158,6 +148,12 @@ export const useAddCarForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isSubscribed) {
+      setShowSubWarning(true);
+      return;
+    }
+
     try {
       const fd = new FormData();
 

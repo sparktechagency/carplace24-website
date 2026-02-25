@@ -112,7 +112,7 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <h1 className="text-xs text-gray-500 mb-1">Brand & Model</h1>
+      <h1 className="text-xs text-gray-500 mb-1">Brand</h1>
       <div
         role="button"
         tabIndex={0}
