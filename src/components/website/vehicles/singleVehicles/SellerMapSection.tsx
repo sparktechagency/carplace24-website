@@ -40,10 +40,10 @@ const SellerMapSection = ({
   const [mapError, setMapError] = useState<string | null>(null);
 
   const initializeMap = () => {
-    console.log("Initializing map...");
-    console.log("mapRef.current:", mapRef.current);
-    console.log("window.google:", window.google);
-    console.log("API Key:", process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+    // console.log("Initializing map...");
+    // console.log("mapRef.current:", mapRef.current);
+    // console.log("window.google:", window.google);
+    // console.log("API Key:", process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
 
     if (!mapRef.current) {
       setMapError("Map container not found");
@@ -68,7 +68,7 @@ const SellerMapSection = ({
         fullscreenControl: true,
       });
 
-      console.log("Map created successfully:", map);
+      // console.log("Map created successfully:", map);
       googleMapRef.current = map;
 
       // Add seller marker
@@ -93,7 +93,7 @@ const SellerMapSection = ({
         },
       });
 
-      console.log("Markers created:", { sellerMarker, buyerMarker });
+      // console.log("Markers created:", { sellerMarker, buyerMarker });
 
       // Initialize directions service and renderer
       directionsServiceRef.current = new google.maps.DirectionsService();
@@ -142,7 +142,7 @@ const SellerMapSection = ({
   useEffect(() => {
     // Set up global callback for Google Maps
     (window as any).initGoogleMaps = () => {
-      console.log("Google Maps callback triggered");
+      // console.log("Google Maps callback triggered");
       setIsLoaded(true);
     };
 
@@ -163,7 +163,7 @@ const SellerMapSection = ({
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=geometry&callback=initGoogleMaps`}
         onLoad={() => {
-          console.log("Google Maps script loaded");
+          // console.log("Google Maps script loaded");
           // Don't set isLoaded here, let the callback handle it
         }}
         onError={(e) => {

@@ -188,7 +188,7 @@ const FilterSection = () => {
                 <ModelDropdown
                   brandId={brand}
                   value={model}
-                  onSelect={(modelName) => setModel(modelName)}
+                  onSelect={(modelId) => setModel(modelId)}
                 />
               </div>
               {/* Year free-entry selector */}
@@ -206,7 +206,7 @@ const FilterSection = () => {
                 />
               </div>
 
-              {filterOptions.map((filter, index) => (
+              {filterOptions?.map((filter, index) => (
                 <div
                   key={index}
                   className="lg:border-r lg:last:border-r-0 lg:pr-4 lg:last:pr-0"

@@ -10,6 +10,11 @@ interface Blog {
   createdAt?: string;
 }
 
+interface Banner {
+  _id: string;
+  image: string;
+}
+
 const blogApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getAllBlogs: builder.query<{ data: Blog[] }, void>({
@@ -31,7 +36,21 @@ const blogApi = api.injectEndpoints({
         };
       },
     }),
+
+    // Banner
+    getAllBanners: builder.query<{ data: Banner[] }, void>({
+      query: () => {
+        return {
+          method: "GET",
+          url: "/banner",
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetAllBlogsQuery, useGetBlogByIdQuery } = blogApi;
+export const {
+  useGetAllBlogsQuery,
+  useGetBlogByIdQuery,
+  useGetAllBannersQuery,
+} = blogApi;

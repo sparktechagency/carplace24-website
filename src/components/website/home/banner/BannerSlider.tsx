@@ -8,17 +8,21 @@ import "swiper/css/navigation";
 import "./styles.css";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
-import image1 from "@/assets/bannerSlider1.png";
-import image2 from "@/assets/bannerSlider2.png";
-import image3 from "@/assets/bannerSlider3.png";
-import image4 from "@/assets/bannerSlider4.png";
-import image5 from "@/assets/bannerSlider5.png";
 import Image from "next/image";
 import Container from "@/components/ui/container";
-
-const bannerImages = [image1, image2, image3, image4, image5];
+import { useGetAllBannersQuery } from "@/redux/apiSlice/blogSlice";
+import CarLoader from "@/components/ui/loader/CarLoader";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 const BannerSlider = () => {
+  const { data: bannerData, isLoading } = useGetAllBannersQuery();
+
+  if (isLoading) {
+    return <CarLoader />;
+  }
+
+  const bannerImages = bannerData?.data?.map((banner) => banner?.image);
+
   return (
     <div className="bg-[#F9FAFB] ">
       <Container>
@@ -35,11 +39,11 @@ const BannerSlider = () => {
           modules={[Autoplay, Pagination, Navigation]}
           className="mySwiper rounded-b-xl"
         >
-          {bannerImages.map((image, index) => (
+          {bannerImages?.map((image, index) => (
             <SwiperSlide key={index} className="rounded-b-xl">
               <div className="relative w-full md:h-[700px] h-[600px] rounded-b-xl">
                 <Image
-                  src={image}
+                  src={getImageUrl(image)}
                   alt={`Banner ${index}`}
                   width={75751920}
                   height={67571080}

@@ -13,8 +13,8 @@ interface Model {
 
 interface ModelDropdownProps {
   brandId: string;
-  onSelect: (modelName: string) => void;
-  value?: string; // Model name
+  onSelect: (modelId: string) => void;
+  value?: string; // Model ID
 }
 
 const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
@@ -33,6 +33,13 @@ const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
 
   const models: Model[] = modelsData?.data || [];
 
+  // Find the selected model name from the ID
+  const selectedModelName = useMemo(() => {
+    if (!value) return "";
+    const found = models.find((m) => m._id === value);
+    return found?.model || "";
+  }, [value, models]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -50,8 +57,8 @@ const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
     };
   }, []);
 
-  const handleModelSelect = (modelName: string) => {
-    onSelect(modelName);
+  const handleModelSelect = (modelId: string) => {
+    onSelect(modelId);
     setIsOpen(false);
   };
 
@@ -77,7 +84,8 @@ const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
         }`}
       >
         <span className={value ? "text-gray-900" : "text-gray-500"}>
-          {value || (brandId ? "Select model" : "Select brand first")}
+          {selectedModelName ||
+            (brandId ? "Select model" : "Select brand first")}
         </span>
         <div className="flex items-center gap-1">
           {value && (
@@ -137,11 +145,11 @@ const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
                     <div
                       key={model._id}
                       className={`px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer ${
-                        value === model.model
+                        value === model._id
                           ? "bg-primary/5 text-primary font-medium"
                           : ""
                       }`}
-                      onClick={() => handleModelSelect(model.model)}
+                      onClick={() => handleModelSelect(model._id)}
                     >
                       {model.model}
                     </div>

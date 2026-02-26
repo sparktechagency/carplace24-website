@@ -14,7 +14,7 @@ const MyCarsDetailsPage = ({ id }: { id: string }) => {
 
   const car = getCarDetails?.data;
 
-  console.log("single car", car);
+  // console.log("single car", car);
 
   // Data mapping logic from SingleVehiclesMain
   const images = (car?.basicInformation?.productImage || []).map(

@@ -68,7 +68,7 @@ const PopularCars = ({
   carsData: any;
   isLoading: boolean;
 }) => {
-  console.log("all cars", carsData);
+  // console.log("all cars", carsData);
 
   return (
     <section className="py-12 bg-gray-50 pt-40">

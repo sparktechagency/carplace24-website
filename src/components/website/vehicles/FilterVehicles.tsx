@@ -154,7 +154,7 @@ const FilterVehicles = ({
             <ModelDropdown
               brandId={filters.brand}
               value={filters.model}
-              onSelect={(modelName) => setFilter("model", modelName)}
+              onSelect={(modelId) => setFilter("model", modelId)}
             />
 
             {/* Body Type */}
@@ -232,7 +232,7 @@ const FilterVehicles = ({
                 <ModelDropdown
                   brandId={filters.brand}
                   value={filters.model}
-                  onSelect={(modelName) => setFilter("model", modelName)}
+                  onSelect={(modelId) => setFilter("model", modelId)}
                 />
               </div>
               <div className="flex-1 px-4">

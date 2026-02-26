@@ -70,11 +70,17 @@ const Footer = () => {
               </Link>
             </div>
             <div className="space-y-4">
-              <Link href="/terms" className="block hover:text-blue-400">
+              <Link
+                href="/terms-and-conditions"
+                className="block hover:text-blue-400"
+              >
                 Terms & Conditions
               </Link>
-              <Link href="/policy" className="block hover:text-blue-400">
-                Policy
+              <Link
+                href="/privacy-policy"
+                className="block hover:text-blue-400"
+              >
+                Privacy Policy
               </Link>
               <Link href="/faq" className="block hover:text-blue-400">
                 FAQ
