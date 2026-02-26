@@ -123,16 +123,16 @@ const BlogDetailsPage = ({ id }: { id: string }) => {
       <div>
         <h2 className="text-2xl font-semibold mb-6">Related Posts</h2>
         <div className="grid md:grid-cols-3 gap-6">
-          {related.map((post) => {
-            const img = getImageUrl(post.image);
+          {related?.map((post) => {
+            const img = getImageUrl(post?.image);
             return (
               <div
-                key={post._id}
+                key={post?._id}
                 className="border rounded-xl overflow-hidden hover:shadow-md transition"
               >
                 <Image
                   src={img}
-                  alt={post.title}
+                  alt={post?.title}
                   width={400}
                   height={300}
                   className="w-full h-48 object-cover"
@@ -140,15 +140,15 @@ const BlogDetailsPage = ({ id }: { id: string }) => {
                 <div className="p-4">
                   <div className="flex items-center gap-3 text-sm text-gray-500 mb-2">
                     <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-                      {post.type}
+                      {post?.type}
                     </span>
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {post.description}
+                  <h3 className="font-semibold text-lg mb-2">{post?.title}</h3>
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {post?.description}
                   </p>
                   <a
-                    href={`/blogs/${post._id}`}
+                    href={`/blogs/${post?._id}`}
                     className="text-blue-600 text-sm font-medium hover:underline"
                   >
                     Read More →

@@ -1,9 +1,10 @@
 import DealerDetailsMain from "@/components/website/dealers/DealerDetailes/DealerDetailsMain";
 
-const page = ({ params }: { params: { id: string } }) => {
+const page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   return (
     <div>
-      <DealerDetailsMain id={params.id} />
+      <DealerDetailsMain id={id} />
     </div>
   );
 };
