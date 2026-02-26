@@ -9,6 +9,8 @@ import {
   Dialog,
   DialogContent,
   DialogOverlay,
+  DialogHeader,
+  DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
 import {
@@ -188,7 +190,8 @@ const TestDrive = () => {
                             ?.productImage?.[0] && (
                             <Image
                               src={getImageUrl(
-                                reservation.car.basicInformation.productImage[0]
+                                reservation.car.basicInformation
+                                  .productImage[0],
                               )}
                               alt={
                                 reservation.car.basicInformation?.vehicleName ||
@@ -219,7 +222,7 @@ const TestDrive = () => {
                       <td className="px-3 py-2">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(
-                            reservation.status
+                            reservation.status,
                           )}`}
                         >
                           {reservation.status}
@@ -234,7 +237,7 @@ const TestDrive = () => {
                         </button>
                       </td>
                     </tr>
-                  )
+                  ),
                 )}
               </tbody>
             </table>
@@ -269,7 +272,7 @@ const TestDrive = () => {
                     >
                       {page}
                     </button>
-                  )
+                  ),
                 )}
                 <button
                   onClick={() => goToPage(currentPage + 1)}
@@ -295,9 +298,11 @@ const TestDrive = () => {
 
             {selectedReservation && (
               <div className="p-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                  Test Drive Request Details
-                </h2>
+                <DialogHeader>
+                  <DialogTitle className="text-lg font-semibold text-gray-800 mb-4">
+                    Test Drive Request Details
+                  </DialogTitle>
+                </DialogHeader>
 
                 {/* Customer Info */}
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg">
@@ -345,7 +350,7 @@ const TestDrive = () => {
                       <Image
                         src={getImageUrl(
                           selectedReservation.car.basicInformation
-                            .productImage[0]
+                            .productImage[0],
                         )}
                         alt={
                           selectedReservation.car.basicInformation
@@ -400,7 +405,7 @@ const TestDrive = () => {
                       <p className="text-gray-500">Status</p>
                       <span
                         className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(
-                          selectedReservation.status
+                          selectedReservation.status,
                         )}`}
                       >
                         {selectedReservation.status}

@@ -50,7 +50,7 @@ const VehicleDetailsTabs = ({ details }: { details?: Details }) => {
             }
             onClick={() => setActiveTab("reviews")}
           >
-            Sellers Review
+            Review
           </button>
         </div>
 

@@ -17,6 +17,25 @@ export default function LanguageSelector() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Sync with Google Translate cookie on mount
+    const getLangFromCookie = () => {
+      const cookies = document.cookie.split("; ");
+      const configCookie = cookies.find((c) => c.startsWith("googtrans="));
+      if (configCookie) {
+        const parts = configCookie.split("=");
+        if (parts.length > 1) {
+          const val = parts[1]; // e.g. /en/de
+          const lang = val.split("/").pop();
+          if (lang && ["en", "de", "fr", "it"].includes(lang)) {
+            return lang;
+          }
+        }
+      }
+      return "en";
+    };
+
+    setCurrentLang(getLangFromCookie());
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -68,7 +87,7 @@ export default function LanguageSelector() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-60 py-2 overflow-hidden"
+            className="absolute left-0 md:left-auto md:right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-60 py-2 overflow-hidden"
           >
             <div className="px-3 py-2 border-b border-gray-100 mb-1">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">

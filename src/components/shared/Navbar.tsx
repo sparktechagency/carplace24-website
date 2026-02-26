@@ -388,18 +388,13 @@ export default function Navbar() {
               </div>
 
               <div className="flex-1 py-4 px-2">
-                <div className="px-4 mb-6">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                    Language
-                  </h3>
-                  <div className="bg-gray-50 p-2 rounded-lg inline-block">
-                    <LanguageSelector />
-                  </div>
-                </div>
-
-                <nav className="flex flex-col space-y-1">
+                <nav className="flex flex-col space-y-2 px-4 py-2">
                   {navItems.map((item) => (
-                    <div key={item.href} onClick={() => setIsMenuOpen(false)}>
+                    <div
+                      key={item.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="w-full"
+                    >
                       <NavItem
                         href={item.href}
                         label={item.label}
@@ -408,6 +403,15 @@ export default function Navbar() {
                     </div>
                   ))}
                 </nav>
+
+                <div className="mt-6 px-4 mb-8">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Language
+                  </h3>
+                  <div className="bg-gray-50 p-1 rounded-lg flex w-full">
+                    <LanguageSelector />
+                  </div>
+                </div>
 
                 <div className="mt-6 px-4">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">

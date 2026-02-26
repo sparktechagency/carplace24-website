@@ -5,6 +5,9 @@ import {
   Dialog,
   DialogContent,
   DialogOverlay,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
 import { X, Calendar, Loader2 } from "lucide-react";
@@ -88,7 +91,7 @@ const TestDriveModal = ({
     } catch (error: any) {
       console.error("Test drive error:", error);
       toast.error(
-        error?.data?.message || "Failed to book test drive. Please try again."
+        error?.data?.message || "Failed to book test drive. Please try again.",
       );
     }
   };
@@ -103,11 +106,15 @@ const TestDriveModal = ({
           </DialogClose>
 
           <div className="p-6">
-            <h2 className="text-2xl font-medium text-gray-800">Test Drive</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Book a test drive for{" "}
-              <span className="font-medium">{carName}</span>
-            </p>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-medium text-gray-800">
+                Test Drive
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-500 mt-1">
+                Book a test drive for{" "}
+                <span className="font-medium">{carName}</span>
+              </DialogDescription>
+            </DialogHeader>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
