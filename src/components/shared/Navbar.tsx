@@ -19,6 +19,7 @@ import {
 } from "@/lib/vehicleStorage";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import LanguageSelector from "./LanguageSelector";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -191,6 +192,7 @@ export default function Navbar() {
         {/* User Actions */}
         <div className="hidden md:flex items-center space-x-4">
           <div className="flex items-center space-x-2">
+            <LanguageSelector />
             <Link href={"/compare"}>
               <Button
                 variant="ghost"
@@ -386,6 +388,15 @@ export default function Navbar() {
               </div>
 
               <div className="flex-1 py-4 px-2">
+                <div className="px-4 mb-6">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Language
+                  </h3>
+                  <div className="bg-gray-50 p-2 rounded-lg inline-block">
+                    <LanguageSelector />
+                  </div>
+                </div>
+
                 <nav className="flex flex-col space-y-1">
                   {navItems.map((item) => (
                     <div key={item.href} onClick={() => setIsMenuOpen(false)}>

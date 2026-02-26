@@ -3,11 +3,13 @@
 import Container from "@/components/ui/container";
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import { Info } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // TypeScript declarations for Google Maps API
 declare global {
   interface Window {
-    google: typeof google;
+    google?: any;
     initGoogleMaps: () => void;
   }
 }
@@ -25,8 +27,10 @@ const SellerMapSection = ({
   buyer,
   height = 580,
 }: SellerMapSectionProps) => {
-  const hasValidCoords =
-    seller.lat !== 0 && seller.lng !== 0 && buyer.lat !== 0 && buyer.lng !== 0;
+  const isSellerValid = seller.lat !== 0 && seller.lng !== 0;
+  const isBuyerValid = buyer.lat !== 0 && buyer.lng !== 0;
+  const hasValidCoords = isSellerValid && isBuyerValid;
+
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(
@@ -82,6 +86,25 @@ const SellerMapSection = ({
         },
       });
 
+      // Seller InfoWindow (Compact Badge)
+      const sellerInfoWindow = new google.maps.InfoWindow({
+        content: `<div style="padding: 4px 10px; font-weight: 700; font-size: 11px; color: white; background: #B91C1C; border-radius: 6px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); display: flex; items-center: center; gap: 6px;">
+          <span>Seller</span>
+          <span id="close-seller-badge" style="font-weight: 400; opacity: 0.8; margin-left: 4px; font-size: 10px; cursor: pointer; padding: 1px;">✕</span>
+        </div>`,
+        disableAutoPan: true,
+        pixelOffset: new google.maps.Size(0, 15),
+      });
+
+      google.maps.event.addListener(sellerInfoWindow, "domready", () => {
+        const closeBtn = document.getElementById("close-seller-badge");
+        if (closeBtn) {
+          closeBtn.onclick = () => sellerInfoWindow.close();
+        }
+      });
+
+      sellerInfoWindow.open(map, sellerMarker);
+
       // Add buyer marker
       const buyerMarker = new google.maps.Marker({
         position: buyer,
@@ -92,6 +115,25 @@ const SellerMapSection = ({
           scaledSize: new google.maps.Size(32, 32),
         },
       });
+
+      // Buyer InfoWindow (Compact Badge)
+      const buyerInfoWindow = new google.maps.InfoWindow({
+        content: `<div style="padding: 4px 10px; font-weight: 700; font-size: 11px; color: white; background: #1D4ED8; border-radius: 6px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); display: flex; items-center: center; gap: 6px;">
+          <span>You (Buyer)</span>
+          <span id="close-buyer-badge" style="font-weight: 400; opacity: 0.8; margin-left: 4px; font-size: 10px; cursor: pointer; padding: 1px;">✕</span>
+        </div>`,
+        disableAutoPan: true,
+        pixelOffset: new google.maps.Size(0, 15),
+      });
+
+      google.maps.event.addListener(buyerInfoWindow, "domready", () => {
+        const closeBtn = document.getElementById("close-buyer-badge");
+        if (closeBtn) {
+          closeBtn.onclick = () => buyerInfoWindow.close();
+        }
+      });
+
+      buyerInfoWindow.open(map, buyerMarker);
 
       // console.log("Markers created:", { sellerMarker, buyerMarker });
 
@@ -173,6 +215,28 @@ const SellerMapSection = ({
       />
       <div className="my-6">
         <Container>
+          <style>{`
+            .gm-style-iw-c {
+              background: transparent !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              max-height: none !important;
+            }
+            .gm-style-iw-t::after {
+              display: none !important;
+            }
+            .gm-style-iw-d {
+              overflow: visible !important;
+              padding: 5px !important;
+            }
+            .gm-ui-hover-svc,
+            .gm-ui-hover-effect {
+              display: none !important;
+            }
+            .gm-style-iw-tc {
+              display: none !important;
+            }
+          `}</style>
           <div
             ref={mapRef}
             style={{ height: `${height}px`, width: "100%", minHeight: "400px" }}
@@ -194,8 +258,49 @@ const SellerMapSection = ({
             </div>
           )}
           {!hasValidCoords && (
-            <div className="text-sm text-muted-foreground mt-2 p-2 bg-yellow-50 rounded">
-              Location coordinates are not available for the seller or buyer.
+            <div className="mt-4 flex flex-col items-center justify-center p-6 bg-white border border-gray-100 rounded-xl shadow-sm">
+              <div className="relative group cursor-help">
+                <div className="flex items-center space-x-2 text-primary bg-primary/5 px-4 py-2 rounded-full transition-all duration-300 hover:bg-primary/10">
+                  <Info className="w-5 h-5" />
+                  <span className="text-sm font-semibold">
+                    Location Information
+                  </span>
+                </div>
+
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-80 p-4 bg-gray-900 text-white text-xs rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 shadow-xl z-10">
+                  <div className="space-y-2">
+                    {!isBuyerValid && !isSellerValid ? (
+                      <p className="leading-relaxed">
+                        Both you and the seller need to set your base locations
+                        in your profiles to view the route and distance.
+                      </p>
+                    ) : !isBuyerValid ? (
+                      <p className="leading-relaxed">
+                        You haven&apos;t set your location in your profile.
+                        Please set a valid location to see the route to the
+                        seller.
+                      </p>
+                    ) : (
+                      <p className="leading-relaxed">
+                        The seller hasn&apos;t set their location yet. We
+                        can&apos;t calculate a route until they provide their
+                        coordinates.
+                      </p>
+                    )}
+
+                    <p className="text-gray-400 font-medium pt-1 border-t border-gray-800">
+                      Pro Tip: Please login and visit your profile page to set
+                      your location on the map.
+                    </p>
+                  </div>
+                  {/* Tooltip Arrow */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-900" />
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-gray-500 text-center max-w-xs">
+                Missing coordinates for route calculation.
+              </p>
             </div>
           )}
         </Container>

@@ -1,5 +1,6 @@
 "use client";
 
+import GoogleTranslate from "@/components/ui/GoogleTranslate";
 import { store } from "@/redux/store";
 import { ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
@@ -12,6 +13,7 @@ const CustomProvider = ({ children }: { children: ReactNode }) => {
         <Toaster />
         {children}
       </Provider>
+      <GoogleTranslate />
     </div>
   );
 };

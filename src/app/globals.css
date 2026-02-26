@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Poppins', sans-serif;
+  --font-sans: "Poppins", sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -52,7 +52,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #156CDB; /* Blue color */
+  --primary: #156cdb; /* Blue color */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.65 0.15 30); /* Orange color */
   --secondary-foreground: oklch(0.985 0 0);
@@ -161,4 +161,84 @@
   background: #374151;
   border: 2px solid #ffffff;
   border-radius: 9999px;
+}
+
+/* Hide the Google Translate banner */
+
+.antialiased {
+  position: inherit !important;
+}
+
+/* Hide the Google Translate toolbar but keep functionality */
+.goog-te-gadget {
+  display: none !important;
+}
+
+/* Hide the Google Translate banner */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+/* Remove pop-up preview */
+.goog-te-balloon-frame {
+  display: none !important;
+}
+
+/* Hide the floating dropdown */
+.goog-te-menu-frame {
+  display: none !important;
+}
+
+/* Hide Google Translate Top Bar */
+.skiptranslate {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf.VIpgJd-ZVi9od-aZ2wEe-wOHMyf-ti6hGc {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-aZ2wEe {
+  display: none !important;
+}
+
+/* Ensure Google Translate doesn't interfere with layout */
+body {
+  top: 0 !important;
+}
+
+/* Fix for Google Translate affecting body positioning */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+/* Hide the Google Translate combo box but keep it functional */
+.goog-te-combo {
+  display: none !important;
+}
+
+/* Hide all Google Translate UI elements */
+#google_translate_element {
+  display: none !important;
+}
+
+/* Prevent Google Translate from affecting page layout */
+body.translated-ltr {
+  top: 0 !important;
+}
+
+body.translated-rtl {
+  top: 0 !important;
+}
+/* Prevent Google Translate from adding highlights on hover */
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
 }
