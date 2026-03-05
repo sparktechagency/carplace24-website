@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Container from "@/components/ui/container";
 import CarCard from "@/components/website/home/carsWithFilter/CarCard";
 import {
@@ -27,6 +27,7 @@ const FilteredCarList = ({
 }: FilteredCarListProps) => {
   const ITEMS_PER_PAGE = 12;
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("price_asc");
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -44,11 +45,70 @@ const FilteredCarList = ({
 
   const carsData = carsResponse?.data || [];
 
-  const totalItems = carsData.length;
+  // Sort the cars based on selected sort option
+  const sortedCars = useMemo(() => {
+    if (!sortBy) return carsData;
+    const sorted = [...carsData];
+    sorted.sort((a: any, b: any) => {
+      switch (sortBy) {
+        case "price_asc": {
+          const priceA = Number(
+            a.basicInformation?.OfferPrice ||
+              a.basicInformation?.RegularPrice ||
+              0,
+          );
+          const priceB = Number(
+            b.basicInformation?.OfferPrice ||
+              b.basicInformation?.RegularPrice ||
+              0,
+          );
+          return priceA - priceB;
+        }
+        case "price_desc": {
+          const priceA = Number(
+            a.basicInformation?.OfferPrice ||
+              a.basicInformation?.RegularPrice ||
+              0,
+          );
+          const priceB = Number(
+            b.basicInformation?.OfferPrice ||
+              b.basicInformation?.RegularPrice ||
+              0,
+          );
+          return priceB - priceA;
+        }
+        case "km_asc":
+          return (
+            Number(a.basicInformation?.miles || 0) -
+            Number(b.basicInformation?.miles || 0)
+          );
+        case "km_desc":
+          return (
+            Number(b.basicInformation?.miles || 0) -
+            Number(a.basicInformation?.miles || 0)
+          );
+        case "year_asc":
+          return (
+            Number(a.basicInformation?.year || 0) -
+            Number(b.basicInformation?.year || 0)
+          );
+        case "year_desc":
+          return (
+            Number(b.basicInformation?.year || 0) -
+            Number(a.basicInformation?.year || 0)
+          );
+        default:
+          return 0;
+      }
+    });
+    return sorted;
+  }, [carsData, sortBy]);
+
+  const totalItems = sortedCars.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const pageItems = carsData.slice(startIndex, endIndex);
+  const pageItems = sortedCars.slice(startIndex, endIndex);
 
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -61,15 +121,32 @@ const FilteredCarList = ({
   return (
     <section className="py-20 bg-gray-50">
       <Container>
-        {/* Results count and loading indicator */}
-        <div className="mb-6 flex items-center justify-between">
-          <p className="text-gray-600">
-            {totalItems} {totalItems === 1 ? "vehicle" : "vehicles"} found
-            {hasActiveFilters && " (filtered)"}
-          </p>
-          {isFetching && (
-            <span className="text-sm text-gray-500">Updating...</span>
-          )}
+        {/* Results count, sort dropdown, and loading indicator */}
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-4">
+            <p className="text-gray-600">
+              {totalItems} {totalItems === 1 ? "vehicle" : "vehicles"} found
+              {hasActiveFilters && " (filtered)"}
+            </p>
+            {isFetching && (
+              <span className="text-sm text-gray-500">Updating...</span>
+            )}
+          </div>
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+          >
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="km_asc">Kilometers: Low to High</option>
+            <option value="km_desc">Kilometers: High to Low</option>
+            <option value="year_asc">Year: Older to Newer</option>
+            <option value="year_desc">Year: Newer to Older</option>
+          </select>
         </div>
 
         {totalItems === 0 ? (
