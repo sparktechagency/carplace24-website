@@ -41,8 +41,6 @@ const FilteredCarList = ({
     isFetching,
   } = useGetFilteredCarsQuery(apiParams);
 
-  if (isLoading) return <CarLoader />;
-
   const carsData = carsResponse?.data || [];
 
   // Sort the cars based on selected sort option
@@ -117,6 +115,8 @@ const FilteredCarList = ({
 
   const prevPage = () => goToPage(currentPage - 1);
   const nextPage = () => goToPage(currentPage + 1);
+
+  if (isLoading) return <CarLoader />;
 
   return (
     <section className="py-20 bg-gray-50">
