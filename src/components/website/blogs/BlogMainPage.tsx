@@ -56,7 +56,7 @@ const BlogMainPage = () => {
         <h1 className="text-4xl font-bold mb-4">Our Blog</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Stay updated with the latest news, tips, and insights about the
-          automotive industry
+          automotive industry.
         </p>
       </div>
 
