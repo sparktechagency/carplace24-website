@@ -64,9 +64,14 @@ const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
 
   // Filter models based on search term
   const filteredModels = useMemo(() => {
-    if (!searchTerm) return models;
-    return models.filter((model) =>
-      model.model.toLowerCase().includes(searchTerm.toLowerCase()),
+    let result = [...models];
+    if (searchTerm) {
+      result = result.filter((model) =>
+        model.model.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    }
+    return result.sort((a, b) =>
+      String(a.model).localeCompare(String(b.model)),
     );
   }, [models, searchTerm]);
 
@@ -84,8 +89,7 @@ const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
         }`}
       >
         <span className={value ? "text-gray-900" : "text-gray-500"}>
-          {selectedModelName ||
-            (brandId ? "Select model" : "Select brand first")}
+          {selectedModelName || (brandId ? "Select model" : "Brand first")}
         </span>
         <div className="flex items-center gap-1">
           {value && (
@@ -143,6 +147,7 @@ const ModelDropdown = ({ brandId, onSelect, value }: ModelDropdownProps) => {
                 <div className="py-1">
                   {filteredModels.map((model) => (
                     <div
+                      translate="no"
                       key={model._id}
                       className={`px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer ${
                         value === model._id

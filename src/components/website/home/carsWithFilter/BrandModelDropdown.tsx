@@ -94,7 +94,7 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
   const allBrands = Object.entries(organizedBrands)
     .map(([letter, brandsInGroup]) => ({
       letter,
-      brands: brandsInGroup,
+      brands: brandsInGroup.sort((a, b) => a.brand.localeCompare(b.brand)),
     }))
     .sort((a, b) => a.letter.localeCompare(b.letter));
 
@@ -225,6 +225,7 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
               <div className="flex flex-wrap gap-2">
                 {recentSearches.map((recent) => (
                   <div
+                    translate="no"
                     key={recent.id}
                     className="px-4 py-2 bg-gray-100 rounded-full text-sm cursor-pointer hover:bg-gray-200"
                     onClick={() => handleBrandSelect(recent.id, recent.name)}
@@ -247,6 +248,7 @@ const BrandModelDropdown = ({ onSelect, value }: BrandModelDropdownProps) => {
                   ?.flatMap((group) => group.brands)
                   .map((brand) => (
                     <div
+                      translate="no"
                       key={brand._id}
                       className={`flex items-center justify-between p-2 hover:bg-gray-50 cursor-pointer rounded ${
                         value === brand._id ? "bg-primary/5" : ""

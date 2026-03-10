@@ -54,6 +54,21 @@ export default function GoogleTranslate() {
 
   // Initialize Google Translate
   useEffect(() => {
+    // Force default language to German if no translation cookie exists yet
+    if (
+      typeof document !== "undefined" &&
+      !document.cookie.includes("googtrans=")
+    ) {
+      const domain = window.location.hostname.split(".").slice(-2).join(".");
+      const date = new Date();
+      date.setFullYear(date.getFullYear() + 1);
+      const expires = date.toUTCString();
+      document.cookie = `googtrans=/en/de; expires=${expires}; path=/; SameSite=Lax`;
+      if (domain.includes(".")) {
+        document.cookie = `googtrans=/en/de; expires=${expires}; path=/; domain=.${domain}; SameSite=Lax`;
+      }
+    }
+
     // Create container if needed
     let container = document.getElementById("google-translate-container");
     if (!container) {

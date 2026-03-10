@@ -15,7 +15,7 @@ type Props = {
 const PrimarySelectors = ({ values, onChange, options }: Props) => {
   // Fetch brands from API
   const { data: brandsData, isLoading: brandsLoading } = useGetAllBrandsQuery(
-    {}
+    {},
   );
 
   // Fetch models based on selected brand
@@ -26,10 +26,12 @@ const PrimarySelectors = ({ values, onChange, options }: Props) => {
   const brandOptions = brandsData?.data
     ? [
         { value: "", label: "Select Brand" },
-        ...brandsData.data.map((brand: any) => ({
-          value: brand._id,
-          label: brand.brand,
-        })),
+        ...[...brandsData.data]
+          .sort((a, b) => String(a.brand).localeCompare(String(b.brand)))
+          .map((brand: any) => ({
+            value: brand._id,
+            label: brand.brand,
+          })),
       ]
     : [{ value: "", label: brandsLoading ? "Loading..." : "Select Brand" }];
 
@@ -37,10 +39,12 @@ const PrimarySelectors = ({ values, onChange, options }: Props) => {
   const modelOptions = modelsData?.data
     ? [
         { value: "", label: "Select Model" },
-        ...modelsData.data.map((model: any) => ({
-          value: model._id,
-          label: model.model,
-        })),
+        ...[...modelsData.data]
+          .sort((a, b) => String(a.model).localeCompare(String(b.model)))
+          .map((model: any) => ({
+            value: model._id,
+            label: model.model,
+          })),
       ]
     : [
         {
